@@ -20,6 +20,8 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature', 'Browser');
 
+pest()->tia()->locally();
+
 /*
 |--------------------------------------------------------------------------
 | Expectations
