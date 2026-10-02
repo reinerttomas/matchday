@@ -33,7 +33,7 @@ final class AppServiceProvider extends ServiceProvider
     /**
      * Configure default behaviors for production-ready applications.
      */
-    protected function configureDefaults(): void
+    private function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
 
@@ -55,7 +55,7 @@ final class AppServiceProvider extends ServiceProvider
     /**
      * Laravel Herd serves the app locally.
      */
-    protected function configureDevCommands(): void
+    private function configureDevCommands(): void
     {
         DevCommands::except('server');
     }
