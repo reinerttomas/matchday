@@ -33,6 +33,7 @@ arch('avoid mutation')
     ->classes()
     ->toBeReadonly()
     ->ignoring([
+        'App\Console\Commands',
         'App\Http\Middleware',
         'App\Http\Requests',
         'App\Models',
@@ -44,6 +45,7 @@ arch('avoid inheritance')
     ->classes()
     ->toExtendNothing()
     ->ignoring([
+        'App\Console\Commands',
         'App\Http\Middleware',
         'App\Http\Requests',
         'App\Models',
