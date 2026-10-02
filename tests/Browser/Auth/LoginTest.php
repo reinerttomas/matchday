@@ -13,6 +13,7 @@ test('users can log in from the welcome page', function () {
         ->assertSee('Log in to your account')
         ->fill('email', $user->email)
         ->fill('password', 'password')
+        ->assertSeeIn('@login-button', 'Login')
         ->click('@login-button')
         ->assertPathIs('/dashboard')
         ->assertSee('Dashboard')

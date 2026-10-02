@@ -2,26 +2,18 @@
 
 declare(strict_types=1);
 
-use Laravel\Fortify\Features;
+use App\Models\User;
 
-beforeEach(function () {
-    $this->skipUnlessFortifyHas(Features::registration());
-});
+test('public registration is disabled', function () {
+    $this->get('/register')->assertNotFound();
 
-test('registration screen can be rendered', function () {
-    $response = $this->get(route('register'));
-
-    $response->assertOk();
-});
-
-test('new users can register', function () {
-    $response = $this->post(route('register.store'), [
+    $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
-    ]);
+    ])->assertNotFound();
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $this->assertGuest();
+    expect(User::query()->count())->toBe(0);
 });

@@ -59,4 +59,14 @@ final class UserFactory extends Factory
             'two_factor_confirmed_at' => now(),
         ]);
     }
+
+    /**
+     * Indicate that the model is linked to a Google account.
+     */
+    public function withGoogle(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'google_id' => (string) fake()->unique()->randomNumber(9, strict: true),
+        ]);
+    }
 }

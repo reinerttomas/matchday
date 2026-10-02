@@ -1,5 +1,8 @@
 import { Form, Head } from '@inertiajs/react';
+import AuthSeparator from '@/components/auth-separator';
+import GoogleLoginButton from '@/components/google-login-button';
 import InputError from '@/components/input-error';
+import PasskeyVerify from '@/components/passkey-verify';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -7,10 +10,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
-import PasskeyVerify from '@/components/passkey-verify';
 
 type Props = {
     status?: string;
@@ -22,7 +23,15 @@ export default function Login({ status, canResetPassword }: Props) {
         <>
             <Head title="Log in" />
 
-            <PasskeyVerify />
+            <div className="grid gap-2">
+                <GoogleLoginButton />
+                <PasskeyVerify
+                    label="Login with passkey"
+                    showSeparator={false}
+                />
+            </div>
+
+            <AuthSeparator />
 
             <Form
                 {...store.form()}
@@ -88,15 +97,8 @@ export default function Login({ status, canResetPassword }: Props) {
                                 data-test="login-button"
                             >
                                 {processing && <Spinner />}
-                                Log in
+                                Login
                             </Button>
-                        </div>
-
-                        <div className="text-center text-sm text-muted-foreground">
-                            Don't have an account?{' '}
-                            <TextLink href={register()} tabIndex={5}>
-                                Sign up
-                            </TextLink>
                         </div>
                     </>
                 )}
