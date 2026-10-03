@@ -38,7 +38,6 @@
                 "destruct",
                 "magic",
                 "phpunit",
-                "method:casts",
                 "method_abstract",
                 "method_public_static",
                 "method_public",
