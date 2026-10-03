@@ -6,9 +6,11 @@ namespace App\Models;
 
 use Database\Factories\TeamSeasonFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -24,6 +26,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Team $team
  * @property-read Season $season
+ * @property-read Collection<int, Fixture> $fixtures
  */
 #[Fillable(['team_id', 'season_id', 'external_id', 'source_url', 'name', 'competition_name', 'auto_import_enabled'])]
 final class TeamSeason extends Model
@@ -49,6 +52,16 @@ final class TeamSeason extends Model
     public function season(): BelongsTo
     {
         return $this->belongsTo(Season::class);
+    }
+
+    /**
+     * Get the fixtures in the team season's fixture list.
+     *
+     * @return HasMany<Fixture, $this>
+     */
+    public function fixtures(): HasMany
+    {
+        return $this->hasMany(Fixture::class);
     }
 
     /**

@@ -4,10 +4,10 @@
 
 **Blocked by:** 01 — Seasons, teams and team seasons schema
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `venues` table: external_id (federation arena ID, unique), name (not unique), address (nullable), timestamps.
-- [ ] `fixtures` table:
+- [x] `venues` table: external_id (federation arena ID, unique), name (not unique), address (nullable), timestamps.
+- [x] `fixtures` table:
     - team season (FK),
     - external_id: federation match ID,
     - round (nullable),
@@ -22,13 +22,13 @@
     - timestamps,
     - unique(team season, external_id),
     - index on (team season, date).
-- [ ] A backed fixture status enum with the cases scheduled, postponed, finished and cancelled, cast on the model.
-- [ ] Models Venue and Fixture:
+- [x] A backed fixture status enum with the cases scheduled, postponed, finished and cancelled, cast on the model.
+- [x] Models Venue and Fixture:
     - relationships: a fixture belongs to a team season and to a venue (optional), a team season has many fixtures, a venue has many fixtures,
     - casts for date, booleans and the status enum.
-- [ ] Factories:
-    - Venue, with states for "with address" and "without address",
+- [x] Factories:
+    - Venue (with an address by default), with a state for "without address",
     - Fixture, with states for TBD time, finished (with a score), postponed, cancelled, rescheduled, home and away.
-- [ ] Tests verify that the unique constraints reject a duplicate federation arena ID and a duplicate (team season, federation match ID) pair, and that the same federation match ID is allowed in two different team seasons (ADR-0002).
-- [ ] `migrate:fresh` works on SQLite; migrations have no `down()` method (forward-only).
-- [ ] `composer ci:check` passes.
+- [x] Tests verify that the unique constraints reject a duplicate federation arena ID and a duplicate (team season, federation match ID) pair, and that the same federation match ID is allowed in two different team seasons (ADR-0002).
+- [x] `migrate:fresh` works on SQLite; migrations have no `down()` method (forward-only).
+- [x] `composer ci:check` passes.
