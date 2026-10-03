@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property-read Team $team
  * @property-read Season $season
  * @property-read Collection<int, Fixture> $fixtures
+ * @property-read Collection<int, Import> $imports
  */
 #[Fillable(['team_id', 'season_id', 'external_id', 'source_url', 'name', 'competition_name', 'auto_import_enabled'])]
 final class TeamSeason extends Model
@@ -62,6 +63,16 @@ final class TeamSeason extends Model
     public function fixtures(): HasMany
     {
         return $this->hasMany(Fixture::class);
+    }
+
+    /**
+     * Get the imports of the team season's fixture list.
+     *
+     * @return HasMany<Import, $this>
+     */
+    public function imports(): HasMany
+    {
+        return $this->hasMany(Import::class);
     }
 
     /**

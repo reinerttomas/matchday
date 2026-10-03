@@ -4,9 +4,9 @@
 
 **Blocked by:** 02 — Venues and fixtures schema
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `imports` table:
+- [x] `imports` table:
     - team season (FK),
     - trigger, status,
     - started_at, finished_at (nullable),
@@ -14,20 +14,20 @@
     - error (nullable text),
     - notified_at (nullable).
     - There is no stored revision count.
-- [ ] `revisions` table:
+- [x] `revisions` table:
     - fixture (FK), import (FK),
     - field: nullable, null = fixture added,
     - old_value and new_value (nullable strings),
     - created_at.
-- [ ] Backed enums, cast on the models:
+- [x] Backed enums, cast on the models:
     - import trigger: schedule, manual,
     - import status: running, ok, error, aborted,
     - revision field: date, time, venue, status, is_rescheduled, home_score, away_score.
-- [ ] Models Import and Revision:
+- [x] Models Import and Revision:
     - relationships: a team season has many imports, an import has many revisions, a fixture has many revisions, a revision belongs to a fixture and to an import,
     - casts for the timestamps and enums.
-- [ ] Factories:
-    - Import, with states for running, ok, error (with a reason), aborted (with a reason), manual trigger and notified,
+- [x] Factories:
+    - Import (ok by default), with states for running, error (with a reason), aborted (with a reason), manual trigger and notified,
     - Revision, with a state for a field change (old → new value) and a state for "fixture added".
-- [ ] `migrate:fresh` works on SQLite; migrations have no `down()` method (forward-only).
-- [ ] `composer ci:check` passes.
+- [x] `migrate:fresh` works on SQLite; migrations have no `down()` method (forward-only).
+- [x] `composer ci:check` passes.
