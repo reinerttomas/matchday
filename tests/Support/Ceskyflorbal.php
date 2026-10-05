@@ -57,6 +57,19 @@ final class Ceskyflorbal
     }
 
     /**
+     * The live fixture list page of FBC Kutná Hora B in 2026/27 without the row of one fixture, as if the federation removed it.
+     */
+    public static function fixtureListSnapshotWithout(int $externalId): string
+    {
+        $rows = explode('<div class="Match">', self::fixtureListSnapshot());
+
+        return implode('<div class="Match">', array_filter(
+            $rows,
+            fn (string $row): bool => ! str_contains($row, "/match/detail/default/{$externalId}\""),
+        ));
+    }
+
+    /**
      * The live match detail page of fixture 1306754 at SH Kutná Hora Klimeška (arena 602), optionally showing another venue.
      */
     public static function matchDetailSnapshot(string $venueName = 'SH Kutná Hora Klimeška', int $venueExternalId = 602): string

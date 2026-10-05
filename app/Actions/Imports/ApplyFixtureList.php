@@ -21,6 +21,8 @@ final readonly class ApplyFixtureList
     /**
      * Store the fixtures, venues and revisions of a downloaded fixture list in one transaction, and finish the import as ok.
      *
+     * A stored fixture the list no longer shows is counted as missing, and cancelled once it is missing from two consecutive fixture lists, so a one-off glitch at the source cancels nothing.
+     *
      * @param  array<int, MatchDetailPageData>  $matchDetails  keyed by the fixture's external ID
      */
     public function handle(TeamSeason $teamSeason, Import $import, FixtureListPageData $page, array $matchDetails): void
@@ -37,6 +39,14 @@ final readonly class ApplyFixtureList
                     $import,
                     $isInitialImport,
                 );
+            }
+
+            $missingFixtures = $storedFixtures
+                ->whereNotIn('external_id', array_map(fn (FixtureListRowData $row): int => $row->externalId, $page->rows))
+                ->reject(fn (Fixture $fixture): bool => $fixture->status === FixtureStatus::Cancelled);
+
+            foreach ($missingFixtures as $missingFixture) {
+                $this->countMissing($missingFixture, $import, $isInitialImport);
             }
 
             $teamSeason->update([
@@ -68,6 +78,7 @@ final readonly class ApplyFixtureList
             'is_rescheduled' => $row->isRescheduled,
             'home_score' => $row->homeScore,
             'away_score' => $row->awayScore,
+            'missing_count' => 0,
         ]);
 
         if ($row->showsStartTime) {
@@ -78,6 +89,32 @@ final readonly class ApplyFixtureList
             $fixture->venue()->associate($this->venue($matchDetail));
         }
 
+        $this->saveWithRevisions($fixture, $valuesBefore, $import, $isInitialImport);
+    }
+
+    /**
+     * Count the fixture as missing from one more fixture list, cancelling it once it reaches two.
+     */
+    private function countMissing(Fixture $fixture, Import $import, bool $isInitialImport): void
+    {
+        $valuesBefore = $this->revisableValues($fixture);
+
+        $fixture->missing_count++;
+
+        if ($fixture->missing_count >= 2) {
+            $fixture->status = FixtureStatus::Cancelled;
+        }
+
+        $this->saveWithRevisions($fixture, $valuesBefore, $import, $isInitialImport);
+    }
+
+    /**
+     * Save the fixture and record a revision for each revisable field it changed, unless this is the initial import, moving an existing fixture to its next sequence when it has any.
+     *
+     * @param  array<string, string|null>|null  $valuesBefore  null for a fixture that is not stored yet
+     */
+    private function saveWithRevisions(Fixture $fixture, ?array $valuesBefore, Import $import, bool $isInitialImport): void
+    {
         $revisions = $isInitialImport ? [] : $this->revisions($valuesBefore, $this->revisableValues($fixture));
 
         if ($fixture->exists && $revisions !== []) {

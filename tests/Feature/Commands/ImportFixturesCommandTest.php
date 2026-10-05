@@ -223,19 +223,6 @@ function importTwice(TeamSeason $teamSeason, string $initialSnapshot, string $ne
     return Import::query()->latest('id')->firstOrFail();
 }
 
-/**
- * The fixture list snapshot without the row of one fixture.
- */
-function fixtureListSnapshotWithout(int $externalId): string
-{
-    $rows = explode('<div class="Match">', Ceskyflorbal::fixtureListSnapshot());
-
-    return implode('<div class="Match">', array_filter(
-        $rows,
-        fn (string $row): bool => ! str_contains($row, "/match/detail/default/{$externalId}\""),
-    ));
-}
-
 test('stores the fixtures of the initial import without revisions', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
@@ -334,7 +321,7 @@ test('records a fixture moved to a new date with the warning icon', function () 
 test('records a fixture that appears after the initial import as added', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
 
-    $import = importTwice($teamSeason, fixtureListSnapshotWithout(1306796), Ceskyflorbal::fixtureListSnapshot());
+    $import = importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshotWithout(1306796), Ceskyflorbal::fixtureListSnapshot());
 
     $fixture = Fixture::query()->where('external_id', 1306796)->sole();
     expect($fixture->sequence)->toBe(0);
