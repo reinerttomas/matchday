@@ -6,6 +6,10 @@ Publishes a floorball team's fixture list scraped from ceskyflorbal.cz as a subs
 
 ### Fixtures
 
+**Fixture list**:
+All fixtures of one team season, as the federation publishes them on ceskyflorbal.cz and as the app stores them. Shown as "Rozpis zápasů".
+_Avoid_: Schedule, Matches
+
 **Fixture**:
 One scheduled game in a team season's fixture list, in any state (scheduled, postponed, finished, cancelled).
 _Avoid_: Match, Game

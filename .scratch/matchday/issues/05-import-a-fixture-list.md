@@ -4,23 +4,24 @@
 
 **Blocked by:** 04 — Demo seeder
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] The import module is a deep module whose interface is "import this team season with this trigger", returning the finished Import. Callers (the command now, the job later) know nothing about fetching or parsing.
-- [ ] An Artisan command imports one given team season synchronously with trigger `schedule`, and prints the result (status, fixtures found).
-- [ ] The import is recorded as `running` when it starts and finishes as `ok` with `finished_at` and `fixtures_found`.
-- [ ] The fixture list page is fetched with Laravel's HTTP client and a browser-like User-Agent.
-- [ ] Parsing the fixture list page (facts in the spec), using PHP's built-in HTML DOM, no new package:
+- [x] The import module is a deep module whose interface is "import this team season with this trigger", returning the finished Import. Callers (the command now, the job later) know nothing about fetching or parsing.
+- [x] An Artisan command imports one given team season synchronously with trigger `schedule`, and prints the result (status, fixtures found).
+- [x] The import is recorded as `running` when it starts and finishes as `ok` with `finished_at` and `fixtures_found`.
+- [x] The fixture list page is fetched with Laravel's HTTP client and a browser-like User-Agent.
+- [x] Parsing the fixture list page (facts in the spec), using PHP's built-in HTML DOM, no new package:
     - only the first occurrence of each row's date and round is used (rows repeat them in mobile and desktop wrappers),
     - external ID from the match detail link,
     - date "NE, 4. 10." with the year inferred from the team season's season: July–December → first year, January–June → second year,
     - time HH:MM, where 00:00 is stored as a TBD time (null),
     - `is_home` when the home team's ID equals the team season's `external_id`; the opponent name is the other side,
     - round from "N. kolo",
-    - score home:away on finished fixtures, which get status finished,
+    - "odehráno" in the status slot sets status finished, with the score home:away; finished rows have no time, so the stored time is kept,
+    - a row is scheduled only when it shows a venue and no status text,
     - the warning icon sets `is_rescheduled`; the fixture stays scheduled,
     - unknown status markup leaves the status unchanged and is logged.
-- [ ] Fixtures are upserted by (team season, external ID); the team season's `name` and `competition_name` are updated from the page.
-- [ ] HTML snapshots of the live fixture list page (FBC Kutná Hora B, 2026/27) are saved for tests. If the live site blocks the download, stop and ask the orchestrator instead of inventing markup.
-- [ ] Feature tests run the import through the command with `Http::fake()` returning the snapshot and assert the stored fixtures (TBD time, finished with score, rescheduled, home and away), the team season name and competition, and the recorded import. Year inference is covered with `travelTo()` where it matters.
-- [ ] `composer ci:check` passes.
+- [x] Fixtures are upserted by (team season, external ID); the team season's `name` and `competition_name` are updated from the page.
+- [x] HTML snapshots of the live fixture list page (FBC Kutná Hora B, 2026/27) are saved for tests. If the live site blocks the download, stop and ask the orchestrator instead of inventing markup.
+- [x] Feature tests run the import through the command with `Http::fake()` returning the snapshot and assert the stored fixtures (TBD time, finished with score, rescheduled, home and away), the team season name and competition, and the recorded import. Year inference is covered with `travelTo()` where it matters.
+- [x] `composer ci:check` passes.

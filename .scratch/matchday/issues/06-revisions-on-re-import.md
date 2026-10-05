@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] A changed value of date, time, status, is_rescheduled, home_score or away_score writes one revision per field with old and new raw values: ISO date, `HH:MM` or null for TBD, the status enum value, `0`/`1` for is_rescheduled (the convention the demo seeder already uses), the score as a number.
+- [ ] A changed value of date, time, status, is_rescheduled, home_score or away_score writes one revision per field with old and new raw values: ISO date, `HH:MM` or null for TBD (the time column stores `HH:MM:SS`), the status enum value, `0`/`1` for is_rescheduled (the convention the demo seeder already uses), the score as a number.
 - [ ] A fixture with at least one revision in an import gets its `sequence` incremented exactly once for that import.
 - [ ] The initial import (the team season's first `ok` import) stores its fixtures without revisions.
 - [ ] A fixture that appears after the initial import gets one revision with `field = null`.

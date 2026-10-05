@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] The match detail page is fetched only for a new fixture, or when the venue text in the list differs from the stored venue's name. Finished rows ("odehráno" in the venue slot) never trigger a fetch or a venue change.
+- [ ] The match detail page is fetched only for a new fixture, or when the venue text in the list differs from the stored venue's name. The venue text is read only from `Match-place`; finished rows (which show "odehráno" in `Match-status` instead) never trigger a fetch or a venue change.
 - [ ] Requests are paced with a pause between them; the pause is configurable so tests don't wait.
 - [ ] From the detail page the import takes the arena ID, the name and the address; "Čáslavská 274<br>Kutná Hora" is stored as "Čáslavská 274, Kutná Hora".
 - [ ] The venue is looked up by external ID: created with its address when missing, renamed when it exists under another name.

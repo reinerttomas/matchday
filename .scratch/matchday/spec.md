@@ -198,15 +198,16 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
     - Match rows are `Match` blocks. Each row repeats its date and round in a mobile and a desktop wrapper, so use only the first occurrence.
     - Match external ID: the numeric ID in the `/match/detail/default/{id}` link.
     - Date: "NE, 4. 10." with no year; the year is inferred from the team season's season.
-    - Time: HH:MM, where 00:00 means a TBD time.
+    - Time: HH:MM in `Match-startTime`, where 00:00 means a TBD time. Finished rows show the score in that slot instead and have no time, so the stored time is kept (a fixture first seen as finished gets a null time).
     - Home team is on the left and away team on the right. Each links to `/team/detail/overview/{teamId}`; `is_home` is true when the home team's ID equals the team season's `external_id`.
-    - Venue: text in `Match-place`. On finished rows that slot shows "odehráno" instead, which must not be treated as a venue change.
-    - Score: home:away, present only on finished fixtures.
+    - Venue: text in `Match-place`. On finished rows that element is replaced by `Match-status` with "odehráno", which sets the status finished and must not be treated as a venue change. The venue is read only from `Match-place`.
+    - Score: home:away in `Match-score`, present only on finished fixtures.
     - Round: "N. kolo".
     - Warning icon: a `Tooltip--warning` element with an `aria-label` like "odložené utkání 17.10.2026". Its presence sets `is_rescheduled`.
-    - Competition name: comes from the section header.
-    - Team header: "PH A SČ LIGA MUŽŮ 2026/2027" gives the season, which is checked against the team season, and the team name gives `team_seasons.name`.
-    - Markup for postponed and cancelled fixtures has not been observed yet. The parser should treat unknown status text conservatively (leave the status unchanged) and log it.
+    - Competition name: comes from the section header (`Matches-body--sectionHeader`).
+    - Team header: "PH A SČ LIGA MUŽŮ 2026/2027" (all caps) gives the season, which is checked against the team season ("2026/27"). The header's team name is all caps too, so `team_seasons.name` comes from our team's link in the fixture rows instead.
+    - Opponent names can contain repeated whitespace, so all text is whitespace-normalised.
+    - Markup for postponed and cancelled fixtures has not been observed yet. A row counts as scheduled only when it has `Match-place` and no `Match-status`; any other status markup is unknown, leaves the status unchanged and is logged.
 - **Abort rules.** These are checked before any data is written.
     - 0 fixtures → `aborted`.
     - Fewer than half of the last `ok` import's `fixtures_found` → `aborted`.

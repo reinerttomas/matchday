@@ -1,0 +1,4278 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+
+<head>
+	<!-- Google Tag Manager -->
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		// Init consent
+		gtag('consent', 'default', {
+			'ad_storage': 'denied',
+			'ad_user_data': 'denied',
+			'ad_personalization': 'denied',
+			'analytics_storage': 'denied',
+			'wait_for_update': 500
+		});
+		// Redact ads data
+		gtag('set', 'ads_data_redaction', true);
+		// Init GTM
+		(function(w, d, s, l, i){w [l] = w[l] || [];w[l] . push({'gtm.start':
+		new Date() . getTime(),event:'gtm.js'});var f = d . getElementsByTagName(s)[0],
+		j=d.createElement(s),dl = l != 'dataLayer'?'&l='+l:'';j . async = true;j . src =
+		'https://www.googletagmanager.com/gtm.js?id='+i+dl;f . parentNode . insertBefore(j,f);
+		})(window, document, 'script', 'dataLayer', 'GTM-KW845MZ');
+	</script>
+	<script type="text/plain" data-cookiecategory="targeting">
+		gtag('consent', 'update', {
+			'ad_storage': 'granted',
+			'ad_user_data': 'granted',
+			'ad_personalization': 'granted'
+		});
+	</script>
+	<script type="text/plain" data-cookiecategory="analytics">
+		gtag('consent', 'update', {
+			'analytics_storage': 'granted'
+		});
+	</script>
+	<!-- End Google Tag Manager -->
+
+	<script>
+		function getCookie(name) {
+			let nameEQ = name + '=';
+			let cookies = document.cookie.split(';');
+			for (let i = 0; i < cookies.length; i++) {
+				let cookie = cookies[i].trim();
+				if (cookie.indexOf(nameEQ) === 0) {
+					return cookie.substring(nameEQ.length, cookie.length);
+				}
+			}
+			return null;
+		}
+		function setCookie(name, value, exdays) {
+			const d = new Date();
+			d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+			let expires = "expires=" + d.toUTCString();
+			document.cookie = name + "=" + value + ";" + expires + ";path=/";
+		}
+
+		const cc_cookie = getCookie('cc_cookie');
+
+		if (!cc_cookie || !JSON.parse(cc_cookie).level.includes('analytics')) {
+			setCookie('enableVisitLogging', 'false', -1)
+		}
+	</script>
+	<script type="text/plain" data-cookiecategory="analytics">
+		setCookie('enableVisitLogging', 'true', 1)
+	</script>
+
+	<title>FBC Kutná Hora B | Český florbal</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="Český florbal & eSports.cz, s.r.o.">
+	<meta name="keywords" content="český,florbal,czech,republic,floorball,innebandy,salibandy,unihockey,official,website,oficiální,web,čf,iff,český,florbal,international,federation,superliga,extraliga,reprezentace,superfinále,champions,cup,zahraničí,mládež,turnaje,školské,soutěže,sport,halový,kolektivní,muži,ženy,sekretariát,podpora,oddíly,družstva,rozhodčí,delegáti,školení,zdraví,životní,styl,vybavení,sportovní">
+	<meta name="description" content="Oficiální web českého florbalu. Livesport Superliga, Extraliga žen, 1. liga mužů, Mládež, Reprezentace, Superfinále, Mistrovství světa, Champions Cup, Regiony, Zahraničí, Školení, Programy podpory.">
+	<meta name="title" content="FBC Kutná Hora B | Český florbal">
+	<meta name="robots" content="index,follow">
+	<meta property="fb:app_id" content="171995543327193">
+	<meta property="og:title" content="FBC Kutná Hora B | Český florbal">
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="https://www.ceskyflorbal.cz/team/detail/matches/45019">
+	<meta property="og:image" content="https://www.ceskyflorbal.cz/front/img/og-image.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/front/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/front/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/front/favicon-16x16.png">
+	<link rel="manifest" href="/front/site.webmanifest">
+	<link rel="shortcut icon" href="/front/favicon.ico">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="theme-color" content="#ffffff">
+	<style>
+		@font-face {
+			font-family: "GeogrotesqueCond";
+			src: url("/front/fonts/geogrotesque/regular/G01-Rg.woff2") format("woff2"), url("/front/fonts/geogrotesque/regular/G01-Rg.woff") format("woff"), url("/front/fonts/geogrotesque/regular/G01-Rg.ttf") format("truetype");
+			font-style: normal;
+			font-weight: 200;
+		}
+
+		@font-face {
+			font-family: "Geogrotesque";
+			src: url("/front/fonts/geogrotesque/regular/G01-Rg.woff2") format("woff2"), url("/front/fonts/geogrotesque/regular/G01-Rg.woff") format("woff"), url("/front/fonts/geogrotesque/regular/G01-Rg.ttf") format("truetype");
+			font-style: normal;
+			font-weight: 300;
+		}
+
+		@font-face {
+			font-family: "Geogrotesque";
+			src: url("/front/fonts/geogrotesque/regular/G01-Rg.woff2") format("woff2"), url("/front/fonts/geogrotesque/regular/G01-Rg.woff") format("woff"), url("/front/fonts/geogrotesque/regular/G01-Rg.ttf") format("truetype");
+			font-style: normal;
+			font-weight: normal;
+		}
+
+		@font-face {
+			font-family: "GeogrotesqueCond";
+			src: url("/front/fonts/geogrotesque/semibold/G01-SmBd.woff2") format("woff2"), url("/front/fonts/geogrotesque/semibold/G01-SmBd.woff") format("woff"), url("/front/fonts/geogrotesque/semibold/G01-SmBd.ttf") format("truetype");
+			font-style: normal;
+			font-weight: 500;
+		}
+
+		@font-face {
+			font-family: "GeogrotesqueCond";
+			src: url("/front/fonts/geogrotesque/semibold/G01-SmBd.woff2") format("woff2"), url("/front/fonts/geogrotesque/semibold/G01-SmBd.woff") format("woff"), url("/front/fonts/geogrotesque/semibold/G01-SmBd.ttf") format("truetype");
+			font-style: normal;
+			font-weight: 600;
+		}
+
+		@font-face {
+			font-family: "Geogrotesque";
+			src: url("/front/fonts/geogrotesque/bold/G01_Bd.woff2") format("woff2"), url("/front/fonts/geogrotesque/bold/G01_Bd.woff") format("woff"), url("/front/fonts/geogrotesque/bold/G01_Bd.ttf") format("truetype");
+			font-style: normal;
+			font-weight: 500;
+		}
+
+		@font-face {
+			font-family: "Geogrotesque";
+			src: url("/front/fonts/geogrotesque/bold/G01_Bd.woff2") format("woff2"), url("/front/fonts/geogrotesque/bold/G01_Bd.woff") format("woff"), url("/front/fonts/geogrotesque/bold/G01_Bd.ttf") format("truetype");
+			font-style: normal;
+			font-weight: 700;
+		}
+
+		@font-face {
+			font-family: "GeogrotesqueCond";
+			src: url("/front/fonts/geogrotesque_cond/semibold/G01Cond-SmBd.woff2") format("woff2"), url("/front/fonts/geogrotesque_cond/semibold/G01Cond-SmBd.woff") format("woff"), url("/front/fonts/geogrotesque_cond/semibold/G01Cond-SmBd.ttf") format("truetype");
+			font-style: normal;
+			font-weight: 600;
+		}
+
+		@font-face {
+			font-family: "GeogrotesqueCond";
+			src: url("/front/fonts/geogrotesque_cond/bold/G01Cond-Bd.woff2") format("woff2"), url("/front/fonts/geogrotesque_cond/bold/G01Cond-Bd.woff") format("woff"), url("/front/fonts/geogrotesque_cond/bold/G01Cond-Bd.ttf") format("truetype");
+			font-style: normal;
+			font-weight: 700;
+		}
+
+		@font-face {
+			font-family: "GeogrotesqueCond";
+			src: url("/front/fonts/geogrotesque_cond/bold_italic/G01Cond-BdIt.woff2") format("woff2"), url("/front/fonts/geogrotesque_cond/bold_italic/G01Cond-BdIt.woff") format("woff"), url("/front/fonts/geogrotesque_cond/bold_italic/G01Cond-BdIt.ttf") format("truetype");
+			font-style: italic;
+			font-weight: 700;
+		}
+
+		.d-none { display: none; }
+		.grecaptcha-badge { visibility: hidden; }
+	</style>
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+	<link href="https://fonts.googleapis.com/css2?family=Inter&family=Lexend:wght@600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/front/css/main.css?1731401216">
+	<script src="https://www.google.com/recaptcha/api.js?render=6LdmYmMiAAAAANRGEt9amVEQnQi1DKdQL2e_lzNC"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/maxshuty/accessible-web-components@latest/dist/simpleRange.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js'></script>
+	<script src="/_slimadmin/app/lib/jquery.maskedinput/js/jquery.maskedinput.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+	<style>
+		.daterangepicker {
+			z-index: 100000001;
+		}
+		a.disabled {
+			pointer-events: none;
+			cursor: default;
+		}
+		.micrositetoppadding {
+			padding-top: 78px;
+		}
+		:root {
+			--color-countdown: #09293e;
+		}
+		#js-current-overlay {
+			visibility: hidden;
+		}
+		.mobileActiveMatches {
+			display: block!important;
+		}
+		.Header-mainNav-microsite.odm {
+			background-color: #33a71f;
+		}
+		.Header-mainNav-microsite.odm .MainNav, .Header-mainNav-microsite.odm .MainNav-asideMenu {
+			background-color: #33a71f !important;
+		}
+		.Header-mainNav-microsite.odm .MainNav-item:focus .MainNav-link, .Header-mainNav-microsite.odm .MainNav-item:hover .MainNav-link, .Header-mainNav-microsite.odm .MainNav .SubMenu {
+			background-color: #116c10 !important;
+		}
+		.Button.odm {
+			background-color: #33a71f;
+		}
+		.Button.odm:active, .Button.odm:focus, .Button.odm:hover {
+			color: #33a71f;
+			background-color: #fff;
+			border-color: #33a71f;
+		}
+		.Header-topNav-microsite { z-index: 101; }
+		.Header-topNav-microsite.twg {
+			background-color: #541a8b !important;
+		}
+		.Header-mainNav-microsite.twg {
+			background-color: #088dd4;
+		}
+		.Header-mainNav-microsite.twg .MainNav, .Header-mainNav-microsite.twg .MainNav-asideMenu {
+			background-color: #088dd4 !important;
+		}
+		.Header-mainNav-microsite.twg .MainNav-item:focus .MainNav-link, .Header-mainNav-microsite.twg .MainNav-item:hover .MainNav-link, .Header-mainNav-microsite.twg .MainNav .SubMenu {
+			background-color: #541a8b !important;
+		}
+		.Button.twg {
+			background-color: #541a8b;
+		}
+		.Button.twg:active, .Button.twg:focus, .Button.twg:hover {
+			color: #541a8b;
+			background-color: #fff;
+			border-color: #541a8b;
+		}
+		.Header-topNav-microsite.worldCup {
+			background-color: #000000 !important;
+		}
+		.Header-mainNav-microsite.worldCup {
+			background-color: #dc0c15;
+		}
+		.Header-mainNav-microsite.worldCup .MainNav, .Header-mainNav-microsite.worldCup .MainNav-asideMenu {
+			background-color: #dc0c15 !important;
+		}
+		.Header-mainNav-microsite.worldCup .MainNav-item:focus .MainNav-link, .Header-mainNav-microsite.worldCup .MainNav-item:hover .MainNav-link, .Header-mainNav-microsite.worldCup .MainNav .SubMenu {
+			background-color: #dc0c15 !important;
+		}
+		.Button.worldCup {
+			background-color: #dc0c15;
+		}
+		.Button.worldCup:active, .Button.worldCup:focus, .Button.worldCup:hover {
+			color: #dc0c15;
+			background-color: #fff;
+			border-color: #dc0c15;
+		}
+		.Match-dateAndRoundMobileWrapper.tv-match.prima-sport, .Match-centerContent.tv.prima-sport .Match-startTime {
+			background-color: #522583;
+		}
+		.Match-rightContent {
+			flex-wrap: nowrap;
+		}
+		.Match-teamName, .Match-teamNameAbbr, .Match-teamNameShort {
+			white-space: nowrap;
+		}
+		@media (max-width: 920px) {
+			.Match-rightContent {
+				flex-wrap: wrap;
+			}
+			.Match-teamName, .Match-teamNameAbbr, .Match-teamNameShort {
+				white-space: normal;
+			}
+		}
+		.Derby-left,.Derby-right{
+			flex:1 1 0; min-width:0;
+			display:flex; flex-direction:column; align-items:center;
+			text-align:center;
+			padding-top:14px;
+		}
+	</style>
+	<script src="/front/js/main.js?1732635830" defer></script>
+	<script src="/vendors/js/netteForms.js" defer></script>
+	<script src="/vendors/js/nette.ajax.js" defer></script>
+	<script src="/js/front.js?1709418801" defer></script>
+	<script src="/js/main.js?1693809588" defer></script>
+</head>
+
+<body class="Floorball">
+<!-- Google Tag Manager (noscript) -->
+<noscript>
+	<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KW845MZ"
+			height="0" width="0" style="display:none;visibility:hidden"></iframe>
+</noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div class="snackBar-container" id="snippet--flashes">
+</div>
+
+<!-- Header -->
+
+
+<header class="Header" role="banner">
+	<!-- Top navigation -->
+	<div class="Header-topNav" id="js-header-topNav">
+		<div class="Header-container">
+			<nav class="TopNav" id="js-topNav">
+				<!-- Top menu -->
+					<ul class="TopNav-menu js-subMenu" id="js-topNav-menu">
+						<li class="TopNav-item">
+							<a
+									href="https://www.ceskyflorbal.tv" target="_blank" rel="noopener noreferrer" class="VideoButton">
+								<div><svg id="Layer_1" height="12" viewBox="0 0 48 56" width="12" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1"><path fill="#ffffff" d="m50.94,6.53c-.3-1.54-1.42-2.78-2.92-3.24C40.91,1.11,33.5,0,25.98,0,18.47,0,11.06,1.11,3.96,3.29c-1.5.46-2.62,1.7-2.92,3.24C-3.22,28.57,5.88,48.11,24.23,56.32c.55.25,1.14.38,1.75.38s1.19-.13,1.75-.37c18.36-8.23,27.47-27.77,23.21-49.79Zm-11.44,20.3c-2.85,2.85-6.29,4.87-10.07,6.89-3.77,2.01-7.59,3.45-11.47,4.54-.2.06-.55-.11-.63-.45-.95-3.91-1.11-7.96-.96-12.24.15-4.26.65-8.32,1.8-12.16.08-.27.43-.44.65-.37,3.82,1.2,7.51,3.05,11.13,5.3,3.63,2.26,6.77,4.77,9.61,7.61.3.3.17.66-.05.88Z"/></svg></div>
+								CESKYFLORBAL.TV
+							</a>
+						</li>
+						<li class="TopNav-item">
+							<a
+									href="/florbal-v-tv" class="TopNav-link">
+								<div><svg height="12" width="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M64 64l0 288 512 0 0-288L64 64zM0 64C0 28.7 28.7 0 64 0L576 0c35.3 0 64 28.7 64 64l0 288c0 35.3-28.7 64-64 64L64 416c-35.3 0-64-28.7-64-64L0 64zM128 448l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-384 0c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg></div>
+								Florbal v TV
+							</a>
+						</li>
+						<li class="TopNav-item">
+							<a
+									href="/secretariat" class="TopNav-link">
+								<div><svg height="12" width="12"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M96 0C60.7 0 32 28.7 32 64l0 384c0 35.3 28.7 64 64 64l288 0c35.3 0 64-28.7 64-64l0-384c0-35.3-28.7-64-64-64L96 0zM208 288l64 0c44.2 0 80 35.8 80 80c0 8.8-7.2 16-16 16l-192 0c-8.8 0-16-7.2-16-16c0-44.2 35.8-80 80-80zm-32-96a64 64 0 1 1 128 0 64 64 0 1 1 -128 0zM512 80c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 64c0 8.8 7.2 16 16 16s16-7.2 16-16l0-64zM496 192c-8.8 0-16 7.2-16 16l0 64c0 8.8 7.2 16 16 16s16-7.2 16-16l0-64c0-8.8-7.2-16-16-16zm16 144c0-8.8-7.2-16-16-16s-16 7.2-16 16l0 64c0 8.8 7.2 16 16 16s16-7.2 16-16l0-64z"/></svg></div>
+								Kontakty
+							</a>
+						</li>
+						<li class="TopNav-item">
+							<a
+									href="/directory/arenas/" class="TopNav-link">
+								<div><svg width="12" height="12"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M168.3 499.2C116.1 435 0 279.4 0 192C0 85.96 85.96 0 192 0C298 0 384 85.96 384 192C384 279.4 267 435 215.7 499.2C203.4 514.5 180.6 514.5 168.3 499.2H168.3zM192 256C227.3 256 256 227.3 256 192C256 156.7 227.3 128 192 128C156.7 128 128 156.7 128 192C128 227.3 156.7 256 192 256z"/></svg></div>
+								Haly
+							</a>
+						</li>
+						<li class="TopNav-item TopNav-item--hasSubMenu MainNav-item--hasJsMenu">
+							<div class="TopNav-link js-toggleSubMenu">
+								<a class="js-link-name" href="#">
+									<div style="display: inline;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="12" height="12"><path d="M88 48C101.3 48 112 58.75 112 72V120C112 133.3 101.3 144 88 144H40C26.75 144 16 133.3 16 120V72C16 58.75 26.75 48 40 48H88zM480 64C497.7 64 512 78.33 512 96C512 113.7 497.7 128 480 128H192C174.3 128 160 113.7 160 96C160 78.33 174.3 64 192 64H480zM480 224C497.7 224 512 238.3 512 256C512 273.7 497.7 288 480 288H192C174.3 288 160 273.7 160 256C160 238.3 174.3 224 192 224H480zM480 384C497.7 384 512 398.3 512 416C512 433.7 497.7 448 480 448H192C174.3 448 160 433.7 160 416C160 398.3 174.3 384 192 384H480zM16 232C16 218.7 26.75 208 40 208H88C101.3 208 112 218.7 112 232V280C112 293.3 101.3 304 88 304H40C26.75 304 16 293.3 16 280V232zM88 368C101.3 368 112 378.7 112 392V440C112 453.3 101.3 464 88 464H40C26.75 464 16 453.3 16 440V392C16 378.7 26.75 368 40 368H88z"/></svg></div>
+									Adresáře
+								</a>
+								<a class="js-open-subMenu" href="#">
+									<img src="/front/img/icons/chevron-right-grey.svg" alt="">
+								</a>
+							</div>
+							<ul class="SubMenu SubMenu-grey js-subMenu">
+								<li class="SubMenu-item">
+									<a href="/directory/clubs/" class="SubMenu-link">
+										
+										Kluby
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/directory/teams/" class="SubMenu-link">
+										
+										Týmy
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/directory/referees/" class="SubMenu-link">
+										
+										Rozhodčí
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/directory/delegates/" class="SubMenu-link">
+										
+										Delegáti
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/directory/coaches/" class="SubMenu-link">
+										
+										Trenéři
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="TopNav-item">
+							<a
+									href="https://fanshop.ceskyflorbal.cz/" target="_blank" rel="noopener noreferrer" class="TopNav-link">
+								<div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="12" width="12"><path d="M112 112C112 50.14 162.1 0 224 0C285.9 0 336 50.14 336 112V160H400C426.5 160 448 181.5 448 208V416C448 469 405 512 352 512H96C42.98 512 0 469 0 416V208C0 181.5 21.49 160 48 160H112V112zM160 160H288V112C288 76.65 259.3 48 224 48C188.7 48 160 76.65 160 112V160zM136 256C149.3 256 160 245.3 160 232C160 218.7 149.3 208 136 208C122.7 208 112 218.7 112 232C112 245.3 122.7 256 136 256zM312 208C298.7 208 288 218.7 288 232C288 245.3 298.7 256 312 256C325.3 256 336 245.3 336 232C336 218.7 325.3 208 312 208z"/></svg></div>
+								Fanshop
+							</a>
+						</li>
+						<li class="TopNav-item">
+							<a
+									href="https://ceskyflorbal.enigoo.cz/" target="_blank" rel="noopener noreferrer" class="TopNav-link">
+								<div><svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve" height="12" width="12">
+<g>
+	<g>
+		<path d="M466.089,139.805c-25.928,25.928-67.966,25.928-93.895,0c-25.929-25.928-25.928-67.967,0-93.895L326.284,0L0,326.284
+			l45.911,45.911c25.928-25.928,67.967-25.928,93.895,0c25.928,25.928,25.928,67.967,0,93.895l45.91,45.91L512,185.716
+			L466.089,139.805z M255.519,182.946l-21.298-21.298l21.213-21.213l21.298,21.298L255.519,182.946z M298.115,225.543
+			l-21.299-21.298l21.213-21.213l21.299,21.298L298.115,225.543z M340.711,268.14l-21.298-21.299l21.213-21.213l21.298,21.299
+			L340.711,268.14z"/>
+	</g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+</div>
+								Vstupenky
+							</a>
+						</li>
+						<li class="TopNav-item TopNav-item--hasSubMenu MainNav-item--hasJsMenu">
+							<div class="TopNav-link js-toggleSubMenu">
+								<a class="js-link-name" href="#">
+									<div style="display: inline;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"width="12" height="12"><!--! Font Awesome Pro 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --><path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256s256-114.6 256-256S397.4 0 256 0zM256 128c17.67 0 32 14.33 32 32c0 17.67-14.33 32-32 32S224 177.7 224 160C224 142.3 238.3 128 256 128zM296 384h-80C202.8 384 192 373.3 192 360s10.75-24 24-24h16v-64H224c-13.25 0-24-10.75-24-24S210.8 224 224 224h32c13.25 0 24 10.75 24 24v88h16c13.25 0 24 10.75 24 24S309.3 384 296 384z"/></svg></div>
+									Informace
+								</a>
+								<a class="js-open-subMenu" href="#">
+									<img src="/front/img/icons/chevron-right-grey.svg" alt="">
+								</a>
+							</div>
+							<ul class="SubMenu SubMenu-grey js-subMenu">
+								<li class="SubMenu-item">
+									<a href="/vybaveni" class="SubMenu-link">
+										
+										Vybavení
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/zdravotni-prohlidky" class="SubMenu-link">
+										
+										Zdravotní prohlídky
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/pojisteni" class="SubMenu-link">
+										
+										Pojištění
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/vybaveni?tabId=62" class="SubMenu-link">
+										
+										Certifikace
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/antidoping" class="SubMenu-link">
+										
+										Antidoping a zdraví
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/dotace" class="SubMenu-link">
+										
+										Dotace
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="TopNav-item TopNav-item--hasSubMenu MainNav-item--hasJsMenu">
+							<div class="TopNav-link js-toggleSubMenu">
+								<a class="js-link-name" href="#">
+									<div style="display: inline;"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 492 492" style="enable-background:new 0 0 492 492;" xml:space="preserve" height="12" width="12">
+		<path d="M265.2,382.7l218.9-218.9c5.1-5.1,7.9-11.8,7.9-19s-2.8-14-7.9-19L468,109.5c-10.5-10.5-27.6-10.5-38.1,0L246.1,293.4
+			L62,109.3c-5.1-5.1-11.8-7.9-19-7.9c-7.2,0-14,2.8-19,7.9L7.9,125.5c-5.1,5.1-7.9,11.8-7.9,19s2.8,14,7.9,19L227,382.7
+			c5.1,5.1,11.9,7.9,19.1,7.8C253.3,390.5,260.1,387.8,265.2,382.7z"/>
+</svg>
+</div>
+									Projekty
+								</a>
+								<a class="js-open-subMenu" href="#">
+									<img src="/front/img/icons/chevron-right-grey.svg" alt="">
+								</a>
+							</div>
+							<ul class="SubMenu SubMenu-grey js-subMenu">
+								<li class="SubMenu-item">
+									<img loading="lazy" src="/front/img/icons/external_link-gray-dark.svg" alt="">
+									<a href="https://www.ceskyflorbal.tv/womens-power" target="_blank" rel="noopener noreferrer" class="SubMenu-link SubMenu-link--external">
+										
+										Women's Power
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<img loading="lazy" src="/front/img/icons/external_link-gray-dark.svg" alt="">
+									<a href="https://www.ceskyflorbal.cz/zakladniskoly/" target="_blank" rel="noopener noreferrer" class="SubMenu-link SubMenu-link--external">
+										
+										ČEPS Cup
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<img loading="lazy" src="/front/img/icons/external_link-gray-dark.svg" alt="">
+									<a href="https://www.ceskyflorbal.cz/stredniskoly/" target="_blank" rel="noopener noreferrer" class="SubMenu-link SubMenu-link--external">
+										
+										Subterra Cup
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<img loading="lazy" src="/front/img/icons/external_link-gray-dark.svg" alt="">
+									<a href="https://streetfloorball.cz/" target="_blank" rel="noopener noreferrer" class="SubMenu-link SubMenu-link--external">
+										
+										KFC Street Floorball
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="https://www.ceskyflorbal.cz/kfcient/" class="SubMenu-link">
+										
+										KFCient
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<img loading="lazy" src="/front/img/icons/external_link-gray-dark.svg" alt="">
+									<a href="https://udrzitelnost.ceskyflorbal.cz/" target="_blank" rel="noopener noreferrer" class="SubMenu-link SubMenu-link--external">
+										
+										Udržitelnost
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/neprohravame" class="SubMenu-link">
+										
+										HAIMA CZ
+									</a>
+								</li>
+								<li class="SubMenu-item">
+									<a href="/nezlobte" class="SubMenu-link">
+										
+										Hlavně nezlobte...
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li class="TopNav-item">
+							<a
+									href="https://login.ceskyflorbal.cz/osoba/" target="_blank" rel="noopener noreferrer" class="TopNav-link">
+								<div><svg height="12" width="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M217.9 105.9L340.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L217.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1L32 320c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM352 416l64 0c17.7 0 32-14.3 32-32l0-256c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l64 0c53 0 96 43 96 96l0 256c0 53-43 96-96 96l-64 0c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg></div>
+								FIS
+							</a>
+						</li>
+					</ul>
+				<!-- Lang switch, Login, Search -->
+				<div class="u-display-flex u-justify-space-between u-align-items-center u-md-width-100p"
+					 id="js-topNav-actions">
+					<div class="u-display-flex" id="snippet-topMenu-localeSwitch">
+						<a href="/team/detail/matches/45019?toCs=1" class="LangButton is-active">CZ</a>
+						<a href="/team/detail/matches/45019?locale=en" class="LangButton">EN</a>
+					</div>
+					<a class="TopNav-link u-display-inline-flex u-ml-16 js-login" href="#">
+						<svg height="14" viewBox="0 0 32 32" width="14" xmlns="http://www.w3.org/2000/svg">
+							<g data-name="Layer 2">
+								<path d="M16 17a6 6 0 1 1 6-6 6 6 0 0 1-6 6zm0-10a4 4 0 1 0 4 4 4 4 0 0 0-4-4z"></path>
+								<path
+										d="M16 31a15 15 0 0 1-11.59-5.49l-.52-.64.52-.63a15 15 0 0 1 23.18 0l.52.63-.52.64A15 15 0 0 1 16 31zm-9.49-6.12a13 13 0 0 0 19 0 13 13 0 0 0-19 0z"></path>
+								<path d="M16 31a15 15 0 1 1 11.59-5.49A15 15 0 0 1 16 31zm0-28a13 13 0 1 0 13 13A13 13 0 0 0 16 3z"></path>
+								<path d="M5.18 24.88S15.25 36.13 25.5 26l1.32-1.12S18.26 16 9.57 21.33z"></path>
+								<circle cx="16" cy="11" r="5"></circle>
+							</g>
+						</svg>
+						Přihlášení / FIS
+					</a>
+					<a class="TopNav-link u-ml-16 u-display-none u-md-display-inline-flex js-openSearch" href="#">
+						<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 56.966 56.966"
+							 xml:space="preserve">
+							<path
+									d="M55.146 51.887 41.588 37.786A22.926 22.926 0 0 0 46.984 23c0-12.682-10.318-23-23-23s-23 10.318-23 23 10.318 23 23 23c4.761 0 9.298-1.436 13.177-4.162l13.661 14.208c.571.593 1.339.92 2.162.92.779 0 1.518-.297 2.079-.837a3.004 3.004 0 0 0 .083-4.242zM23.984 6c9.374 0 17 7.626 17 17s-7.626 17-17 17-17-7.626-17-17 7.626-17 17-17z"></path>
+					  	</svg>
+						Vyhledávání
+					</a>
+				</div>
+			</nav>
+		</div>
+	</div>
+	<!-- Main navigation -->
+	<div id="js-header-mainNav" class="Header-mainNav Floorball">
+		<div class="Header-container u-display-flex u-md-justify-space-between">
+			<a class="u-display-inline-flex u-mt-4 u-mb-4 u-mr-8" href="/">
+				<img loading="lazy" src="/front/img/logos/cesky_florbal-white.svg" width="98" height="42" alt="logo Český florbal">
+			</a>
+			<button class="MenuButton u-md-display-inline-flex" id="js-toggle-mainNav" aria-label="Menu">
+				<div class="MenuButton-layers">
+					<span class="MenuButton-layer"></span>
+					<span class="MenuButton-layer"></span>
+					<span class="MenuButton-layer"></span>
+				</div>
+			</button>
+			<nav class="MainNav" role="navigation" id="js-mainNav" aria-label="Hlavní navigace">
+				<!-- Moved top nav actions -->
+				<div class="MainNav-actions" id="js-mainNav-actions">
+					<!-- Filled by JS at 1024 px and below -->
+				</div>
+				<!-- Toogle main menu buttons -->
+				<div class="u-width-100p u-display-none u-md-display-flex u-justify-center u-overflow-hidden">
+					<button class="TiltedButton TiltedButton--red u-width-50p js-setFloorball">Florbal</button>
+					<button class="TiltedButton TiltedButton--blue u-width-50p js-setOrganization">Organizace</button>
+				</div>
+				<!-- Current submenu name and back button -->
+				<div class="MainNav-info" id="js-nav-info">
+					<p class="MainNav-subMenuName" id="js-nav-subMenuName">
+						<!-- Filled by JS at 1024 px and below -->
+					</p>
+					<button class="BackMenuButton" id="js-nav-back">
+						<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 492 492" xml:space="preserve">
+							<path fill="#fff"
+								  d="m109.3 265.2 218.9 218.9c5.1 5.1 11.8 7.9 19 7.9s14-2.8 19-7.9l16.1-16.1c10.5-10.5 10.5-27.6 0-38.1L198.6 246.1 382.7 62c5.1-5.1 7.9-11.8 7.9-19 0-7.2-2.8-14-7.9-19L366.5 7.9c-5.1-5.1-11.8-7.9-19-7.9s-14 2.8-19 7.9L109.3 227c-5.1 5.1-7.9 11.9-7.8 19.1 0 7.2 2.8 14 7.8 19.1z"></path>
+              			</svg>
+						Zpět
+					</button>
+				</div>
+				<div class="MainNav-inner">
+					<!-- Main menu - Floorball -->
+					<ul class="MainNav-menu is-active" id="js-mainMenu-floorball">
+						<li class="MainNav-item MainNav-item--hasMegaMenu">
+							<div class="MainNav-link js-toggleSubMenu">
+								<a class="js-link-name MainNav-link--matches" href="/match/default/current">
+									Zápasy
+									<span class="MatchIndicator"></span>
+								</a>
+								<a class="js-open-subMenu" href="/match/default/current">
+									<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+								</a>
+							</div>
+							<div class="MegaMenu js-subMenu">
+								<ul>
+									<li class="MegaMenu-item">
+										<div class="MegaMenu-link">
+											<a class="js-link-name" href="/match/default/current">
+												Dnes se hraje
+											</a>
+										</div>
+									</li>
+									<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+										<div class="MegaMenu-link js-toggleSubMenu">
+											<a class="js-link-name" href="/match/default/league">
+												Ligové soutěže
+											</a>
+											<a class="js-open-subMenu" href="/match/default/league">
+												<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+											</a>
+										</div>
+										<ul class="SubSubMenu js-subMenu">
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/league?leagueFilter%5BmanagingAuthority%5D=8">
+													Celostátní
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/league?leagueFilter%5BmanagingAuthority%5D=3">
+													Praha a Středočeský
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/league?leagueFilter%5BmanagingAuthority%5D=4">
+													Královéhradecký a Pardubický
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/league?leagueFilter%5BmanagingAuthority%5D=2">
+													Ústecký a Liberecký
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/league?leagueFilter%5BmanagingAuthority%5D=1">
+													Karlovarský a Plzeňský
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/league?leagueFilter%5BmanagingAuthority%5D=5">
+													Vysočina a Jihočeský
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/league?leagueFilter%5BmanagingAuthority%5D=6">
+													Jihomoravský a Zlínský
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/league?leagueFilter%5BmanagingAuthority%5D=7">
+													Olomoucký a Moravskoslezský
+												</a>
+											</li>
+										</ul>
+									</li>
+									<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+										<div class="MegaMenu-link js-toggleSubMenu">
+											<a class="js-link-name" href="/match/default/cup">
+												Pohár
+											</a>
+											<a class="js-open-subMenu" href="/match/default/cup">
+												<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+											</a>
+										</div>
+										<ul class="SubSubMenu js-subMenu">
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/cup?cupFilter%5Bcompetition%5D=4828">
+													Muži
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/cup?cupFilter%5Bcompetition%5D=4829">
+													Ženy
+												</a>
+											</li>
+										</ul>
+									</li>
+									<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+										<div class="MegaMenu-link js-toggleSubMenu">
+											<a class="js-link-name" href="/match/default/national-team">
+												Reprezentace
+											</a>
+											<a class="js-open-subMenu" href="/match/default/national-team">
+												<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+											</a>
+										</div>
+										<ul class="SubSubMenu js-subMenu">
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/national-team?representativeFilter%5Bcategory%5D=1">
+													Muži
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/national-team?representativeFilter%5Bcategory%5D=2">
+													Ženy
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/national-team?representativeFilter%5Bcategory%5D=3">
+													Junioři
+												</a>
+											</li>
+											<li class="SubSubMenu-item">
+												<a class="SubSubMenu-link" href="/match/default/national-team?representativeFilter%5Bcategory%5D=4">
+													Juniorky
+												</a>
+											</li>
+										</ul>
+									</li>
+									<li class="MegaMenu-item">
+										<div class="MegaMenu-link">
+											<a class="js-link-name" href="/match/default/tournament">
+												Neligové turnaje
+											</a>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="/competition/detail/overview/8XM1"  class="js-link-name MainNav-link--multiLine">
+										<span>Livesport</span>
+										Superliga
+									</a>
+									<a class="js-open-subMenu" href="/competition/detail/overview/8XM1" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/detail/overview/8XM1" >
+													Přehled
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/detail/matches/8XM1" >
+													Zápasy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/detail/statistics/8XM1" >
+													Statistiky
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/detail/info/8XM1" >
+													Informace
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/article/?filter%5Bcategory%5D=1" >
+													Zprávy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://www.ceskyflorbal.tv/superliga"  target="_blank" rel="noopener noreferrer">
+													Přímé přenosy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://www.flickr.com/photos/ceskyflorbal/collections/72157674195982034/"  target="_blank" rel="noopener noreferrer">
+													Galerie
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://ceskyflorbal.enigoo.cz/?_gl=1*zf8k83*_gcl_au*MzUzNjI3MjAzLjE3NjQwMjI0NzQ.*_ga*MTA3NTkwOTUyOS4xNzY0MDIyNDcw*_ga_SYWZCCLKQ7*czE3NjgyMDg3NTMkbzQzJGcwJHQxNzY4MjA4NzUzJGo2MCRsMCRoMTcyODI2OTIxNw.."  target="_blank" rel="noopener noreferrer">
+													Vstupenky
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://superfinale.ceskyflorbal.cz/"  target="_blank" rel="noopener noreferrer">
+													Superfinále
+												</a>
+											</div>
+										</li>
+									</ul>
+									<a data-banner-id="6" class="u-display-inline-flex u-m-10 u-md-display-none" href="/competition/detail/overview/8XM1">
+										<img loading="lazy" class="u-border-radius" src="/imgmin/data/banner/picture/20220708/100958_1b67_menu-livesport-superliga.png/w266h266et1657267798.webp" alt="Livesport Superliga - menu">
+									</a>
+								</div>
+							</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="/competition/detail/overview/8XW1"  class="js-link-name MainNav-link--multiLine">
+										<span>ČEZ</span>
+										Extraliga
+									</a>
+									<a class="js-open-subMenu" href="/competition/detail/overview/8XW1" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/detail/overview/8XW1" >
+													Přehled
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/detail/matches/8XW1" >
+													Zápasy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/detail/statistics/8XW1" >
+													Statistiky
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/detail/info/8XW1" >
+													Informace
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/article/?filter%5Bcategory%5D=2" >
+													Zprávy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://www.ceskyflorbal.tv/extraliga"  target="_blank" rel="noopener noreferrer">
+													Přímé přenosy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://www.flickr.com/photos/ceskyflorbal/collections/72157710945418437/"  target="_blank" rel="noopener noreferrer">
+													Galerie
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://superfinale.ceskyflorbal.cz/"  target="_blank" rel="noopener noreferrer">
+													Superfinále
+												</a>
+											</div>
+										</li>
+									</ul>
+									<a data-banner-id="7" class="u-display-inline-flex u-m-10 u-md-display-none" href="/competition/detail/overview/8XW1">
+										<img loading="lazy" class="u-border-radius" src="/imgmin/data/banner/picture/20231019/100240_a5f9_menu-cez-extraliga.png/w266h266et1697702561.webp" alt="ČEZ Extraliga - menu">
+									</a>
+								</div>
+							</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="/competition"  class="js-link-name">
+										Soutěže
+									</a>
+									<a class="js-open-subMenu" href="/competition" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Elitní soutěže
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/competition/detail/overview/8XM1"  class="SubSubMenu-link">
+														Livesport Superliga
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/detail/overview/8XW1"  class="SubSubMenu-link">
+														ČEZ Extraliga
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/detail/overview/8XM2"  class="SubSubMenu-link">
+														1. liga mužů
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Celostátní soutěže
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4821?divisionId=5786"  class="SubSubMenu-link">
+														Národní liga mužů - západ
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4821?divisionId=5787"  class="SubSubMenu-link">
+														Národní liga mužů - východ
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4826?divisionId=5799"  class="SubSubMenu-link">
+														1. liga žen - západ
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4826?divisionId=5800"  class="SubSubMenu-link">
+														1. liga žen - východ
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4822?divisionId=5788"  class="SubSubMenu-link">
+														Divize A
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4822?divisionId=5789"  class="SubSubMenu-link">
+														Divize B
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4822?divisionId=5790"  class="SubSubMenu-link">
+														Divize C
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4822?divisionId=5791"  class="SubSubMenu-link">
+														Divize D
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4822?divisionId=5792"  class="SubSubMenu-link">
+														Divize E
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Nejvyšší mládežnické soutěže
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4823?divisionId=5793"  class="SubSubMenu-link">
+														CE liga juniorů
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4827?divisionId=5801"  class="SubSubMenu-link">
+														1. liga juniorek
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4823?divisionId=5794"  class="SubSubMenu-link">
+														1. liga juniorů - skupina A
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4823?divisionId=5795"  class="SubSubMenu-link">
+														1. liga juniorů - skupina B
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4824?divisionId=5796"  class="SubSubMenu-link">
+														1. liga dorostenců - skupina A
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/default/detail/4824?divisionId=5797"  class="SubSubMenu-link">
+														1. liga dorostenců - skupina B
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Regionální soutěže
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/competition/?filter%5BmanagingAuthority%5D=1"  class="SubSubMenu-link">
+														Karlovarský a Plzeňský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/?filter%5BmanagingAuthority%5D=2"  class="SubSubMenu-link">
+														Ústecký a Liberecký
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/?filter%5BmanagingAuthority%5D=3"  class="SubSubMenu-link">
+														Praha a Středočeský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/?filter%5BmanagingAuthority%5D=4"  class="SubSubMenu-link">
+														Královéhradecký a Pardubický
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/?filter%5BmanagingAuthority%5D=5"  class="SubSubMenu-link">
+														Vysočina a Jihočeský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/?filter%5BmanagingAuthority%5D=6"  class="SubSubMenu-link">
+														Jihomoravský a Zlínský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/?filter%5BmanagingAuthority%5D=7"  class="SubSubMenu-link">
+														Olomoucký a Moravskoslezský
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/competition/detail/overview/8XMP" >
+													Pohár Českého florbalu
+												</a>
+												<a class="js-open-subMenu" href="/competition/detail/overview/8XMP" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/competition/detail/overview/8XMP"  class="SubSubMenu-link">
+														Muži
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/competition/detail/overview/8XWP"  class="SubSubMenu-link">
+														Ženy
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/pohar-informace"  class="SubSubMenu-link">
+														Informace k poháru
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="https://finale-poharu.ceskyflorbal.cz/"  target="_blank" rel="noopener noreferrer" class="SubSubMenu-link MegaMenu-link--external">
+														Finále Poháru
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="https://www.ceskyflorbal.tv/pohar"  target="_blank" rel="noopener noreferrer" class="SubSubMenu-link MegaMenu-link--external">
+														Přímé přenosy
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/default/overview" >
+													Ligový přehled
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/competition/default/archive" >
+													Archiv soutěží 1994 - 2008
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/vyber-souperu" >
+													Výběr soupeřů 2026
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/kfcient" >
+													KFCient
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/article/?filter%5Bcategory%5D=17" >
+													Zprávy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/fair-play" >
+													Fair Play moment
+												</a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="/national-team"  class="js-link-name">
+										Reprezentace
+									</a>
+									<a class="js-open-subMenu" href="/national-team" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/national-team/detail/overview/1" >
+													Muži
+												</a>
+												<a class="js-open-subMenu" href="/national-team/detail/overview/1" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/overview/1"  class="SubSubMenu-link">
+														Přehled
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/matches/1"  class="SubSubMenu-link">
+														Zápasy
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/statistics/1"  class="SubSubMenu-link">
+														Statistiky
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/roster/1"  class="SubSubMenu-link">
+														Širší kádr
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/coaches/1"  class="SubSubMenu-link">
+														Realizační tým
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/calendar/1"  class="SubSubMenu-link">
+														Kalendář akcí
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/national-team/detail/overview/2" >
+													Ženy
+												</a>
+												<a class="js-open-subMenu" href="/national-team/detail/overview/2" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/overview/2"  class="SubSubMenu-link">
+														Přehled
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/matches/2"  class="SubSubMenu-link">
+														Zápasy
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/statistics/2"  class="SubSubMenu-link">
+														Statistiky
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/roster/2"  class="SubSubMenu-link">
+														Širší kádr
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/coaches/2"  class="SubSubMenu-link">
+														Realizační tým
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/calendar/2"  class="SubSubMenu-link">
+														Kalendář akcí
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/national-team/detail/overview/3" >
+													Junioři
+												</a>
+												<a class="js-open-subMenu" href="/national-team/detail/overview/3" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/overview/3"  class="SubSubMenu-link">
+														Přehled
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/matches/3"  class="SubSubMenu-link">
+														Zápasy
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/statistics/3"  class="SubSubMenu-link">
+														Statistiky
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/roster/3"  class="SubSubMenu-link">
+														Širší kádr
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/coaches/3"  class="SubSubMenu-link">
+														Realizační tým
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/calendar/3"  class="SubSubMenu-link">
+														Kalendář akcí
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/national-team/detail/overview/4" >
+													Juniorky
+												</a>
+												<a class="js-open-subMenu" href="/national-team/detail/overview/4" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/overview/4"  class="SubSubMenu-link">
+														Přehled
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/matches/4"  class="SubSubMenu-link">
+														Zápasy
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/statistics/4"  class="SubSubMenu-link">
+														Statistiky
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/roster/4"  class="SubSubMenu-link">
+														Širší kádr
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/coaches/4"  class="SubSubMenu-link">
+														Realizační tým
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/calendar/4"  class="SubSubMenu-link">
+														Kalendář akcí
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/national-team/detail/overview/23" >
+													Muži U23
+												</a>
+												<a class="js-open-subMenu" href="/national-team/detail/overview/23" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/overview/23"  class="SubSubMenu-link">
+														Přehled
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/matches/23"  class="SubSubMenu-link">
+														Zápasy
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/statistics/23"  class="SubSubMenu-link">
+														Statistiky
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/roster/23"  class="SubSubMenu-link">
+														Širší kádr
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/coaches/23"  class="SubSubMenu-link">
+														Realizační tým
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/national-team/detail/calendar/23"  class="SubSubMenu-link">
+														Kalendář akcí
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/article/?filter%5Bcategory%5D=4" >
+													Zprávy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://www.ceskyflorbal.tv/reprezentace"  target="_blank" rel="noopener noreferrer">
+													Přímé přenosy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://eft.ceskyflorbal.cz/"  target="_blank" rel="noopener noreferrer">
+													EFT 2026 Chomutov
+												</a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="#"  class="js-link-name">
+										Mládež
+									</a>
+									<a class="js-open-subMenu" href="#" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/ktm" >
+													Kempy talentované mládeže
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://www.ceskyflorbal.cz/zakladniskoly/"  target="_blank" rel="noopener noreferrer">
+													ČEPS Cup
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://www.ceskyflorbal.cz/stredniskoly/"  target="_blank" rel="noopener noreferrer">
+													Subterra cup
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link MegaMenu-link--external">
+												<a class="js-link-name" href="https://odm.ceskyflorbal.cz"  target="_blank" rel="noopener noreferrer">
+													Olympiáda dětí a mládeže
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/article/?filter%5Bcategory%5D=10" >
+													Zprávy
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/florbal-s-respektem" >
+													Florbal s respektem
+												</a>
+											</div>
+										</li>
+									</ul>
+									<a data-banner-id="228" class="u-display-inline-flex u-m-10 u-md-display-none" href="https://mickoni.cz" target="_blank">
+										<img loading="lazy" class="u-border-radius" src="/imgmin/data/banner/picture/20260429/160025_9cd7_square-mickoni.png/w266h266et1777471225.webp" alt="Míčkoni">
+									</a>
+								</div>
+							</li>
+					</ul>
+					<!-- Main menu - Organization -->
+					<ul class="MainNav-menu" id="js-mainMenu-organization">
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="#"  class="js-link-name">
+										Podpora
+									</a>
+									<a class="js-open-subMenu" href="#" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/rozvoj" >
+													Komplexní rozvoj oddílů a florbalu
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Regionální programy podpory
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/rozvoj-region-1"  class="SubSubMenu-link">
+														Karlovarský a Plzeňský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/rozvoj-region-2"  class="SubSubMenu-link">
+														Ústecký a Liberecký
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/rozvoj-region-3"  class="SubSubMenu-link">
+														Praha a Středočeský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/rozvoj-region-4"  class="SubSubMenu-link">
+														Královéhradecký a Pardubický
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/rozvoj-region-5"  class="SubSubMenu-link">
+														Vysočina a Jihočeský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/rozvoj-region-6"  class="SubSubMenu-link">
+														Jihomoravský a Zlínský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/rozvoj-region-7"  class="SubSubMenu-link">
+														Olomoucký a Moravskoslezský
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/trener?tabId=114" >
+													Podpora vzdělávání
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/mantinely" >
+													Financování mantinelů
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/venkovni-povrchy" >
+													Financování venkovních povrchů
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/pujcovna" >
+													Půjčovna vybavení
+												</a>
+												<a class="js-open-subMenu" href="/pujcovna" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/pujcovna?tabId=7"  class="SubSubMenu-link">
+														Hrací povrchy
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/pujcovna?tabId=32"  class="SubSubMenu-link">
+														Fotobuňky
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/pujcovna?tabId=33"  class="SubSubMenu-link">
+														Maskoti
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/pujcovna?tabId=34"  class="SubSubMenu-link">
+														Mantinely
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/zastity" >
+													Záštity turnajů
+												</a>
+											</div>
+										</li>
+									</ul>
+									<a data-banner-id="228" class="u-display-inline-flex u-m-10 u-md-display-none" href="https://mickoni.cz" target="_blank">
+										<img loading="lazy" class="u-border-radius" src="/imgmin/data/banner/picture/20260429/160025_9cd7_square-mickoni.png/w266h266et1777471225.webp" alt="Míčkoni">
+									</a>
+								</div>
+							</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="#"  class="js-link-name">
+										Řízení ČF
+									</a>
+									<a class="js-open-subMenu" href="#" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/valna-hromada" >
+													Valná hromada
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=10" >
+													Výkonný výbor
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Komise
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=12"  class="SubSubMenu-link">
+														Odvolací a revizní komise
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=11"  class="SubSubMenu-link">
+														Disciplinární komise
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=13"  class="SubSubMenu-link">
+														Arbitrážní komise
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=29"  class="SubSubMenu-link">
+														Licenční komise
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=33"  class="SubSubMenu-link">
+														Etická komise
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Odborné komise
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=3"  class="SubSubMenu-link">
+														Ekonomika
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=30"  class="SubSubMenu-link">
+														Elitní florbal
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=31"  class="SubSubMenu-link">
+														Elitní reprezentace
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=7"  class="SubSubMenu-link">
+														Regiony a rozvoj oddílů
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=27"  class="SubSubMenu-link">
+														Rovné příležitosti
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=35"  class="SubSubMenu-link">
+														Rozhodčí
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=23"  class="SubSubMenu-link">
+														Soutěže
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=8&amp;filter%5BcommitteeType%5D=24"  class="SubSubMenu-link">
+														Vzdělávání a mládež
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/regiony" >
+													Regiony
+												</a>
+												<a class="js-open-subMenu" href="/regiony" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=1&amp;filter%5BcommitteeType%5D=10"  class="SubSubMenu-link">
+														Karlovarský a Plzeňský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=2&amp;filter%5BcommitteeType%5D=10"  class="SubSubMenu-link">
+														Ústecký a Liberecký
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=3&amp;filter%5BcommitteeType%5D=10"  class="SubSubMenu-link">
+														Praha a Středočeský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=4&amp;filter%5BcommitteeType%5D=10"  class="SubSubMenu-link">
+														Královéhradecký a Pardubický
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=5&amp;filter%5BcommitteeType%5D=10"  class="SubSubMenu-link">
+														Vysočina a Jihočeský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=6&amp;filter%5BcommitteeType%5D=10"  class="SubSubMenu-link">
+														Jihomoravský a Zlínský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/committee/detail/?filter%5BmanagingAuthority%5D=7&amp;filter%5BcommitteeType%5D=10"  class="SubSubMenu-link">
+														Olomoucký a Moravskoslezský
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/secretariat" >
+													Sekretariát
+												</a>
+												<a class="js-open-subMenu" href="/secretariat" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/secretariat/"  class="SubSubMenu-link">
+														Celostátní
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/secretariat/default/detail/18"  class="SubSubMenu-link">
+														Karlovarský a Plzeňský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/secretariat/default/detail/19"  class="SubSubMenu-link">
+														Ústecký a Liberecký
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/secretariat/default/detail/17"  class="SubSubMenu-link">
+														Praha a Středočeský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/secretariat/default/detail/20"  class="SubSubMenu-link">
+														Královéhradecký a Pardubický
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/secretariat/default/detail/23"  class="SubSubMenu-link">
+														Vysočina a Jihočeský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/secretariat/default/detail/24"  class="SubSubMenu-link">
+														Jihomoravský a Zlínský
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/secretariat/default/detail/25"  class="SubSubMenu-link">
+														Olomoucký a Moravskoslezský
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/kariera" >
+													Kariéra
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/directory/decisions" >
+													Rozhodnutí
+												</a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="#"  class="js-link-name MainNav-link--multiLine">
+										<span>Mládež a</span>
+										Vzdělávání
+									</a>
+									<a class="js-open-subMenu" href="#" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/cesta" >
+													Česká cesta
+												</a>
+												<a class="js-open-subMenu" href="/cesta" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/cesta"  class="SubSubMenu-link">
+														Přehled
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/cesta-v-praxi"  class="SubSubMenu-link">
+														Praxe
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/article/?filter%5Bcategory%5D=10&amp;filter%5Bsubcategory%5D=57"  target="_blank" rel="noopener noreferrer" class="SubSubMenu-link MegaMenu-link--external">
+														Novinky
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/cesta-hrace"  class="SubSubMenu-link">
+														Hráč
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/cesta-trenera"  class="SubSubMenu-link">
+														Trenér
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/cesta-rodice"  class="SubSubMenu-link">
+														Rodič
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/ktm" >
+													Kempy talentované mládeže
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Mládežnické akce
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/mcr-zaku"  class="SubSubMenu-link">
+														MČR žáků
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/odm"  class="SubSubMenu-link">
+														Olympiáda dětí a mládeže
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="/trener" >
+													Trenéři
+												</a>
+												<a class="js-open-subMenu" href="/trener" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/trener?tabId=102"  class="SubSubMenu-link">
+														Informace
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/trener?tabId=114"  class="SubSubMenu-link">
+														Podpora vzdělávání
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/calendar/?filter%5BeventType%5D=8"  class="SubSubMenu-link">
+														Semináře
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/calendar/?filter%5BeventType%5D=4"  class="SubSubMenu-link">
+														Školení
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/calendar/?filter%5BeventType%5D=12"  class="SubSubMenu-link">
+														Školení nováčků
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="https://ceskyflorbal.sharepoint.com/:f:/s/Materialyprotrenery/EoTw_QFQ3bpBnaicYz9XOFEBXuHPWM8qzCLWOlreiBaaJA?e=x7jL0w"  target="_blank" rel="noopener noreferrer" class="SubSubMenu-link MegaMenu-link--external">
+														SharePoint pro trenéry
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/trener?tabId=115"  class="SubSubMenu-link">
+														XPS Network
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/trener?tabId=103"  class="SubSubMenu-link">
+														Materiály
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/vzdelavani-rozhodcich" >
+													Rozhodčí
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/vzdelavani-delegatu" >
+													Delegáti
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/skolni-licence" >
+													Školní licence
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/testova-sestava" >
+													Testová sestava
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/florbal-s-respektem" >
+													Florbal s respektem
+												</a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="/document"  class="js-link-name">
+										Dokumenty
+									</a>
+									<a class="js-open-subMenu" href="/document" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/document/?root=31" >
+													Pravidla florbalu
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/stanovy" >
+													Stanovy Českého florbalu
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/document/?root=10" >
+													Řády a směrnice
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/document/?root=212" >
+													Soutěžní dokumenty
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/document/?root=159" >
+													Matriční dokumenty
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/document/?root=45" >
+													Formuláře
+												</a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</li>
+							<li class="MainNav-item MainNav-item--hasMegaMenu">
+								<div class="MainNav-link js-toggleSubMenu">
+									<a href="/matrika"  class="js-link-name">
+										Matrika
+									</a>
+									<a class="js-open-subMenu" href="/matrika" >
+										<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+									</a>
+								</div>
+								<div class="MegaMenu js-subMenu">
+									<ul>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/matrika" >
+													Informace
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item MegaMenu-item--hasSubmenu">
+											<div class="MegaMenu-link js-toggleSubMenu">
+												<a class="js-link-name" href="#" >
+													Jak na to
+												</a>
+												<a class="js-open-subMenu" href="#" >
+													<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+												</a>
+											</div>
+											<ul class="SubSubMenu js-subMenu">
+												<li class="SubSubMenu-item">
+													<a href="/matrika?id=45"  class="SubSubMenu-link">
+														Nový člen
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/matrika?id=51"  class="SubSubMenu-link">
+														Nový oddíl
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/matrika?id=47"  class="SubSubMenu-link">
+														Tuzemské přestupy
+													</a>
+												</li>
+												<li class="SubSubMenu-item">
+													<a href="/matrika?id=47&amp;#mezinarodni-prestupy"  class="SubSubMenu-link">
+														Mezinárodní přestupy
+													</a>
+												</li>
+											</ul>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/registry/transfers/" >
+													Přehled přestupů
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/registry/registration-appendixes/" >
+													Evidenční dodatky
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/matrika?id=48" >
+													Čekací doba
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/matrika?id=46" >
+													FIS
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/neshoda-u-zadosti-o-prestup" >
+													Neshoda u žádosti o přestup
+												</a>
+											</div>
+										</li>
+										<li class="MegaMenu-item">
+											<div class="MegaMenu-link">
+												<a class="js-link-name" href="/article/?filter%5Bcategory%5D=14&amp;filter%5Bsubcategory%5D=15" >
+													Zprávy
+												</a>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</li>
+							<li class="MainNav-item">
+								<div class="MainNav-link">
+									<a href="/calendar/"  class="js-link-name">
+										Kalendář
+									</a>
+								</div>
+							</li>
+					</ul>
+					<!-- Aside common menu - Join us, About floorball, Seach, Others -->
+					<div class="u-display-flex u-align-items-center u-height-100p u-md-width-100p u-md-height-auto">
+						<a class="u-display-none u-lg-display-inline-flex u-md-display-none u-align-items-center u-mt-4 u-mr-32 js-showMore"
+						   href="#mainNav-asideMenu">
+							<svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 492 492"
+								 xml:space="preserve">
+							  	<path fill="#fff"
+									  d="m265.2 382.7 218.9-218.9c5.1-5.1 7.9-11.8 7.9-19s-2.8-14-7.9-19L468 109.5c-10.5-10.5-27.6-10.5-38.1 0L246.1 293.4 62 109.3c-5.1-5.1-11.8-7.9-19-7.9-7.2 0-14 2.8-19 7.9L7.9 125.5c-5.1 5.1-7.9 11.8-7.9 19s2.8 14 7.9 19L227 382.7c5.1 5.1 11.9 7.9 19.1 7.8 7.2 0 14-2.7 19.1-7.8z"></path>
+                			</svg>
+						</a>
+							<ul class="MainNav-asideMenu" id="mainNav-asideMenu">
+									<li class="MainNav-item MainNav-item--simple MainNav-item--hasSubMenu">
+										<div class="MainNav-link MainNav-link--simple js-toggleSubMenu">
+											<a class="js-link-name" href="https://nabory.ceskyflorbal.cz/"  target="_blank" rel="noopener noreferrer">
+												Zapoj se!
+											</a>
+											<a class="js-open-subMenu" href="https://nabory.ceskyflorbal.cz/"  target="_blank" rel="noopener noreferrer">
+												<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+											</a>
+										</div>
+										<ul class="SubMenu">
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="https://mickoni.cz"  target="_blank" rel="noopener noreferrer">
+													Míčkoni
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/hraj" >
+													Buď hráč
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/rozhodci" >
+													Buď rozhodčí
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/matrika?id=51" >
+													Založ klub
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/pomahej" >
+													Buď dobrovolník
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/kariera" >
+													Pracuj u nás
+												</a>
+											</li>
+										</ul>
+									</li>
+									<li class="MainNav-item MainNav-item--simple MainNav-item--hasSubMenu">
+										<div class="MainNav-link MainNav-link--simple js-toggleSubMenu">
+											<a class="js-link-name" href="#" >
+												O florbale
+											</a>
+											<a class="js-open-subMenu" href="#" >
+												<img loading="lazy" src="/front/img/icons/chevron-right-white.svg" alt="">
+											</a>
+										</div>
+										<ul class="SubMenu">
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/v-kostce" >
+													ČF v kostce
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/historie" >
+													Historie
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/sin-slavy" >
+													Síň slávy
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/budoucnost" >
+													Budoucnost
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/svet" >
+													Mezinárodní florbal
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/paraflorbal" >
+													Paraflorbal
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/pro-media" >
+													Media servis
+												</a>
+											</li>
+											<li class="SubMenu-item">
+												<a class="SubMenu-link" href="/partneri" >
+													Partneři
+												</a>
+											</li>
+										</ul>
+									</li>
+									<li class="MainNav-item MainNav-item--simple MainNav-item--single">
+										<a class="MainNav-link MainNav-link--simple"
+												href="https://www.ceskyflorbal.cz/id" >
+											Florbal ID
+										</a>
+									</li>
+								<li class="MainNav-item MainNav-item--simple u-md-display-none">
+									<a class="MainNav-link MainNav-link--simple MainNav-link--icon js-openSearch" href="#"
+									   aria-label="Otevřít vyhledávání" title="Otevřít vyhledávání">
+										<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 56.966 56.966"
+											 xml:space="preserve">
+											<path fill="#fff"
+												  d="M55.146 51.887 41.588 37.786A22.926 22.926 0 0 0 46.984 23c0-12.682-10.318-23-23-23s-23 10.318-23 23 10.318 23 23 23c4.761 0 9.298-1.436 13.177-4.162l13.661 14.208c.571.593 1.339.92 2.162.92.779 0 1.518-.297 2.079-.837a3.004 3.004 0 0 0 .083-4.242zM23.984 6c9.374 0 17 7.626 17 17s-7.626 17-17 17-17-7.626-17-17 7.626-17 17-17z"></path>
+										</svg>
+									</a>
+								</li>
+								<li class="MainNav-item MainNav-item--hasJsMenu u-display-none u-md-display-block" id="js-mainNav-others">
+									<div class="MainNav-link MainNav-link--grey js-toggleSubMenu">
+										<a class="js-link-name" href="#">Další</a>
+										<a class="js-open-subMenu"><img loading="lazy" src="/front/img/icons/chevron-right-grey.svg" alt=""></a>
+									</div>
+									<!-- SubMenu filled by JS at 1024 px and below -->
+								</li>
+							</ul>
+						<!-- Toogle main menu buttons -->
+						<div class="u-height-100p u-md-display-none">
+							<button class="TiltedButton TiltedButton--red u-floorball-display-none js-setFloorball">Florbal</button>
+							<button class="TiltedButton TiltedButton--blue u-organization-display-none js-setOrganization">Organizace</button>
+						</div>
+					</div>
+				</div>
+			</nav>
+		</div>
+	</div>
+</header>
+
+<!-- Main -->
+<main role="main" aria-label="Hlavní obsah" page-color="#94191c" class="ProfileTeam">
+	<!-- Download banner -->
+	<div class="DownloadBanner u-display-none">
+		<div class="DownloadBanner-content">
+			<a href="#" class="DownloadBanner-close js-download-banner-close">
+				<img src="/front/img/icons/close.svg" alt="icon-close">
+			</a>
+			<img class="DownloadBanner-logo" src="/front/img/logos/cesky_florbal-app.png" alt="florbal app logo">
+			<div class="DownloadBanner-texts">
+				<h5>Český florbal</h5>
+				<p>Nezapomeňte stáhnout zdarma aplikaci</p>
+			</div>
+		</div>
+		<a href="#" class="Button js-download-banner-download">Nainstalovat</a>
+	</div>
+
+
+	<header class="ProfileClub-header ProfileTeam">
+		<div class="Container">
+			<section class="ProfileClub-header--content">
+				<a class="ProfileClub-header--logo" href="/club/detail/overview/978">
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w170h170ft1755706360.png"
+			style="width:170px;height:170px;object-fit:contain;" loading="lazy" alt="">
+				</a>
+				<div class="ProfileClub-header--info">
+					<h1 class="ProfileClub-header--heading">FBC KUTNÁ HORA B</h1>
+					<h3 class="ProfileClub-header--city">PH A SČ LIGA MUŽŮ 2026/2027</h3>
+					<ul class="ProfileClub-header--socials">
+						<li>
+							<a href="http://www.fbckutnahora.cz" target="_blank"><img loading="lazy" src="/front/img/icons/homeWhite.svg" alt="home"></a>
+						</li>
+						<li>
+							<a href="https://www.facebook.com/fbckutnahora" target="_blank"><img loading="lazy" src="/front/img/icons/facebookWhite.svg" alt="facebook"></a>
+						</li>
+						<li>
+							<a href="https://www.instagram.com/fbckutnahora/?hl=cs" target="_blank"><img loading="lazy" src="/front/img/icons/instagramWhite.svg" alt="instagram"></a>
+						</li>
+					</ul>
+				</div>
+			</section>
+		</div>
+		<div class="Container">
+			<nav class="ProfileMenu-nav">
+				<ul>
+					<li class="ProfileMenu-item">
+						<a href="/team/detail/overview/45019" class="ProfileMenu-link">
+							Přehled
+						</a>
+					</li>
+					<li class="ProfileMenu-item">
+						<a href="/team/detail/matches/45019" class="ProfileMenu-link is-active">
+							Zápasy
+						</a>
+					</li>
+					<li class="ProfileMenu-item">
+						<a href="/team/detail/roster/45019" class="ProfileMenu-link">
+							Soupiska
+						</a>
+					</li>
+					<li class="ProfileMenu-item">
+						<a href="/team/detail/statistics/45019" class="ProfileMenu-link">
+							Statistiky
+						</a>
+					</li>
+					<li class="ProfileMenu-item">
+						<a href="/team/detail/contact/45019" class="ProfileMenu-link">
+							Kontakty a haly
+						</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</header>
+
+
+
+
+<div class="Container">
+	<div class="ProfileTeam-body">
+		<section class="ProfileTeam-body--matches u-border-radius u-overflow-hidden Matches-body-Table">
+			<div class="SelectsBox-container no-sidebuttons-md">
+				<form class="SelectsBox Select-sm-hide Show js-selectsBox" action="/team/detail/matches/45019" method="post" id="frm-matchesFilterForm">
+					<select class="Select ListSelect-active" name="team2" data-minimum-results-for-search="1" data-ajaxOnChange="true" id="frm-matchesFilterForm-team2"><option value="">Všichni soupeři</option><option value="46687">ACEMA Sparta Praha C</option><option value="44083">BLACK ANGELS Benfika</option><option value="45579">Blue Horses Stochov</option><option value="45574">FAT PIPE Traverza B youngstars</option><option value="45962">FBC Draci Říčany B</option><option value="44596">FbC Red Dragons Hořovice</option><option value="46618">FBK Vosy Praha</option><option value="45472">FbŠ Bohemians B</option><option value="45639">Floorball Club FALCON BU21</option><option value="45428">Florbal TJ  Kobylisy B</option><option value="44693">FT Sokol Praha-Břevnov</option><option value="44332">IBK Kubánský Klan</option><option value="46335">Kanonýři Kladno B</option><option value="45227">Las Plantas</option><option value="46283">LEV LYSÁ</option><option value="44727">Lhokamo Praha</option><option value="45253">Medojedi Sedlčany</option><option value="46448">Panthers Praha C-POWER</option><option value="45046">Prague Tigers</option><option value="44941">Sokol Benátky n/J</option><option value="44226">Sokol Rudná B</option><option value="45214">Tatran Střešovice C</option><option value="45381">TBC Engineers Horoměřice</option><option value="43886">VSK MFF UK Praha</option><option value="45414">Wizards SO DDM Praha 10 C</option></select>
+<input type="hidden" name="_token_" value="ybga8d40iySOZEpPJIflbmse0U3Hn8hBMz/c8="><input type="submit" name="_ajaxOnChange" data-ajax-validate='{"form":false}' class="ajax d-none" value=""><input type="hidden" name="_do" value="matchesFilterForm-submit">				</form>
+				<div class="SelectsBox-filters u-display-none u-sm-display-flex u-justify-center js-selectsButton">
+					<img src="/front/img/icons/filter-gray.svg" loading="lazy" alt=""> Filtrovat
+				</div>
+				<div class="SelectsBox-secondaryButtons">
+				</div>
+			</div>
+			<section class="Matches-body--League" id="snippet--matches">
+				<script>
+					window.history.replaceState({}, document.title, "/team/detail/matches/45019");
+				</script>
+
+				<a href="/competition/default/detail/4574?divisionId=5501" class="Matches-body--sectionHeader" style="text-decoration: none;">
+			<h3>PH a SČ liga mužů</h3>
+			<img loading="lazy" src="/front/img/icons/arrow-right-white.svg" alt="">
+				</a>
+
+		<div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">SO, 19. 9.</time>
+			<span class="Match-round">1. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">SO, 19. 9.</time>
+				<span class="Match-round">1. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/46687">
+					<p class="Match-teamName">ACEMA Sparta Praha C</p>
+					<p class="Match-teamNameShort">Sparta</p>
+					<abbr class="Match-teamNameAbbr" title="ACEMA Sparta Praha C">SPA</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_233_logo-2360532876.png/w20h20ft1690792631.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<span class="Match-score"><a href="/match/detail/default/1306729">3:6</a></span>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-status">odehráno</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">SO, 19. 9.</time>
+			<span class="Match-round">1. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">SO, 19. 9.</time>
+				<span class="Match-round">1. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<span class="Match-score"><a href="/match/detail/default/1306733">4:2</a></span>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_1191_logo-1085913816.png/w20h20ft1761926121.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/44727">
+					<p class="Match-teamName">Lhokamo Praha</p>
+					<p class="Match-teamNameShort">Lhokamo</p>
+					<abbr class="Match-teamNameAbbr" title="Lhokamo Praha">LHO</abbr>
+				</a>
+			</div>
+				<p class="Match-status">odehráno</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 4. 10.</time>
+			<span class="Match-round">4. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 4. 10.</time>
+				<span class="Match-round">4. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<span class="Match-score"><a href="/match/detail/default/1306748">3:4</a></span>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_829_logo-3147320104.png/w20h20ft1651678844.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45962">
+					<p class="Match-teamName">FBC Draci Říčany B</p>
+					<p class="Match-teamNameShort">Draci</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Draci Říčany B">DRC</abbr>
+				</a>
+			</div>
+				<p class="Match-status">odehráno</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 4. 10.</time>
+			<span class="Match-round">4. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 4. 10.</time>
+				<span class="Match-round">4. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45253">
+					<p class="Match-teamName">Medojedi Sedlčany</p>
+					<p class="Match-teamNameShort">Sedlčany</p>
+					<abbr class="Match-teamNameAbbr" title="Medojedi Sedlčany">SDL</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_1112_logo-2913519338.jpg/w20h20ft1786964503.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<span class="Match-score"><a href="/match/detail/default/1306751">4:5</a></span>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-status">odehráno</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">SO, 17. 10.</time>
+			<span class="Match-round">5. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">SO, 17. 10.</time>
+				<span class="Match-round">5. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45214">
+					<p class="Match-teamName">Tatran Střešovice C</p>
+					<p class="Match-teamNameShort">Tatran</p>
+					<abbr class="Match-teamNameAbbr" title="Tatran Střešovice C">TAT</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_85_logo-250155869.png/w20h20ft1787910012.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306757">15:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">Unihoc Aréna Praha</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 1. 11.</time>
+			<span class="Match-round">8. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 1. 11.</time>
+				<span class="Match-round">8. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/44941">
+					<p class="Match-teamName">Sokol Benátky n/J</p>
+					<p class="Match-teamNameShort">Benátky</p>
+					<abbr class="Match-teamNameAbbr" title="Sokol Benátky n/J">BNJ</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_130_logo-51554896.jpg/w20h20ft1786963908.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306772">10:30</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Stochov</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 1. 11.</time>
+			<span class="Match-round">8. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 1. 11.</time>
+				<span class="Match-round">8. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306774">13:30</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_465_logo-795353230.jpg/w20h20ft1786964068.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/44693">
+					<p class="Match-teamName">FT Sokol Praha-Břevnov</p>
+					<p class="Match-teamNameShort">Břevnov</p>
+					<abbr class="Match-teamNameAbbr" title="FT Sokol Praha-Břevnov">BRV</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Stochov</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 15. 11.</time>
+			<span class="Match-round">10. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 15. 11.</time>
+				<span class="Match-round">10. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306783">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_944_logo-3540231435.jpg/w20h20ft1786964399.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45381">
+					<p class="Match-teamName">TBC Engineers Horoměřice</p>
+					<p class="Match-teamNameShort">Horoměřice</p>
+					<abbr class="Match-teamNameAbbr" title="TBC Engineers Horoměřice">HRM</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH TJ Kobylisy</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 15. 11.</time>
+			<span class="Match-round">10. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 15. 11.</time>
+				<span class="Match-round">10. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45046">
+					<p class="Match-teamName">Prague Tigers</p>
+					<p class="Match-teamNameShort">Tigers</p>
+					<abbr class="Match-teamNameAbbr" title="Prague Tigers">TIG</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_238_logo-2890228111.png/w20h20ft1757236149.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306785">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH TJ Kobylisy</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">ST, 25. 11.</time>
+			<span class="Match-round">5. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">ST, 25. 11.</time>
+				<span class="Match-round">5. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306754">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_1181_logo-1041383326.png/w20h20ft1719614581.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45227">
+					<p class="Match-teamName">Las Plantas</p>
+					<p class="Match-teamNameShort">Las Plantas</p>
+					<abbr class="Match-teamNameAbbr" title="Las Plantas">Las Plantas</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Kutná Hora Klimeška</p>
+				
+					<span aria-label="odložené utkání 17.10.2026" class="Tooltip Tooltip--warning u-mr-0 Tooltip--container"></span>
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 29. 11.</time>
+			<span class="Match-round">12. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 29. 11.</time>
+				<span class="Match-round">12. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/43886">
+					<p class="Match-teamName">VSK MFF UK Praha</p>
+					<p class="Match-teamNameShort">MFF Praha</p>
+					<abbr class="Match-teamNameAbbr" title="VSK MFF UK Praha">MFF</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_684_logo-3624961401.png/w20h20ft1651678842.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306796">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">Marsch Arena</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 29. 11.</time>
+			<span class="Match-round">12. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 29. 11.</time>
+				<span class="Match-round">12. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306799">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_85_logo-250155869.png/w20h20ft1787910012.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45214">
+					<p class="Match-teamName">Tatran Střešovice C</p>
+					<p class="Match-teamNameShort">Tatran</p>
+					<abbr class="Match-teamNameAbbr" title="Tatran Střešovice C">TAT</abbr>
+				</a>
+			</div>
+				<p class="Match-place">Marsch Arena</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 13. 12.</time>
+			<span class="Match-round">14. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 13. 12.</time>
+				<span class="Match-round">14. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306808">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_130_logo-51554896.jpg/w20h20ft1786963908.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/44941">
+					<p class="Match-teamName">Sokol Benátky n/J</p>
+					<p class="Match-teamNameShort">Benátky</p>
+					<abbr class="Match-teamNameAbbr" title="Sokol Benátky n/J">BNJ</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Kutná Hora Klimeška II</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 13. 12.</time>
+			<span class="Match-round">14. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 13. 12.</time>
+				<span class="Match-round">14. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45428">
+					<p class="Match-teamName">Florbal TJ  Kobylisy B</p>
+					<p class="Match-teamNameShort">Kobylisy</p>
+					<abbr class="Match-teamNameAbbr" title="Florbal TJ  Kobylisy B">KBL</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_492_logo-2848154979.png/w20h20ft1756295087.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306812">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Kutná Hora Klimeška II</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 31. 1.</time>
+			<span class="Match-round">18. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 31. 1.</time>
+				<span class="Match-round">18. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45227">
+					<p class="Match-teamName">Las Plantas</p>
+					<p class="Match-teamNameShort">Las Plantas</p>
+					<abbr class="Match-teamNameAbbr" title="Las Plantas">Las Plantas</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_1181_logo-1041383326.png/w20h20ft1719614581.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306834">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Čakovice</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 31. 1.</time>
+			<span class="Match-round">18. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 31. 1.</time>
+				<span class="Match-round">18. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306836">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_238_logo-2890228111.png/w20h20ft1757236149.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45046">
+					<p class="Match-teamName">Prague Tigers</p>
+					<p class="Match-teamNameShort">Tigers</p>
+					<abbr class="Match-teamNameAbbr" title="Prague Tigers">TIG</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Čakovice</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 14. 2.</time>
+			<span class="Match-round">20. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 14. 2.</time>
+				<span class="Match-round">20. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/44693">
+					<p class="Match-teamName">FT Sokol Praha-Břevnov</p>
+					<p class="Match-teamNameShort">Břevnov</p>
+					<abbr class="Match-teamNameAbbr" title="FT Sokol Praha-Břevnov">BRV</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_465_logo-795353230.jpg/w20h20ft1786964068.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306844">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Gymnázium Sedlčany</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 14. 2.</time>
+			<span class="Match-round">20. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 14. 2.</time>
+				<span class="Match-round">20. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306846">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_233_logo-2360532876.png/w20h20ft1690792631.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/46687">
+					<p class="Match-teamName">ACEMA Sparta Praha C</p>
+					<p class="Match-teamNameShort">Sparta</p>
+					<abbr class="Match-teamNameAbbr" title="ACEMA Sparta Praha C">SPA</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH Gymnázium Sedlčany</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 28. 2.</time>
+			<span class="Match-round">22. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 28. 2.</time>
+				<span class="Match-round">22. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45253">
+					<p class="Match-teamName">Medojedi Sedlčany</p>
+					<p class="Match-teamNameShort">Sedlčany</p>
+					<abbr class="Match-teamNameAbbr" title="Medojedi Sedlčany">SDL</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_1112_logo-2913519338.jpg/w20h20ft1786964503.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306858">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH ZŠ Černošice-Mokropsy</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 28. 2.</time>
+			<span class="Match-round">22. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 28. 2.</time>
+				<span class="Match-round">22. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306860">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_1191_logo-1085913816.png/w20h20ft1761926121.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/44727">
+					<p class="Match-teamName">Lhokamo Praha</p>
+					<p class="Match-teamNameShort">Lhokamo</p>
+					<abbr class="Match-teamNameAbbr" title="Lhokamo Praha">LHO</abbr>
+				</a>
+			</div>
+				<p class="Match-place">SH ZŠ Černošice-Mokropsy</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">SO, 13. 3.</time>
+			<span class="Match-round">23. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">SO, 13. 3.</time>
+				<span class="Match-round">23. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45428">
+					<p class="Match-teamName">Florbal TJ  Kobylisy B</p>
+					<p class="Match-teamNameShort">Kobylisy</p>
+					<abbr class="Match-teamNameAbbr" title="Florbal TJ  Kobylisy B">KBL</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_492_logo-2848154979.png/w20h20ft1756295087.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306864">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">Sport Eden Beroun</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">SO, 13. 3.</time>
+			<span class="Match-round">23. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">SO, 13. 3.</time>
+				<span class="Match-round">23. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306866">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_684_logo-3624961401.png/w20h20ft1651678842.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/43886">
+					<p class="Match-teamName">VSK MFF UK Praha</p>
+					<p class="Match-teamNameShort">MFF Praha</p>
+					<abbr class="Match-teamNameAbbr" title="VSK MFF UK Praha">MFF</abbr>
+				</a>
+			</div>
+				<p class="Match-place">Sport Eden Beroun</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 4. 4.</time>
+			<span class="Match-round">26. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 4. 4.</time>
+				<span class="Match-round">26. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306878">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_829_logo-3147320104.png/w20h20ft1651678844.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45962">
+					<p class="Match-teamName">FBC Draci Říčany B</p>
+					<p class="Match-teamNameShort">Draci</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Draci Říčany B">DRC</abbr>
+				</a>
+			</div>
+				<p class="Match-place">Marsch Arena</p>
+				
+				
+		</div>
+	</div>
+	<div class="Match">
+		<div class="Match-dateAndRoundMobileWrapper">
+			<time class="Match-date" datetime="">NE, 4. 4.</time>
+			<span class="Match-round">26. kolo</span>
+		</div>
+		<div class="Match-leftContent">
+			<div class="Match-dateAndRoundWrapper">
+				<time class="Match-date" datetime="">NE, 4. 4.</time>
+				<span class="Match-round">26. kolo</span>
+			</div>
+			<div class="Match-teamWrapper">
+				<a href="/team/detail/overview/45381">
+					<p class="Match-teamName">TBC Engineers Horoměřice</p>
+					<p class="Match-teamNameShort">Horoměřice</p>
+					<abbr class="Match-teamNameAbbr" title="TBC Engineers Horoměřice">HRM</abbr>
+				</a>
+	<img
+			src="/imgmin/data/fis/document/clubs_944_logo-3540231435.jpg/w20h20ft1786964399.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<span class="Match-seriesState">&nbsp;</span>
+			</div>
+		</div>
+		<div class="Match-centerContent">
+				<time datetime="" class="Match-startTime">
+					<a href="/match/detail/default/1306881">00:00</a>
+				</time>
+		</div>
+		<div class="Match-rightContent no-tooltip">
+			<div class="Match-teamWrapper">
+				<span class="Match-seriesState">&nbsp;</span>
+	<img
+			src="/imgmin/data/fis/document/clubs_978_logo-3535445616.png/w20h20ft1755706360.png"
+			style="width:20px;height:20px;object-fit:contain;" loading="lazy" alt="" class="Match-logo">
+				<a href="/team/detail/overview/45019">
+					<p class="Match-teamName">FBC Kutná Hora B</p>
+					<p class="Match-teamNameShort">Kutná Hora</p>
+					<abbr class="Match-teamNameAbbr" title="FBC Kutná Hora B">KTH</abbr>
+				</a>
+			</div>
+				<p class="Match-place">Marsch Arena</p>
+				
+				
+		</div>
+	</div>
+		</div>
+			</section>
+		</section>
+	</div>
+</div>
+
+
+
+<div class="Container">
+	<section class="ProfileClub-body--News">
+		<div class="ProfileClub-body--News--header">
+			<h4 class="ProfileClub-body--title">Zprávy</h4>
+			<a class="ProfileClub-body--News--moreArticles" href="/article/">
+				<p>Více článků</p>
+				<img loading="lazy" src="/front/img/icons/arrow-right-red.svg" alt="">
+			</a>
+		</div>
+		<div class="ProfileClub-body--News--container">
+				<article class="ProfileClub-body-imgArticle">
+
+
+					<img loading="lazy" class="ProfileClub-body-imgArticle-img" src="/imgmin/data/photo/20261005/094112_0132_A9-06250.jpg/w800h600et1791186072.png" alt="">
+					<div class="ProfileClub-body-imgArticle-textContainer">
+						<span class="ProfileClub-body-imgArticle-label ProfileClub-body-imgArticle-label--date">
+															včera
+						</span>
+						<span class="ProfileClub-body-imgArticle-label">
+								Souhrn
+						</span>
+						<h2 class="ProfileClub-body-imgArticle-title">
+							<a href="/article/default/detail?slug=pardubice-bojuji-s-ostravou-dalsi-duely-vypuknou-v-17-hodin">
+								Pardubice zdolaly Ostravu, Liberec zvládl vyrovnaný duel se Spartou v nájezdech
+							</a>
+						</h2>
+					</div>
+					<a class="ProfileClub-body-imgArticle-link" href="/article/default/detail?slug=pardubice-bojuji-s-ostravou-dalsi-duely-vypuknou-v-17-hodin" tabindex="-1" aria-hidden="true">
+						Pardubice zdolaly Ostravu, Liberec zvládl vyrovnaný duel se Spartou v nájezdech
+					</a>
+				</article>
+				<article class="ProfileClub-body-imgArticle">
+
+
+					<img loading="lazy" class="ProfileClub-body-imgArticle-img" src="/imgmin/data/photo/20261005/092346_bd02_20261004173901-MV10506.jpg/w800h600et1791185027.png" alt="">
+					<div class="ProfileClub-body-imgArticle-textContainer">
+						<span class="ProfileClub-body-imgArticle-label ProfileClub-body-imgArticle-label--date">
+															včera
+						</span>
+						<span class="ProfileClub-body-imgArticle-label">
+								Souhrn
+						</span>
+						<h2 class="ProfileClub-body-imgArticle-title">
+							<a href="/article/default/detail?slug=souhrn-extraliga-2026-2027-4-kolo-derby-florbal-prima-sport">
+								Chodov zvládl derby, Bulldogs sťaly Ostravu. První výhry pro Olomouc a Třinec!
+							</a>
+						</h2>
+					</div>
+					<a class="ProfileClub-body-imgArticle-link" href="/article/default/detail?slug=souhrn-extraliga-2026-2027-4-kolo-derby-florbal-prima-sport" tabindex="-1" aria-hidden="true">
+						Chodov zvládl derby, Bulldogs sťaly Ostravu. První výhry pro Olomouc a Třinec!
+					</a>
+				</article>
+				<article class="ProfileClub-body-imgArticle">
+
+
+					<img loading="lazy" class="ProfileClub-body-imgArticle-img" src="/imgmin/data/photo/20260227/080920_da02_641518025-1552173863579018-6584111387088560625-n.jpg/w800h600et1772176160.png" alt="">
+					<div class="ProfileClub-body-imgArticle-textContainer">
+						<span class="ProfileClub-body-imgArticle-label ProfileClub-body-imgArticle-label--date">
+															včera
+						</span>
+						<span class="ProfileClub-body-imgArticle-label">
+								Souhrn
+						</span>
+						<h2 class="ProfileClub-body-imgArticle-title">
+							<a href="/article/default/detail?slug=bohaty-nedelni-program-1-ligy-do-akce-jde-dvanact-tymu">
+								1. liga mužů má za sebou bohatý program, do akce šlo dvanáct týmů!
+							</a>
+						</h2>
+					</div>
+					<a class="ProfileClub-body-imgArticle-link" href="/article/default/detail?slug=bohaty-nedelni-program-1-ligy-do-akce-jde-dvanact-tymu" tabindex="-1" aria-hidden="true">
+						1. liga mužů má za sebou bohatý program, do akce šlo dvanáct týmů!
+					</a>
+				</article>
+			<div class="ProfileClub-body--News--links">
+					<a href="/article/default/detail?slug=lidr-tabulky-hosti-mladou-boleslav-naladte-si-prima-sport">
+						<h3>Chodov zakusil první prohru a mladoboleslavský Tokoš si připsal šestistý bod!</h3>
+					</a>
+					<a href="/article/default/detail?slug=tatran-pojede-do-svedska-zeny-narazi-na-kalmarsund-s-ceskymi-hvezdami-muze-ceka-traskava-odveta">
+						<h3>Tatran pojede do Švédska! Ženy narazí na Kalmarsund s českými hvězdami, muže čeká třaskavá odveta</h3>
+					</a>
+					<a href="/article/default/detail?slug=18-ngoc-mai-tran-mezi-dvema-svety-mlcet-pro-ni-znamena-tolerovat">
+						<h3>#18 Ngoc Mai Tran | Mezi dvěma světy. Mlčet pro ni znamená tolerovat</h3>
+					</a>
+					<a href="/article/default/detail?slug=vykonny-vybor-umoznil-janosove-start-v-cez-extralize">
+						<h3>Výkonný výbor umožnil Janošové start v ČEZ Extralize</h3>
+					</a>
+					<a href="/article/default/detail?slug=vyrovnany-duel-se-zlomil-v-55-minute-znojmo-si-pripsalo-vyhru-nad-hanaky">
+						<h3>Vyrovnaný duel se zlomil v 55. minutě! Znojmo si připsalo výhru nad Hanáky</h3>
+					</a>
+			</div>
+		</div>
+	</section>
+</div>
+
+
+<div class="Container u-mt-18 Partners">
+	<div class="swiper swiper--partners js-carousel-partners">
+		<div class="Partners-Wrapper swiper-wrapper">
+			<div class="Partners-Holba swiper-slide">
+				<a href="https://www.livesport.eu/" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20231108/081527_491d_livesport.png/w150h51ft1699427727.png" alt="Livesport">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="https://www.cez.cz" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20231108/081546_7205_cez.png/w150h51ft1699427746.png" alt="Skupina ČEZ">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="https://www.ceps.cz/cs/" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20231108/081614_8cea_ceps.png/w150h51ft1699427774.png" alt="ČEPS">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="http://www.ceskatelevize.cz/" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20220707/133646_2c55_ceska-televize.png/w150h51ft1657193806.png" alt="Česká televize">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="https://www.evropa2.cz/" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20220707/133659_d3a4_evropa-2.png/w150h51ft1657193819.png" alt="Evropa 2">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="http://www.denik.cz/" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20220707/133712_0434_denik.png/w150h51ft1657193832.png" alt="deník.cz">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="https://www.bigboard.cz/" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20251112/154446_7196_bigboard.png/w150h51ft1762958686.png" alt="BigBoard">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="https://perinvest.group" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20230727/122349_1a78_perinvest-media.png/w150h51ft1690453429.png" alt="Perinvest Media">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="https://www.ceskyflorbal.tv" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20230906/151849_29cd_ceskyflorbal-tv.png/w150h51ft1694006329.png" alt="ceskyflorbal.tv">
+				</a>
+			</div>
+			<div class="Partners-Holba swiper-slide">
+				<a href="http://www.bpv-bp.com/cs" target="_blank">
+					<img loading="lazy" src="/imgmin/data/partner/logo/20260813/105211_1f92_bpv.png/w150h51ft1786611131.png" alt="bpv BRAUN PARTNERS">
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<div class="Container u-mt-18">
+	<div class="Grid">
+		<div class="Grid-col Grid-col--3 Grid-col--md-6 Grid-col--sm-6 Grid-col--xs-12 u-xs-mt-10 Banner-Content">
+			<a data-banner-id="229" href="https://nsa.gov.cz/" target="_blank">
+				<img src="/imgmin/data/banner/picture/20260429/160123_0959_square-nsa.png/w266h266et1777471283.png" class="u-border-radius" width="266px" height="266px" alt="Národní sportovní agentura" loading="lazy">
+			</a>
+		</div>
+		<div class="Grid-col Grid-col--3 Grid-col--md-6 Grid-col--sm-6 Grid-col--xs-12 u-xs-mt-10 Banner-Content">
+			<a data-banner-id="1" href="https://www.livesport.cz/" target="_blank">
+				<img src="/imgmin/data/banner/picture/20230828/102207_9664_LS-florbal-1024x1024-hp.png/w266h266et1693210928.png" class="u-border-radius" width="266px" height="266px" alt="Livesport" loading="lazy">
+			</a>
+		</div>
+		<div class="Grid-col Grid-col--3 Grid-col--md-6 Grid-col--sm-6 Grid-col--xs-12 u-xs-mt-10 Banner-Content">
+			<a data-banner-id="30" href="https://www.ceps.cz/cs/" target="_blank">
+				<img src="/imgmin/data/banner/picture/20221213/161721_2518_ceps-266x266.png/w266h266et1670944642.png" class="u-border-radius" width="266px" height="266px" alt="ČEPS" loading="lazy">
+			</a>
+		</div>
+		<div class="Grid-col Grid-col--3 Grid-col--md-6 Grid-col--sm-6 Grid-col--xs-12 u-xs-mt-10 Banner-Content">
+			<a data-banner-id="228" href="https://mickoni.cz" target="_blank">
+				<img src="/imgmin/data/banner/picture/20260429/160025_9cd7_square-mickoni.png/w266h266et1777471225.png" class="u-border-radius" width="266px" height="266px" alt="Míčkoni" loading="lazy">
+			</a>
+		</div>
+	</div>
+</div>
+
+<div class="Container">
+	<a class="js-go-up" href="#">
+		<div class="GoUpComp">
+			<img loading="lazy" src="/front/img/icons/chevron-up-white.svg" alt="">
+		</div>
+	</a>
+</div>
+</main>
+
+
+
+<section
+		style="height: 616px;" class="Bottom-Homepage">
+	<div
+	 class="Bottom-Homepage-secondBackground"></div>
+	<div class="Bottom-Homepage-CFlogo">
+			<img loading="lazy" src="/front/img/logos/cesky_florbal-symbol.svg" width="70px" alt="CF-logo">
+	</div>
+	<div class="Container">
+		<div class="Grid Grid-Bottom">
+			<div class="Grid-col Grid-col-special--2 Grid-col--md-12 Bottom-Contact-DesktopScreen">
+				<div class="Bottom-header Bottom-header-collapsible addres&contact">
+					<p>Adresa a kontakt</p>
+					<div class="collapsible-img"></div>
+				</div>
+				<article class="NewsArticle Bottom-article Bottom-articleInfo Bottom-header-collapsibleContent">
+					<table>
+						<tr>
+							<td><img loading="lazy" src="/front/img/location-pointer.png" height="50px" alt="location-point"></td>
+							<td style="vertical-align: middle;">
+								<table>
+									<tr>
+										<td class="Bottom-articleInfo-names">Český florbal</td>
+									</tr>
+									<tr>
+										<td>Lomnického 1705/5</td>
+									</tr>
+									<tr>
+										<td>140 00 Praha 4</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr>
+							<td class="Bottom-articleInfo-names">IČO:</td>
+							<td>61387991</td>
+						</tr>
+						<tr>
+							<td class="Bottom-articleInfo-names">Mobil:</td>
+							<td>+420 737 203 860</td>
+						</tr>
+						<tr>
+							<td class="Bottom-articleInfo-names">E-mail:</td>
+							<td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1871767e77587b7d6b73617e74776a7a7974367b62">[email&#160;protected]</a></td>
+						</tr>
+						<tr>
+							<td class="Bottom-articleInfo-names">URL:</td>
+							<td><a style="color: #000;" href="https://www.ceskyflorbal.cz">www.ceskyflorbal.cz</a></td>
+						</tr>
+					</table>
+				</article>
+			</div>
+				<div class="Grid-col Grid-col-special--6 Grid-col--md-12">
+					<div class="Bottom-header Bottom-header-collapsible">
+						<p>Mohlo by vás zajímat</p>
+						<div class="collapsible-img"></div>
+					</div>
+					<div class="swiper Bottom-swiperWrapper swiper--medium js-carousel-medium Bottom-header-collapsibleContent">
+						<div class="Grid swiper-wrapper">
+							<div class="Grid-col Grid-col--4 Grid-col--md-12 Grid-col--sm-12 swiper-slide">
+
+
+								<article class="NewsArticle Bottom-article">
+									<img loading="lazy" class="NewsArticle-img" src="/imgmin/data/photo/20220720/095807_8b41_12923-adobestock-284879503.jpg/w800h600et1658303888.png" alt="">
+									<div class="NewsArticle-textContainer">
+										<span class="NewsArticle-label NewsArticle-label--date">
+																					26.6.2026
+									</span>
+										<span class="NewsArticle-label NewsArticle-label--type">
+											Organizace
+									</span>
+										<h2 class="NewsArticle-title">
+											<a href="/article/default/detail?slug=zacina-mezinarodni-prestupni-obdobi-pro-sezonu-2026-27">Začíná mezinárodní přestupní období pro sezonu 2026/27</a>
+										</h2>
+									</div>
+									<a class="NewsArticle-link" href="/article/default/detail?slug=zacina-mezinarodni-prestupni-obdobi-pro-sezonu-2026-27" tabindex="-1" aria-hidden="true">Začíná mezinárodní přestupní období pro sezonu 2026/27</a>
+								</article>
+							</div>
+							<div class="Grid-col Grid-col--4 Grid-col--md-12 Grid-col--sm-12 swiper-slide">
+
+
+								<article class="NewsArticle Bottom-article">
+									<img loading="lazy" class="NewsArticle-img" src="/imgmin/data/photo/20220720/095807_8b41_12923-adobestock-284879503.jpg/w800h600et1658303888.png" alt="">
+									<div class="NewsArticle-textContainer">
+										<span class="NewsArticle-label NewsArticle-label--date">
+																					29.6.2026
+									</span>
+										<span class="NewsArticle-label NewsArticle-label--type">
+											Organizace
+									</span>
+										<h2 class="NewsArticle-title">
+											<a href="/article/default/detail?slug=blizi-se-prestupni-obdobi-pro-sezonu-2026-2027">Blíží se přestupní období pro sezonu 2026/2027</a>
+										</h2>
+									</div>
+									<a class="NewsArticle-link" href="/article/default/detail?slug=blizi-se-prestupni-obdobi-pro-sezonu-2026-2027" tabindex="-1" aria-hidden="true">Blíží se přestupní období pro sezonu 2026/2027</a>
+								</article>
+							</div>
+							<div class="Grid-col Grid-col--4 Grid-col--md-12 Grid-col--sm-12 swiper-slide">
+
+
+								<article class="NewsArticle Bottom-article">
+									<img loading="lazy" class="NewsArticle-img" src="/imgmin/data/photo/20240702/182513_c787_53827761658-1ecbcaf762-k.jpg/w800h600et1719937513.png" alt="">
+									<div class="NewsArticle-textContainer">
+										<span class="NewsArticle-label NewsArticle-label--date">
+																					8.6.2026
+									</span>
+										<span class="NewsArticle-label NewsArticle-label--type">
+											Novinka
+									</span>
+										<h2 class="NewsArticle-title">
+											<a href="/article/default/detail?slug=champions-cup-2026-27-se-odehraje-ve-formatu-znamem-ze-svetovych-her">Champions Cup 2026/27 se odehraje ve formátu známém ze Světových her</a>
+										</h2>
+									</div>
+									<a class="NewsArticle-link" href="/article/default/detail?slug=champions-cup-2026-27-se-odehraje-ve-formatu-znamem-ze-svetovych-her" tabindex="-1" aria-hidden="true">Champions Cup 2026/27 se odehraje ve formátu známém ze Světových her</a>
+								</article>
+							</div>
+						</div>
+						<div class="swiper-button-prev SocialMedia-swipper"></div>
+						<div class="swiper-button-next SocialMedia-swipper"></div>
+					</div>
+				</div>
+			<div class="Grid-col Grid-col-special--2 Grid-col--md-12">
+				<div class="Bottom-header Bottom-header-collapsible">
+					<p>Mobilní aplikace</p>
+					<div class="collapsible-img"></div>
+				</div>
+				<a href="/mobilni-aplikace" class="NewsArticle Bottom-article Bottom-AppstoreWrapper Bottom-header-collapsibleContent">
+					<div class="Bottom-AppstoreLeft">
+						<div class="Bottom-LogoWrapper">
+								<img loading="lazy" src="/front/img/logos/cesky_florbal-symbol.svg" height="48px" alt="CF-logo">
+						</div>
+						<img loading="lazy" style="margin-bottom: 8px;" src="/front/img/logos/aple-appstore.png" alt="apleStore-logo">
+						<img loading="lazy" src="/front/img/logos/google-play.png" alt="googlePlay-logo">
+					</div>
+					<div>
+							<img loading="lazy" src="/front/img/mobileApp.png" alt="mobile-app">
+					</div>
+				</a>
+			</div>
+					<div class="Grid-col Grid-col-special--2 Grid-col--md-12">
+							<div class="Bottom-header Bottom-header-collapsible">
+								<p>Sledujte Český florbal</p>
+								<div class="collapsible-img"></div>
+							</div>
+							<div class="Bottom-linkText Bottom-header-collapsibleContent">
+								<p>
+									<a href="https://www.facebook.com/ceskyflorbal"  target="_blank" rel="noopener noreferrer">
+										Facebook
+									</a>
+								</p>
+								<p>
+									<a href="https://www.instagram.com/ceskyflorbal/"  target="_blank" rel="noopener noreferrer">
+										Instagram
+									</a>
+								</p>
+								<p>
+									<a href="https://www.youtube.com/ceskyflorbal"  target="_blank" rel="noopener noreferrer">
+										YouTube
+									</a>
+								</p>
+								<p>
+									<a href="https://www.tiktok.com/@ceskyflorbalofficial"  target="_blank" rel="noopener noreferrer">
+										TikTok
+									</a>
+								</p>
+								<p>
+									<a href="https://twitter.com/ceskyflorbal"  target="_blank" rel="noopener noreferrer">
+										Twitter
+									</a>
+								</p>
+								<p>
+									<a href="https://www.linkedin.com/company/3010837"  target="_blank" rel="noopener noreferrer">
+										LinkedIn
+									</a>
+								</p>
+							</div>
+					</div>
+					<div class="Grid-col Grid-col-special--2 Grid-col--md-12">
+							<div class="Bottom-header Bottom-header-collapsible">
+								<p>Informace a zdroje</p>
+								<div class="collapsible-img"></div>
+							</div>
+							<div class="Bottom-linkText Bottom-header-collapsibleContent">
+								<p>
+									<a href="/secretariat" >
+										Kontakty
+									</a>
+								</p>
+								<p>
+									<a href="/pro-media" >
+										Media servis
+									</a>
+								</p>
+								<p>
+									<a href="/newsletter" >
+										Newsletter
+									</a>
+								</p>
+								<p>
+									<a href="http://www.flickr.com/photos/ceskyflorbal"  target="_blank" rel="noopener noreferrer">
+										Fotogalerie
+									</a>
+								</p>
+								<p>
+									<a href="https://issuu.com/ceskyflorbal"  target="_blank" rel="noopener noreferrer">
+										Publikace
+									</a>
+								</p>
+								<p>
+									<a href="https://soundcloud.com/ceskyflorbal"  target="_blank" rel="noopener noreferrer">
+										Podcasty
+									</a>
+								</p>
+							</div>
+					</div>
+					<div class="Grid-col Grid-col-special--2 Grid-col--md-12">
+							<div class="Bottom-header Bottom-header-collapsible">
+								<p>Zapoj se!</p>
+								<div class="collapsible-img"></div>
+							</div>
+							<div class="Bottom-linkText Bottom-header-collapsibleContent">
+								<p>
+									<a href="/hraj" >
+										Buď hráč
+									</a>
+								</p>
+								<p>
+									<a href="/rozhodci" >
+										Buď rozhodčí
+									</a>
+								</p>
+								<p>
+									<a href="/matrika?id=51" >
+										Založ klub
+									</a>
+								</p>
+								<p>
+									<a href="/pomahej" >
+										Buď dobrovolník
+									</a>
+								</p>
+								<p>
+									<a href="/kariera" >
+										Pracuj u nás
+									</a>
+								</p>
+								<p>
+									<a href="/paraflorbal" >
+										Paraflorbal
+									</a>
+								</p>
+							</div>
+					</div>
+					<div class="Grid-col Grid-col-special--2 Grid-col--md-12">
+							<div class="Bottom-header Bottom-header-collapsible">
+								<p>O florbale</p>
+								<div class="collapsible-img"></div>
+							</div>
+							<div class="Bottom-linkText Bottom-header-collapsibleContent">
+								<p>
+									<a href="/v-kostce" >
+										ČF v kostce
+									</a>
+								</p>
+								<p>
+									<a href="/historie" >
+										Historie
+									</a>
+								</p>
+								<p>
+									<a href="/sin-slavy" >
+										Osobnosti
+									</a>
+								</p>
+								<p>
+									<a href="/budoucnost" >
+										Budoucnost
+									</a>
+								</p>
+								<p>
+									<a href="/svet" >
+										Mezinárodní florbal
+									</a>
+								</p>
+							</div>
+					</div>
+					<div class="Grid-col Grid-col-special--2 Grid-col--md-12">
+							<div class="Bottom-header Bottom-header-collapsible">
+								<p>Elitní florbal</p>
+								<div class="collapsible-img"></div>
+							</div>
+							<div class="Bottom-linkText Bottom-header-collapsibleContent">
+								<p>
+									<a href="/national-team/" >
+										Reprezentace
+									</a>
+								</p>
+								<p>
+									<a href="/competition/detail/overview/8XM1" >
+										Livesport Superliga
+									</a>
+								</p>
+								<p>
+									<a href="/competition/detail/overview/8XW1" >
+										ČEZ Extraliga
+									</a>
+								</p>
+								<p>
+									<a href="/competition/detail/overview/8XM2" >
+										1. liga mužů
+									</a>
+								</p>
+							</div>
+					</div>
+		</div>
+	</div>
+</section>
+
+<!-- Footer -->
+
+
+<footer class="Footer" role="contentinfo">
+	<div class="u-ta-center">
+			<small class="Text">© 2026 | Český florbal a <a href="https://esportsmedia.cz/" target="_blank">eSports.cz, s.r.o.</a> Všechna práva vyhrazena. Přebírání obsahu je dovoleno pouze s písemným souhlasem autorů. Logo Českého florbalu a symbol lva jsou registrovanými značkami Českého florbalu.</small>
+		<br>
+		<small class="Text">This site is protected by reCAPTCHA and the Google <a href='https://policies.google.com/privacy' target='_blank'>Privacy Policy</a> and <a href='https://policies.google.com/terms' target='_blank'>Terms of Service</a> apply.</small>
+		<div class="Footer-linkWrapper">
+				<div class="Footer-link">
+					<a href="/admin">
+						Administrace
+					</a>
+					<div class="Footer-linkLine"></div>
+				</div>
+				<div class="Footer-link">
+					<a href="https://login.ceskyflorbal.cz/osoba/" target="_blank" rel="noopener noreferrer">
+						FIS
+					</a>
+					<div class="Footer-linkLine"></div>
+				</div>
+				<div class="Footer-link">
+					<a href="https://ceskyflorbal.cz/article/rss-feed" target="_blank" rel="noopener noreferrer">
+						RSS
+					</a>
+					<div class="Footer-linkLine"></div>
+				</div>
+				<div class="Footer-link">
+					<a href="https://www.ceskyflorbal.cz/data/document/20260701/191632_a75f_10-Smernice-o-ochrane-osobnich-udaju.pdf" target="_blank" rel="noopener noreferrer">
+						Zásady ochrany osobních údajů
+					</a>
+					<div class="Footer-linkLine"></div>
+				</div>
+				<div class="Footer-link">
+					<a href="https://www.ceskyflorbal.cz/data/document/20241015/085901_f035_Vseobecne-podminky-FLORBAL-ID.pdf" target="_blank" rel="noopener noreferrer">
+						Všeobecné podmínky
+					</a>
+					<div class="Footer-linkLine"></div>
+				</div>
+				<div class="Footer-link">
+					<a href="https://www.ceskyflorbal.cz/data/document/20241015/085920_ed19_Zasady-ochrany-osobnich-udaju-FLORBAL-ID.pdf" target="_blank" rel="noopener noreferrer">
+						GDPR
+					</a>
+					<div class="Footer-linkLine"></div>
+				</div>
+				<div class="Footer-link">
+					<a href="https://www.ceskyflorbal.cz/data/document/20241015/085935_edf2_Zasady-zpracovani-cookies-FLORBAL-ID.pdf" target="_blank" rel="noopener noreferrer">
+						Zpracování cookies
+					</a>
+					<div class="Footer-linkLine"></div>
+				</div>
+				<div class="Footer-link">
+					<a href="javascript:void(0);" data-cc="c-settings" aria-haspopup="dialog">Nastavení cookies</a>
+				</div>
+		</div>
+	</div>
+</footer>
+<div class="cookie-modal">
+</div>
+
+<link rel="stylesheet" href="/front/css/cookie-consent-config.css">
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="/front/js/cookie-consent-config.js"></script>
+<script>
+	(function() {
+		window.cookieConsentSettings.onAccept = window.cookieConsentSettings.onChange = function() {
+			gtag({
+				'event': 'consent_update'
+			});
+		};
+	})();
+</script>
+<script defer src="/front/js/cookie-consent.js"></script>
+<script>
+	function addSocialIframe(el) {
+		el.setAttribute('data-cookiecategory', 'social');
+		el.parentNode.setAttribute('data-cookie-placeholder', 'Nutné povolit cookies pro sociální služby');
+		el.setAttribute("data-src", el.src);
+		el.removeAttribute("src");
+	}
+
+	function addSocialScript(el) {
+		el.setAttribute('data-cookiecategory', 'social');
+		el.setAttribute('type', 'text/plain');
+		el.parentNode.setAttribute('data-cookie-placeholder', 'Nutné povolit cookies pro sociální služby');
+	}
+
+	document.querySelectorAll('iframe').forEach(function(el) {
+		if (el.src.length > 0) {
+			if (el.src.indexOf("facebook.com") !== -1) {
+				addSocialIframe(el);
+			} else if (el.src.indexOf("youtube.com") !== -1) {
+				addSocialIframe(el);
+			} else if (el.src.indexOf("platform.twitter.com") !== -1) {
+				addSocialIframe(el);
+			} else if (el.src.indexOf("open.spotify.com") !== -1) {
+				addSocialIframe(el);
+			} else if (el.src.indexOf("instagram.com") !== -1) {
+				addSocialIframe(el);
+			}
+		}
+	});
+	document.querySelectorAll('script').forEach(function(el) {
+		if (el.src.length > 0) {
+			if (el.src.indexOf("instagram.com") !== -1) {
+				addSocialScript(el);
+			} else if (el.src.indexOf("platform.twitter.com") !== -1) {
+				addSocialScript(el);
+			}
+		}
+	});
+
+</script>
+<script type='text/plain' data-cookiecategory='social' src="/front/js/cookie-social-media2.js"></script>
+
+<!-- Overlay -->
+<div id="ajaxLoadingOverlay" class="loadOverlay hide">
+	<div class="loadOverlay-content">
+		<svg class="loader-graphic" xmlns="http://www.w3.org/2000/svg" width="170.83px" height="165.419px" x="0px" y="0px" viewBox="0 0 170.83 165.419" enable-background="new 0 0 170.83 165.419">
+			<!-- Gradiet -->
+			<linearGradient id="loader_gradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100%" y2="100%">
+				<stop offset="0" style="stop-color: #fff" stop-opacity="0"></stop>
+				<stop offset="0.5" style="stop-color: #d51223"></stop>
+				<stop offset="1" style="stop-color: #fff" stop-opacity="0"></stop>
+			</linearGradient>
+			<!-- Paths -->
+			<g fill="url(#loader_gradient)">
+				<path class="st0" d="M145.8,20.9c-0.4-2-1.9-3.7-3.9-4.3c-20.8-6.4-42.4-9.6-64-9.6h0h0c-21.6,0-43.2,3.2-64,9.6
+					c-2,0.6-3.5,2.3-3.9,4.3C-2.3,85,24.6,139.7,75.6,162.5c1.5,0.7,3.2,0.7,4.7,0C129.7,140.3,158.6,86.9,145.8,20.9z M47.5,16.7
+					c10.1-1.4,20.1-2.2,30.4-2.2h0h0c10.3,0,20.3,0.8,30.4,2.2c0.2,0,0.4,0.2,0.4,0.4c0,0.2-0.1,0.4-0.4,0.4
+					c-7.3,1.3-18.8,4.1-27.6,7.7c-0.9,0.4-1.9,0.6-2.9,0.6c-1,0-1.9-0.3-2.9-0.6c-8.8-3.5-20.3-6.4-27.6-7.7c-0.2,0-0.3-0.2-0.3-0.4
+					C47.2,16.9,47.3,16.7,47.5,16.7z M104.1,74.8c0.1,0.4,0.1,0.8-0.2,1.1c-0.3,0.3-0.7,0.5-1.1,0.4c-5.5-0.9-12.8-1.6-21.3-1.9
+					c-0.7,0-1.3-0.6-1.3-1.4c0-14,0-19.5-0.1-21.6c0-0.7,0.6-1.3,1.3-1.4c3.2-0.2,7.8-0.7,10.3-1c0.3,0,0.6,0.1,0.9,0.3
+					c0.2,0.2,0.4,0.5,0.4,0.8C93.6,58.4,101.8,69,104.1,74.8z M98.5,48.9c0.5-0.7,1.3-1.2,2.1-1.4c3-0.6,6.9-1.3,9.2-1.6
+					c0.1,0,0.3,0,0.4,0.2c0.1,0.1,0.1,0.3,0.1,0.4c-2,5.2-6.9,7.6-10,9.1c-0.2,0.1-0.4,0.1-0.6,0c-0.2-0.1-0.4-0.2-0.4-0.4
+					c-0.5-1.1-0.9-2.5-1.2-3.8C97.9,50.5,98.1,49.6,98.5,48.9z M79.2,90.2c-0.8,0.3-1.7,0.3-2.5,0c-5-1.7-10.3-6.6-12.6-9.5
+					C64,80.5,64,80.2,64,80c0.1-0.2,0.3-0.4,0.5-0.4C69.9,78.6,74.9,79,78,79h0h0c3,0,8.1-0.3,13.4,0.6c0.2,0,0.4,0.2,0.5,0.4
+					c0.1,0.2,0.1,0.5-0.1,0.7C89.5,83.6,84.2,88.5,79.2,90.2z M62.8,50.1c0-0.3,0.2-0.6,0.4-0.8c0.2-0.2,0.6-0.3,0.9-0.3
+					c2.5,0.3,7.1,0.9,10.3,1c0.7,0,1.3,0.6,1.3,1.4c0,2.1,0,7.6-0.1,21.6c0,0.7-0.6,1.3-1.3,1.4c-8.6,0.3-15.8,1-21.3,1.9
+					c-0.4,0.1-0.8-0.1-1.1-0.4c-0.2-0.3-0.3-0.7-0.2-1.1C54.1,69.1,62.3,58.4,62.8,50.1z M55.6,55.5c-3.1-1.5-8-3.9-10-9.1
+					c0-0.1,0-0.3,0.1-0.4c0.1-0.1,0.2-0.2,0.4-0.2c2.4,0.3,6.3,1,9.2,1.6c0.9,0.2,1.6,0.7,2.1,1.4c0.5,0.7,0.7,1.6,0.5,2.5
+					c-0.3,1.3-0.7,2.7-1.2,3.8c-0.1,0.2-0.2,0.4-0.4,0.4C56.1,55.7,55.8,55.6,55.6,55.5z M75.8,43.6c0,0.4-0.2,0.7-0.4,1
+					c-0.3,0.3-0.6,0.4-1,0.4c-9.3-0.2-20.9-2.8-31.3-3.9c-0.6-0.1-1.1-0.4-1.3-0.9c-0.2-0.5-0.2-1.1,0.1-1.6c3-4.3,8.4-8.5,13.2-11.5
+					c1.5-0.9,3.3-1.2,5-0.8c4.3,1,10.4,2.9,13.8,5c1.1,0.7,1.8,1.9,1.8,3.2C75.9,37.2,75.8,41.2,75.8,43.6z M51.9,58.7
+					c1.4,0.9,1.9,2.7,1,4.2c-2.2,3.8-5.6,9.1-7,12.7c-0.1,0.2-0.3,0.4-0.6,0.4c-0.2,0-0.5-0.2-0.6-0.4c-5.7-13-8.2-21.9-6.6-28.3
+					c0.2-0.8,1-1.2,1.8-1.2c0.6,0,1.1,0.4,1.3,1C43.8,53.6,48.2,56.3,51.9,58.7z M47.6,89.9c0.3-2.1,0.8-4.2,1.4-6
+					c0.2-0.8,0.9-1.4,1.7-1.6c1.6-0.4,4.1-1,5.9-1.4c1-0.2,2,0.2,2.7,0.9c2.8,3.2,8.4,8.6,13.8,13.2c1.3,1.1,2.1,2.7,2.2,4.4
+					c0.1,1,0.1,2,0,2.9c-0.1,1.1-0.9,2.1-2,2.4c-3,0.8-8.3,2.4-12.2,3.6c-1.5,0.5-3.2,0-4.2-1.2c-4.6-5.5-7.1-10.5-8.7-14.3
+					C47.6,92,47.5,90.9,47.6,89.9z M93.6,112.3C93.6,112.3,93.6,112.3,93.6,112.3c0,0,0.1,0,0.1,0c0.4,0.1,0.8,0.4,1,0.8
+					c0.2,0.4,0.2,0.8,0,1.2c-1.1,2.5-2.8,5-3.1,5.5c-0.3,0.5-0.7,1.2-1.6,1.5c-3.8,1.5-7.8,1.8-12,1.8c-4.1,0-8.2-0.3-12-1.8
+					c-0.6-0.2-1.1-0.6-1.4-1.1c-0.2-0.3-0.5-0.8-0.9-1.5l0,0c-0.7-1.1-1.6-2.7-2.4-4.4c-0.2-0.4-0.2-0.8,0-1.2c0.2-0.4,0.5-0.7,1-0.8
+					c3.9-1.1,10.6-2.8,15-3.4c0.6-0.1,1.2-0.1,1.7,0C83.1,109.6,89.7,111.3,93.6,112.3z M99.2,107.2c-1,1.2-2.7,1.7-4.2,1.2
+					c-3.9-1.2-9.2-2.8-12.2-3.6c-1.1-0.3-1.9-1.3-2-2.4c-0.1-1-0.1-2,0-2.9c0.1-1.7,0.9-3.3,2.2-4.4c5.5-4.6,11-10,13.8-13.2
+					c0.7-0.7,1.7-1.1,2.7-0.9c1.8,0.3,4.3,1,5.9,1.4c0.8,0.2,1.4,0.8,1.7,1.6c0.5,1.7,1,3.9,1.4,6c0.2,1,0,2.1-0.4,3
+					C106.3,96.7,103.7,101.8,99.2,107.2z M103,62.9c-0.8-1.4-0.4-3.3,1-4.2c3.7-2.4,8.1-5.2,10.5-11.6c0.2-0.6,0.7-0.9,1.3-1
+					c0.8,0,1.6,0.4,1.8,1.2c1.7,6.4-0.8,15.3-6.6,28.3c-0.1,0.2-0.3,0.4-0.5,0.4c-0.2,0-0.5-0.1-0.6-0.4C108.5,72,105.2,66.7,103,62.9z
+					 M113.9,38.6c0.3,0.5,0.4,1.1,0.1,1.6c-0.2,0.5-0.7,0.9-1.3,0.9c-10.4,1-22,3.7-31.3,3.9c-0.4,0-0.7-0.1-1-0.4
+					c-0.3-0.3-0.4-0.6-0.4-1c0-2.4,0-6.3,0-9c0-1.3,0.7-2.5,1.8-3.2c3.5-2.1,9.6-4,13.8-5c1.7-0.4,3.5-0.1,5,0.8
+					C105.5,30.1,111,34.3,113.9,38.6z M14.5,46.6c0.2-6.7,0.9-13.6,2.1-20.7c0.2-1.3,1.2-2.4,2.4-2.8c3.5-1,12.9-4.5,29.3-0.2
+					c0.3,0.1,0.5,0.3,0.6,0.6c0,0.3-0.1,0.6-0.3,0.7C42,28.5,35.8,35.5,33.2,39.6c-0.3,0.5-0.8,0.8-1.3,0.9c-6.9,1-11.9,3.7-16.3,6.7
+					c-0.2,0.2-0.5,0.2-0.7,0C14.7,47.1,14.5,46.9,14.5,46.6z M20.8,88.9c-0.4-0.1-0.7-0.4-0.8-0.7c-2.4-7.4-4-15.3-4.9-23.5
+					c0.1-7.6,3.2-11.7,8.1-14.8c1.6-1,3.3-1.9,5.1-2.6c0.6-0.2,1.2-0.1,1.6,0.3c0.4,0.4,0.6,1,0.5,1.5c-0.7,8.2,3.3,19.2,7.5,29.1
+					c0.1,0.3,0.1,0.6-0.1,0.9c-0.1,0.3-0.4,0.5-0.7,0.6c-5.1,1.7-11.2,4.5-15.5,8.9C21.6,88.9,21.2,89,20.8,88.9z M38.1,120.3
+					c-0.1,0.3-0.4,0.5-0.7,0.5c-0.3,0-0.6-0.1-0.8-0.4c-3.8-5.1-7.2-10.6-10.1-16.5c-3.4-8.3,1.7-13.9,11.9-18.3c0.5-0.2,1-0.2,1.5,0.1
+					c0.4,0.3,0.7,0.7,0.8,1.2c0.1,1.1,0.2,2.4,0.3,3.9c0.2,2.3,0.8,4.5,1.9,6.6c1.9,3.7,3.9,6.7,5.3,8.8c0.4,0.5,0.2,1.3-0.3,1.6
+					C43.1,111.4,39.8,116.4,38.1,120.3z M78.5,152.1c-0.8,0.7-1.9,0.9-2.8,0.5c-8.5-4.1-16.2-9.1-23.3-15.1l0,0
+					c-2.4-2-6.8-5.3-6.8-12.5c0-4.6,2-9.2,5.1-12.2c0.2-0.2,0.6-0.4,1-0.3c0.4,0,0.7,0.2,0.9,0.5c1.8,2.6,3.5,5.8,5.3,9.1l0,0
+					c0.1,0.2,0.2,0.4,0.3,0.6c1.2,2.3,3.3,4.1,5.7,5c3.5,1.3,3.9,1.2,5.9,2.1C79,134.3,87.7,143.1,78.5,152.1z M90.9,146.7
+					c-0.4,0.2-0.9,0.2-1.3,0c-0.4-0.2-0.7-0.7-0.6-1.2c0.3-4.8-1.6-10.1-6.2-14.2c-0.2-0.2-0.3-0.5-0.2-0.8c0.1-0.3,0.3-0.5,0.6-0.5
+					c3-0.5,6.3-1.4,8.8-2.4c2.4-0.9,4.4-2.6,5.7-5c0.1-0.2,0.2-0.4,0.3-0.6l0,0c1.8-3.4,3.5-6.5,5.3-9.1c0.2-0.3,0.5-0.5,0.9-0.5
+					c0.3,0,0.7,0.1,1,0.3c3.9,3.8,6.1,10.1,4.7,15.9c0,0,0,0,0-0.1c-0.5,2.2-1.6,4.3-3.3,6.2C101.7,139.2,96.5,143.2,90.9,146.7
+					C90.9,146.7,90.9,146.7,90.9,146.7z M129.5,104c-2.9,5.9-6.3,11.4-10.1,16.5c-0.2,0.3-0.5,0.4-0.8,0.4c-0.3,0-0.6-0.2-0.7-0.5
+					c-1.8-4-5-9-9.7-12.4c-0.5-0.4-0.6-1.1-0.3-1.6c1.4-2,3.4-5.1,5.3-8.8c1.1-2.1,1.7-4.3,1.9-6.6c0.1-1.6,0.2-2.8,0.3-3.9
+					c0-0.5,0.3-1,0.8-1.2c0.4-0.3,1-0.3,1.5-0.1C127.8,90.1,133,95.8,129.5,104z M135.9,88.2c-0.1,0.4-0.4,0.6-0.8,0.7
+					c-0.4,0.1-0.8,0-1-0.3c-4.3-4.4-10.4-7.2-15.5-8.9c-0.3-0.1-0.6-0.3-0.7-0.6c-0.1-0.3-0.2-0.6-0.1-0.9c4.2-10,8.2-20.9,7.5-29.1
+					c0-0.6,0.1-1.2,0.5-1.5c0.4-0.4,1.1-0.5,1.6-0.3c1.8,0.7,3.6,1.6,5.1,2.6c4.9,3.1,8,7.2,8.1,14.8C139.9,72.9,138.2,80.7,135.9,88.2
+					z M141.4,46.6c0,0.3-0.1,0.5-0.4,0.6c-0.2,0.1-0.5,0.1-0.7,0c-4.3-3-9.4-5.8-16.3-6.7c-0.6-0.1-1.1-0.4-1.3-0.9
+					c-2.5-4.1-8.8-11.1-15.3-15.3c-0.3-0.2-0.4-0.5-0.3-0.7c0-0.3,0.3-0.5,0.6-0.6c14.4-3.8,23.2-1.6,29.3,0.2c1.3,0.4,2.2,1.5,2.4,2.8
+					C140.5,33,141.2,39.9,141.4,46.6z"></path>
+			</g>
+		</svg>
+		<p>Nahrávám</p>
+	</div>
+</div>
+<div class="Overlay" id="js-overlay"></div>
+
+
+<div class="searchOverlay" id="js-search-overlay">
+	<header class="searchOverlay-header">
+		<div class="Container">
+			<h1>Vyhledávání</h1>
+			<a href="#" class="js-search-close">
+				<img loading="lazy" src="/front/img/icons/close-white.svg" alt="">
+			</a>
+		</div>
+	</header>
+	<div class="Container">
+		<form action="/search/article/" method="GET" class="searchOverlay-content">
+			<input class="searchOverlay-content-input" type="text" name="q" placeholder="Vyhledat...">
+			<input type="hidden" name="locale" value="">
+		</form>
+	</div>
+</div>
+<div class="loginOverlay hide">
+	<div class="loginOverlay-scroll">
+		<div class="loginOverlay-Content">
+			<div class="js-tabs">
+				<nav class="TabsToMenu-nav ProfileTeam-bg">
+					<ul class="js-tabs-menu" role="tablist">
+						<li class="TabsToMenu-item">
+							<a class="TabsToMenu-link js-tabs-link is-active" href="#login" id="login-tab" role="tab">Přihlášení</a>
+						</li>
+						<li class="TabsToMenu-item">
+							<a class="TabsToMenu-link" target="_blank" href="https://login.ceskyflorbal.cz/osoba/">
+								FIS <img loading="lazy" src="/front/img/icons/external_link-white.svg" alt="">
+							</a>
+						</li>
+					</ul>
+				</nav>
+				<div class="TabsToMenu-contentWrapper">
+					<div class="TabsToMenu-content js-tabs-content is-active" id="login">
+						<div class="loginOverlay-body">
+							<a class="loginOverlay-body--button fis" href="/team/detail/matches/45019?do=signInWidget-signViaFid">
+								<img loading="lazy" src="/front/img/logos/cesky_florbal-symbol.svg" alt="">
+								<p>PŘIHLÁSIT SE PŘES FLORBAL iD</p>
+							</a>
+							<div class="loginOverlay-body--noAccount">
+								<p>Ještě nemáte účet?</p>
+								<a class="loginOverlay-body--noAccount-button" href="/team/detail/matches/45019?do=signInWidget-signViaFid">
+									Zaregistrujte se
+								</a>
+							</div>
+							<div class="loginOverlay-body--info">
+								<div class="loginOverlay-body--info-header">
+									<div></div>
+									<p>Co je Florbal iD?</p>
+									<div></div>
+								</div>
+								<div class="loginOverlay-body--info-content">
+									<div class="loginOverlay-body--info-item">
+										<img src="/front/img/icons/shield.svg" alt="shield">
+										<div>
+											<p class="title">VAŠE IDENTITA PRO ČESKÝ FLORBAL</p>
+											<p>Jednotné přihlašování napříč platformami.</p>
+										</div>
+									</div>
+									<div class="loginOverlay-body--info-item">
+										<img src="/front/img/icons/shield.svg" alt="shield">
+										<div>
+											<p class="title">BEZPEČNOST A OCHRANA</p>
+											<p>Moderní technologie vás chrání před krádeží identity.</p>
+										</div>
+									</div>
+									<div class="loginOverlay-body--info-item">
+										<img src="/front/img/icons/shield.svg" alt="shield">
+										<div>
+											<p class="title">VÝHODY PRO HRÁČE I FANOUŠKY</p>
+											<p>Snadný nákup vstupenek a další výhody.</p>
+										</div>
+									</div>
+									<div class="loginOverlay-body--info-item">
+										<img src="/front/img/icons/shield.svg" alt="shield">
+										<div>
+											<p class="title">PERSONALIZOVANÝ ZÁŽÍTEK</p>
+											<p>Služby přizpůsobené vašim potřebám.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"52d3d8dfafbe4981a58e60034d20e76c","spa":2}' crossorigin="anonymous"></script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a45c5c29bdc6851c',t:'MTc5MTIwMjYxMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+</html>
