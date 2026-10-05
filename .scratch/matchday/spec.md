@@ -179,7 +179,7 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
     - time: `HH:MM`, or null for TBD,
     - venue: its **name**, not its ID, so the history stays readable,
     - status: the enum value.
-- Every revision of a fixture increments its `sequence` once per import, and `sequence` becomes the iCalendar SEQUENCE.
+- Every revision of an existing fixture increments its `sequence` once per import, and `sequence` becomes the iCalendar SEQUENCE. An added fixture is a new calendar event, so it starts at 0.
 - A fixture that appears after the team season's initial import produces one revision with `field = null`.
 - The initial import is the team season's first `ok` import. Its additions are not stored as revisions; the changes page shows it as a collapsed "N zápasů přidáno" entry built from that import's `fixtures_found`.
 

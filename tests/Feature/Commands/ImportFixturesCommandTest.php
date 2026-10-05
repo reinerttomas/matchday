@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Enums\FixtureStatus;
 use App\Enums\ImportStatus;
 use App\Enums\ImportTrigger;
+use App\Enums\RevisionField;
 use App\Models\Fixture;
 use App\Models\Import;
+use App\Models\Revision;
 use App\Models\Season;
 use App\Models\TeamSeason;
 use Illuminate\Http\Client\Request;
@@ -203,4 +205,180 @@ test('keeps the stored status and logs it when a row shows neither a venue nor a
             'status' => null,
         ])
         ->once();
+});
+
+/**
+ * Run the initial import of the team season and then a second import, returning the second one.
+ */
+function importTwice(TeamSeason $teamSeason, string $initialSnapshot, string $nextSnapshot): Import
+{
+    Http::fake([FIXTURE_LIST_URL => Http::sequence([
+        Http::response($initialSnapshot),
+        Http::response($nextSnapshot),
+    ])]);
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    return Import::query()->latest('id')->firstOrFail();
+}
+
+/**
+ * The fixture list snapshot without the row of one fixture.
+ */
+function fixtureListSnapshotWithout(int $externalId): string
+{
+    $rows = explode('<div class="Match">', fixtureListSnapshot());
+
+    return implode('<div class="Match">', array_filter(
+        $rows,
+        fn (string $row): bool => ! str_contains($row, "/match/detail/default/{$externalId}\""),
+    ));
+}
+
+test('stores the fixtures of the initial import without revisions', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    Http::fake([FIXTURE_LIST_URL => Http::response(fixtureListSnapshot())]);
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect(Revision::query()->count())->toBe(0)
+        ->and($teamSeason->fixtures()->where('sequence', '>', 0)->count())->toBe(0);
+});
+
+test('treats the first ok import as the initial import even after a failed one', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    Import::factory()->for($teamSeason)->error()->create();
+    Http::fake([FIXTURE_LIST_URL => Http::response(fixtureListSnapshot())]);
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect(Revision::query()->count())->toBe(0);
+});
+
+test('records a changed start time', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    $snapshot = str_replace(
+        '<a href="/match/detail/default/1306757">15:00</a>',
+        '<a href="/match/detail/default/1306757">16:30</a>',
+        fixtureListSnapshot(),
+    );
+
+    $import = importTwice($teamSeason, fixtureListSnapshot(), $snapshot);
+
+    $fixture = Fixture::query()->where('external_id', 1306757)->sole();
+    expect($fixture->time)->toBe('16:30:00')
+        ->and($fixture->sequence)->toBe(1);
+    expect(Revision::query()->sole())
+        ->import_id->toBe($import->id)
+        ->fixture_id->toBe($fixture->id)
+        ->field->toBe(RevisionField::Time)
+        ->old_value->toBe('15:00')
+        ->new_value->toBe('16:30');
+});
+
+test('records a start time set for a fixture with a TBD time', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    $snapshot = str_replace(
+        '<a href="/match/detail/default/1306783">00:00</a>',
+        '<a href="/match/detail/default/1306783">18:00</a>',
+        fixtureListSnapshot(),
+    );
+
+    importTwice($teamSeason, fixtureListSnapshot(), $snapshot);
+
+    expect(Revision::query()->sole())
+        ->field->toBe(RevisionField::Time)
+        ->old_value->toBeNull()
+        ->new_value->toBe('18:00');
+});
+
+test('records a finished fixture with its score once in the fixture sequence', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    $snapshot = Str::of(fixtureListSnapshot())
+        ->replaceMatches(
+            '#<time datetime="" class="Match-startTime">\s*<a href="/match/detail/default/1306757">15:00</a>\s*</time>#',
+            '<span class="Match-score"><a href="/match/detail/default/1306757">5:3</a></span>',
+        )
+        ->replace('<p class="Match-place">Unihoc Aréna Praha</p>', '<p class="Match-status">odehráno</p>')
+        ->toString();
+
+    importTwice($teamSeason, fixtureListSnapshot(), $snapshot);
+
+    $fixture = Fixture::query()->where('external_id', 1306757)->sole();
+    expect($fixture->time)->toBe('15:00:00')
+        ->and($fixture->sequence)->toBe(1);
+    expect($fixture->revisions()->orderBy('id')->get(['field', 'old_value', 'new_value'])->toArray())->toBe([
+        ['field' => 'status', 'old_value' => 'scheduled', 'new_value' => 'finished'],
+        ['field' => 'home_score', 'old_value' => null, 'new_value' => '5'],
+        ['field' => 'away_score', 'old_value' => null, 'new_value' => '3'],
+    ]);
+    expect(Revision::query()->count())->toBe(3);
+});
+
+test('records a fixture moved to a new date with the warning icon', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    $snapshot = Str::of(fixtureListSnapshot())
+        ->replace('SO, 17. 10.', 'SO, 24. 10.')
+        ->replace(
+            '<p class="Match-place">Unihoc Aréna Praha</p>',
+            '<p class="Match-place">Unihoc Aréna Praha</p><span aria-label="odložené utkání 17.10.2026" class="Tooltip Tooltip--warning u-mr-0 Tooltip--container"></span>',
+        )
+        ->toString();
+
+    importTwice($teamSeason, fixtureListSnapshot(), $snapshot);
+
+    $fixture = Fixture::query()->where('external_id', 1306757)->sole();
+    expect($fixture->status)->toBe(FixtureStatus::Scheduled)
+        ->and($fixture->sequence)->toBe(1);
+    expect($fixture->revisions()->orderBy('id')->get(['field', 'old_value', 'new_value'])->toArray())->toBe([
+        ['field' => 'date', 'old_value' => '2026-10-17', 'new_value' => '2026-10-24'],
+        ['field' => 'is_rescheduled', 'old_value' => '0', 'new_value' => '1'],
+    ]);
+    expect(Revision::query()->count())->toBe(2);
+});
+
+test('records a fixture that appears after the initial import as added', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+
+    $import = importTwice($teamSeason, fixtureListSnapshotWithout(1306796), fixtureListSnapshot());
+
+    $fixture = Fixture::query()->where('external_id', 1306796)->sole();
+    expect($fixture->sequence)->toBe(0);
+    expect(Revision::query()->sole())
+        ->import_id->toBe($import->id)
+        ->fixture_id->toBe($fixture->id)
+        ->field->toBeNull()
+        ->old_value->toBeNull()
+        ->new_value->toBeNull();
+});
+
+test('records nothing when the fixture list did not change', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+
+    importTwice($teamSeason, fixtureListSnapshot(), fixtureListSnapshot());
+
+    expect(Revision::query()->count())->toBe(0)
+        ->and($teamSeason->fixtures()->where('sequence', '>', 0)->count())->toBe(0);
+});
+
+test('keeps the fixtures unchanged when recording a revision fails', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    Http::fake([FIXTURE_LIST_URL => Http::sequence([
+        Http::response(fixtureListSnapshot()),
+        Http::response(str_replace(
+            '<a href="/match/detail/default/1306757">15:00</a>',
+            '<a href="/match/detail/default/1306757">16:30</a>',
+            fixtureListSnapshot(),
+        )),
+    ])]);
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+    Revision::creating(fn () => throw new RuntimeException('Writing the revision failed.'));
+
+    expect(fn () => artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->run())
+        ->toThrow(RuntimeException::class, 'Writing the revision failed.');
+
+    $fixture = Fixture::query()->where('external_id', 1306757)->sole();
+    expect($fixture->time)->toBe('15:00:00')
+        ->and($fixture->sequence)->toBe(0);
 });

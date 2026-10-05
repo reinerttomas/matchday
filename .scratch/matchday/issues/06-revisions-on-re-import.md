@@ -4,13 +4,13 @@
 
 **Blocked by:** 05 — Import a fixture list
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] A changed value of date, time, status, is_rescheduled, home_score or away_score writes one revision per field with old and new raw values: ISO date, `HH:MM` or null for TBD (the time column stores `HH:MM:SS`), the status enum value, `0`/`1` for is_rescheduled (the convention the demo seeder already uses), the score as a number.
-- [ ] A fixture with at least one revision in an import gets its `sequence` incremented exactly once for that import.
-- [ ] The initial import (the team season's first `ok` import) stores its fixtures without revisions.
-- [ ] A fixture that appears after the initial import gets one revision with `field = null`.
-- [ ] A second import of an identical page writes no revisions and leaves `sequence` unchanged.
-- [ ] Fixtures and revisions are applied in a single database transaction.
-- [ ] Feature tests run two imports through the command with snapshot variants (changed time, TBD → time, finished with score, warning icon appearing, a new fixture, identical page) and assert revisions and `sequence`.
-- [ ] `composer ci:check` passes.
+- [x] A changed value of date, time, status, is_rescheduled, home_score or away_score writes one revision per field with old and new raw values: ISO date, `HH:MM` or null for TBD (the time column stores `HH:MM:SS`), the status enum value, `0`/`1` for is_rescheduled (the convention the demo seeder already uses), the score as a number.
+- [x] An existing fixture with at least one revision in an import gets its `sequence` incremented exactly once for that import. An added fixture is a new calendar event and starts at 0.
+- [x] The initial import (the team season's first `ok` import) stores its fixtures without revisions.
+- [x] A fixture that appears after the initial import gets one revision with `field = null`.
+- [x] A second import of an identical page writes no revisions and leaves `sequence` unchanged.
+- [x] Fixtures and revisions are applied in a single database transaction.
+- [x] Feature tests run two imports through the command with snapshot variants (changed time, TBD → time, finished with score, warning icon appearing, a new fixture, identical page) and assert revisions and `sequence`.
+- [x] `composer ci:check` passes.
