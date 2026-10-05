@@ -11,15 +11,35 @@ use App\Models\Import;
 use App\Models\Revision;
 use App\Models\Season;
 use App\Models\TeamSeason;
+use App\Models\Venue;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 
 use function Pest\Laravel\artisan;
 use function Pest\Laravel\travelTo;
 
 const FIXTURE_LIST_URL = 'https://www.ceskyflorbal.cz/team/detail/matches/45019';
+
+const MATCH_DETAIL_URL = 'https://www.ceskyflorbal.cz/match/detail/info/';
+
+/**
+ * Federation arena IDs of the venues in the fixture list snapshot; only Klimeška's 602 is real, the rest are made up.
+ */
+const ARENA_IDS = [
+    'Unihoc Aréna Praha' => 101,
+    'SH Stochov' => 102,
+    'SH TJ Kobylisy' => 103,
+    'SH Kutná Hora Klimeška' => 602,
+    'Marsch Arena' => 104,
+    'SH Kutná Hora Klimeška II' => 105,
+    'SH Čakovice' => 106,
+    'SH Gymnázium Sedlčany' => 107,
+    'SH ZŠ Černošice-Mokropsy' => 108,
+    'Sport Eden Beroun' => 109,
+];
 
 /**
  * FBC Kutná Hora B in 2026/27, whose live fixture list page was saved as the snapshot.
@@ -40,10 +60,69 @@ function fixtureListSnapshot(): string
     return (string) file_get_contents(base_path('tests/Fixtures/ceskyflorbal/team-matches-45019.html'));
 }
 
+/**
+ * The live match detail page of fixture 1306754 at SH Kutná Hora Klimeška (arena 602), optionally showing another venue.
+ */
+function matchDetailSnapshot(string $venueName = 'SH Kutná Hora Klimeška', int $venueExternalId = 602): string
+{
+    return Str::of((string) file_get_contents(base_path('tests/Fixtures/ceskyflorbal/match-info-1306754.html')))
+        ->replace('href="/arena/detail/default/602"', "href=\"/arena/detail/default/{$venueExternalId}\"")
+        ->replace('<h3>SH Kutná Hora Klimeška</h3>', "<h3>{$venueName}</h3>")
+        ->toString();
+}
+
+/**
+ * Fake ceskyflorbal.cz: the fixture list page answers as given, and every match detail page shows the venue its row shows in the fixture list snapshot.
+ *
+ * @param  array<string, mixed>  $matchDetailPages  stubs for single match detail pages, which take precedence
+ */
+function fakeCeskyflorbal(mixed $fixtureListPage, array $matchDetailPages = []): void
+{
+    Http::fake([
+        FIXTURE_LIST_URL => $fixtureListPage,
+        ...$matchDetailPages,
+        MATCH_DETAIL_URL.'*' => function (Request $request) {
+            $row = Str::of(fixtureListSnapshot())
+                ->explode('<div class="Match">')
+                ->first(fn (string $row): bool => str_contains($row, '/match/detail/default/'.Str::afterLast($request->url(), '/').'"'));
+            $venueName = Str::betweenFirst($row, '<p class="Match-place">', '</p>');
+
+            return Http::response(matchDetailSnapshot($venueName, ARENA_IDS[$venueName]));
+        },
+    ]);
+}
+
+/**
+ * The fixture list snapshot after fixture 1306757 at Unihoc Aréna Praha was played and won 5:3 by the home team.
+ */
+function fixtureListSnapshotWithFinishedFixture(): string
+{
+    return Str::of(fixtureListSnapshot())
+        ->replaceMatches(
+            '#<time datetime="" class="Match-startTime">\s*<a href="/match/detail/default/1306757">15:00</a>\s*</time>#',
+            '<span class="Match-score"><a href="/match/detail/default/1306757">5:3</a></span>',
+        )
+        ->replace('<p class="Match-place">Unihoc Aréna Praha</p>', '<p class="Match-status">odehráno</p>')
+        ->toString();
+}
+
+/**
+ * The match detail pages requested so far.
+ *
+ * @return list<string>
+ */
+function requestedMatchDetailUrls(): array
+{
+    return Http::recorded(fn (Request $request): bool => str_starts_with($request->url(), MATCH_DETAIL_URL))
+        ->map(fn (array $exchange): string => $exchange[0]->url())
+        ->values()
+        ->all();
+}
+
 test('imports the fixture list of a team season', function () {
     travelTo('2026-10-05 08:00:00');
     $teamSeason = kutnaHoraTeamSeason();
-    Http::fake([FIXTURE_LIST_URL => Http::response(fixtureListSnapshot())]);
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])
         ->expectsOutputToContain('Import finished as ok, 24 fixtures found.')
@@ -110,7 +189,7 @@ test('imports the fixture list of a team season', function () {
 test('infers the year of a fixture date from the season, not from today', function () {
     travelTo('2027-03-01 12:00:00');
     $teamSeason = kutnaHoraTeamSeason();
-    Http::fake([FIXTURE_LIST_URL => Http::response(fixtureListSnapshot())]);
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
 
@@ -122,11 +201,11 @@ test('infers the year of a fixture date from the season, not from today', functi
 test('records the import as running while the fixture list downloads', function () {
     $teamSeason = kutnaHoraTeamSeason();
     $statusWhileDownloading = null;
-    Http::fake([FIXTURE_LIST_URL => function () use (&$statusWhileDownloading) {
+    fakeCeskyflorbal(function () use (&$statusWhileDownloading) {
         $statusWhileDownloading = Import::query()->sole()->status;
 
         return Http::response(fixtureListSnapshot());
-    }]);
+    });
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
 
@@ -141,7 +220,7 @@ test('updates a stored fixture instead of adding it again', function () {
         'time' => '10:00:00',
         'venue_id' => null,
     ]);
-    Http::fake([FIXTURE_LIST_URL => Http::response(fixtureListSnapshot())]);
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
 
@@ -162,7 +241,7 @@ test('keeps the stored status and logs it when a row shows an unknown status', f
         ->replace('<p class="Match-place">Unihoc Aréna Praha</p>', '<p class="Match-status">kontumace</p>')
         ->replaceFirst('<p class="Match-place">SH Stochov</p>', '<p class="Match-status">kontumace</p>')
         ->toString();
-    Http::fake([FIXTURE_LIST_URL => Http::response($snapshot)]);
+    fakeCeskyflorbal(Http::response($snapshot));
     Log::spy();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
@@ -191,7 +270,7 @@ test('keeps the stored status and logs it when a row shows neither a venue nor a
     $teamSeason = kutnaHoraTeamSeason();
     $postponedFixture = Fixture::factory()->for($teamSeason)->postponed()->create(['external_id' => 1306757]);
     $snapshot = str_replace('<p class="Match-place">Unihoc Aréna Praha</p>', '', fixtureListSnapshot());
-    Http::fake([FIXTURE_LIST_URL => Http::response($snapshot)]);
+    fakeCeskyflorbal(Http::response($snapshot));
     Log::spy();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
@@ -209,13 +288,15 @@ test('keeps the stored status and logs it when a row shows neither a venue nor a
 
 /**
  * Run the initial import of the team season and then a second import, returning the second one.
+ *
+ * @param  array<string, mixed>  $matchDetailPages
  */
-function importTwice(TeamSeason $teamSeason, string $initialSnapshot, string $nextSnapshot): Import
+function importTwice(TeamSeason $teamSeason, string $initialSnapshot, string $nextSnapshot, array $matchDetailPages = []): Import
 {
-    Http::fake([FIXTURE_LIST_URL => Http::sequence([
+    fakeCeskyflorbal(Http::sequence([
         Http::response($initialSnapshot),
         Http::response($nextSnapshot),
-    ])]);
+    ]), $matchDetailPages);
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
@@ -238,7 +319,7 @@ function fixtureListSnapshotWithout(int $externalId): string
 
 test('stores the fixtures of the initial import without revisions', function () {
     $teamSeason = kutnaHoraTeamSeason();
-    Http::fake([FIXTURE_LIST_URL => Http::response(fixtureListSnapshot())]);
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
 
@@ -249,7 +330,7 @@ test('stores the fixtures of the initial import without revisions', function () 
 test('treats the first ok import as the initial import even after a failed one', function () {
     $teamSeason = kutnaHoraTeamSeason();
     Import::factory()->for($teamSeason)->error()->create();
-    Http::fake([FIXTURE_LIST_URL => Http::response(fixtureListSnapshot())]);
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
 
@@ -295,15 +376,8 @@ test('records a start time set for a fixture with a TBD time', function () {
 
 test('records a finished fixture with its score once in the fixture sequence', function () {
     $teamSeason = kutnaHoraTeamSeason();
-    $snapshot = Str::of(fixtureListSnapshot())
-        ->replaceMatches(
-            '#<time datetime="" class="Match-startTime">\s*<a href="/match/detail/default/1306757">15:00</a>\s*</time>#',
-            '<span class="Match-score"><a href="/match/detail/default/1306757">5:3</a></span>',
-        )
-        ->replace('<p class="Match-place">Unihoc Aréna Praha</p>', '<p class="Match-status">odehráno</p>')
-        ->toString();
 
-    importTwice($teamSeason, fixtureListSnapshot(), $snapshot);
+    importTwice($teamSeason, fixtureListSnapshot(), fixtureListSnapshotWithFinishedFixture());
 
     $fixture = Fixture::query()->where('external_id', 1306757)->sole();
     expect($fixture->time)->toBe('15:00:00')
@@ -364,14 +438,14 @@ test('records nothing when the fixture list did not change', function () {
 
 test('keeps the fixtures unchanged when recording a revision fails', function () {
     $teamSeason = kutnaHoraTeamSeason();
-    Http::fake([FIXTURE_LIST_URL => Http::sequence([
+    fakeCeskyflorbal(Http::sequence([
         Http::response(fixtureListSnapshot()),
         Http::response(str_replace(
             '<a href="/match/detail/default/1306757">15:00</a>',
             '<a href="/match/detail/default/1306757">16:30</a>',
             fixtureListSnapshot(),
         )),
-    ])]);
+    ]));
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
     Revision::creating(fn () => throw new RuntimeException('Writing the revision failed.'));
 
@@ -381,4 +455,118 @@ test('keeps the fixtures unchanged when recording a revision fails', function ()
     $fixture = Fixture::query()->where('external_id', 1306757)->sole();
     expect($fixture->time)->toBe('15:00:00')
         ->and($fixture->sequence)->toBe(0);
+});
+
+test('stores the venue of a new fixture with its address from the match detail page', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect(Fixture::query()->where('external_id', 1306754)->sole()->venue)
+        ->external_id->toBe(602)
+        ->name->toBe('SH Kutná Hora Klimeška')
+        ->address->toBe('Čáslavská 274, Kutná Hora');
+    expect(Venue::query()->count())->toBe(10);
+    Http::assertSent(fn (Request $request): bool => $request->url() === MATCH_DETAIL_URL.'1306754'
+        && str_starts_with($request->header('User-Agent')[0], 'Mozilla/5.0'));
+});
+
+test('downloads no match detail page for a finished row', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect(requestedMatchDetailUrls())->not->toContain(MATCH_DETAIL_URL.'1306729')
+        ->and(Fixture::query()->where('external_id', 1306729)->sole()->venue_id)->toBeNull();
+});
+
+test('pauses before each match detail page request', function () {
+    config(['services.ceskyflorbal.request_pause_milliseconds' => 1500]);
+    $teamSeason = kutnaHoraTeamSeason();
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect(requestedMatchDetailUrls())->toHaveCount(20);
+    Sleep::assertSequence(array_fill(0, 20, Sleep::for(1500)->milliseconds()));
+});
+
+test('does not download a match detail page again for an unchanged venue', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+
+    importTwice($teamSeason, fixtureListSnapshot(), fixtureListSnapshot());
+
+    expect(requestedMatchDetailUrls())->toHaveCount(20)
+        ->and(Revision::query()->count())->toBe(0);
+});
+
+test('records a fixture moved to another venue', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    $snapshot = str_replace(
+        '<p class="Match-place">SH Kutná Hora Klimeška</p>',
+        '<p class="Match-place">SH Kutná Hora Šipší</p>',
+        fixtureListSnapshot(),
+    );
+
+    $import = importTwice($teamSeason, fixtureListSnapshot(), $snapshot, [
+        MATCH_DETAIL_URL.'1306754' => Http::sequence([
+            Http::response(matchDetailSnapshot()),
+            Http::response(matchDetailSnapshot('SH Kutná Hora Šipší', 731)),
+        ]),
+    ]);
+
+    $fixture = Fixture::query()->where('external_id', 1306754)->sole();
+    expect($fixture->venue)
+        ->external_id->toBe(731)
+        ->name->toBe('SH Kutná Hora Šipší');
+    expect($fixture->sequence)->toBe(1);
+    expect(Revision::query()->sole())
+        ->import_id->toBe($import->id)
+        ->fixture_id->toBe($fixture->id)
+        ->field->toBe(RevisionField::Venue)
+        ->old_value->toBe('SH Kutná Hora Klimeška')
+        ->new_value->toBe('SH Kutná Hora Šipší');
+    expect(requestedMatchDetailUrls())->toHaveCount(21);
+});
+
+test('keeps the venue of a fixture whose row shows it finished', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+
+    importTwice($teamSeason, fixtureListSnapshot(), fixtureListSnapshotWithFinishedFixture());
+
+    expect(Fixture::query()->where('external_id', 1306757)->sole()->venue->name)->toBe('Unihoc Aréna Praha')
+        ->and(Revision::query()->where('field', RevisionField::Venue)->count())->toBe(0)
+        ->and(requestedMatchDetailUrls())->toHaveCount(20);
+});
+
+test('renames a stored venue the match detail page shows under another name', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    $venue = Venue::factory()->create([
+        'external_id' => 602,
+        'name' => 'SH Klimeška',
+        'address' => 'Čáslavská 274, 284 01 Kutná Hora',
+    ]);
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect($venue->refresh())
+        ->name->toBe('SH Kutná Hora Klimeška')
+        ->address->toBe('Čáslavská 274, 284 01 Kutná Hora');
+    expect(Fixture::query()->where('external_id', 1306754)->sole()->venue_id)->toBe($venue->id);
+});
+
+test('fills in the address of a stored venue that has none', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    $venue = Venue::factory()->withoutAddress()->create([
+        'external_id' => 602,
+        'name' => 'SH Kutná Hora Klimeška',
+    ]);
+    fakeCeskyflorbal(Http::response(fixtureListSnapshot()));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect($venue->refresh()->address)->toBe('Čáslavská 274, Kutná Hora');
 });

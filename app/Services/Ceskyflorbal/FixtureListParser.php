@@ -61,6 +61,7 @@ final readonly class FixtureListParser
             time: $this->time($startTime),
             isHome: $isHome,
             opponentName: $this->requiredText($row, $isHome ? '.Match-rightContent .Match-teamName' : '.Match-leftContent .Match-teamName'),
+            venueName: $this->text($row, '.Match-place'),
             status: $this->status($row, $teamSeason, $externalId),
             isRescheduled: $row->querySelector('.Tooltip--warning') !== null,
             homeScore: $score[0] ?? null,

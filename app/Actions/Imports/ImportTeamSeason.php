@@ -11,9 +11,14 @@ use App\Enums\RevisionField;
 use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\TeamSeason;
+use App\Models\Venue;
 use App\Services\Ceskyflorbal\CeskyflorbalClient;
+use App\Services\Ceskyflorbal\FixtureListPageData;
 use App\Services\Ceskyflorbal\FixtureListRowData;
+use App\Services\Ceskyflorbal\MatchDetailPageData;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 final readonly class ImportTeamSeason
 {
@@ -23,11 +28,11 @@ final readonly class ImportTeamSeason
     public function __construct(private CeskyflorbalClient $ceskyflorbal) {}
 
     /**
-     * Download the team season's fixture list from ceskyflorbal.cz and store its fixtures and their revisions, recording the run as an import.
+     * Download the team season's fixture list and the match detail pages it needs from ceskyflorbal.cz, and store its fixtures, venues and revisions, recording the run as an import.
      */
     public function handle(TeamSeason $teamSeason, ImportTrigger $trigger): Import
     {
-        // Created outside the transaction so a running import is visible while the page downloads, and a failed one stays in the history.
+        // Created outside the transaction so a running import is visible while the pages download, and a failed one stays in the history.
         $import = $teamSeason->imports()->create([
             'trigger' => $trigger,
             'status' => ImportStatus::Running,
@@ -35,12 +40,22 @@ final readonly class ImportTeamSeason
         ]);
 
         $page = $this->ceskyflorbal->fixtureList($teamSeason);
+        $storedFixtures = $teamSeason->fixtures()->with('venue')->get()->keyBy('external_id');
 
-        DB::transaction(function () use ($teamSeason, $page, $import): void {
+        // Downloaded before the transaction, so it never holds the database locked while the paced requests wait.
+        $matchDetails = $this->matchDetails($page, $storedFixtures);
+
+        DB::transaction(function () use ($teamSeason, $page, $storedFixtures, $matchDetails, $import): void {
             $isInitialImport = $teamSeason->imports()->where('status', ImportStatus::Ok)->doesntExist();
 
             foreach ($page->rows as $row) {
-                $this->apply($teamSeason, $row, $import, $isInitialImport);
+                $this->apply(
+                    $storedFixtures->get($row->externalId) ?? $teamSeason->fixtures()->make(['external_id' => $row->externalId]),
+                    $row,
+                    $matchDetails[$row->externalId] ?? null,
+                    $import,
+                    $isInitialImport,
+                );
             }
 
             $teamSeason->update([
@@ -59,11 +74,41 @@ final readonly class ImportTeamSeason
     }
 
     /**
-     * Create or update the fixture a fixture list row shows and record its revisions, unless this is the initial import.
+     * Download the match detail page of each fixture that is new or whose venue in the fixture list differs from the stored venue's name.
+     *
+     * Finished rows show no venue, so they never need one.
+     *
+     * @param  Collection<int, Fixture>  $storedFixtures  keyed by external ID
+     * @return array<int, MatchDetailPageData> keyed by the fixture's external ID
      */
-    private function apply(TeamSeason $teamSeason, FixtureListRowData $row, Import $import, bool $isInitialImport): void
+    private function matchDetails(FixtureListPageData $page, Collection $storedFixtures): array
     {
-        $fixture = $teamSeason->fixtures()->firstOrNew(['external_id' => $row->externalId]);
+        $matchDetails = [];
+
+        foreach ($page->rows as $row) {
+            if ($row->venueName !== null && $row->venueName !== $storedFixtures->get($row->externalId)?->venue?->name) {
+                $matchDetail = $this->ceskyflorbal->matchDetail($row->externalId);
+
+                if ($matchDetail->venueName !== $row->venueName) {
+                    Log::warning('The match detail page names the venue differently than the fixture list, so it is downloaded again on every import.', [
+                        'external_id' => $row->externalId,
+                        'fixture_list_venue' => $row->venueName,
+                        'match_detail_venue' => $matchDetail->venueName,
+                    ]);
+                }
+
+                $matchDetails[$row->externalId] = $matchDetail;
+            }
+        }
+
+        return $matchDetails;
+    }
+
+    /**
+     * Update the fixture a fixture list row shows, and its venue when the match detail page was downloaded, recording its revisions unless this is the initial import.
+     */
+    private function apply(Fixture $fixture, FixtureListRowData $row, ?MatchDetailPageData $matchDetail, Import $import, bool $isInitialImport): void
+    {
         $valuesBefore = $fixture->exists ? $this->revisableValues($fixture) : null;
 
         $fixture->fill([
@@ -81,6 +126,10 @@ final readonly class ImportTeamSeason
             $fixture->time = $row->time;
         }
 
+        if ($matchDetail !== null) {
+            $fixture->venue()->associate($this->venue($matchDetail));
+        }
+
         $revisions = $isInitialImport ? [] : $this->revisions($valuesBefore, $this->revisableValues($fixture));
 
         if ($fixture->exists && $revisions !== []) {
@@ -96,15 +145,31 @@ final readonly class ImportTeamSeason
     }
 
     /**
+     * Find the venue a match detail page shows by its federation ID, creating it or updating its name and filling in a missing address.
+     */
+    private function venue(MatchDetailPageData $matchDetail): Venue
+    {
+        $venue = Venue::query()->firstOrNew(['external_id' => $matchDetail->venueExternalId]);
+
+        $venue->name = $matchDetail->venueName;
+        // Administrators correct addresses by hand, so only a missing one is taken from the page.
+        $venue->address ??= $matchDetail->venueAddress;
+        $venue->save();
+
+        return $venue;
+    }
+
+    /**
      * Read the fixture's revisable fields as revisions store them, keyed by the revision field.
      *
-     * @return array{date: string, time: string|null, status: string, is_rescheduled: string, home_score: string|null, away_score: string|null}
+     * @return array{date: string, time: string|null, venue: string|null, status: string, is_rescheduled: string, home_score: string|null, away_score: string|null}
      */
     private function revisableValues(Fixture $fixture): array
     {
         return [
             RevisionField::Date->value => $fixture->date->toDateString(),
             RevisionField::Time->value => $fixture->time === null ? null : mb_substr($fixture->time, 0, 5),
+            RevisionField::Venue->value => $fixture->venue?->name,
             RevisionField::Status->value => $fixture->status->value,
             RevisionField::IsRescheduled->value => $fixture->is_rescheduled ? '1' : '0',
             RevisionField::HomeScore->value => $fixture->home_score === null ? null : (string) $fixture->home_score,

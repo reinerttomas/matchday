@@ -4,13 +4,13 @@
 
 **Blocked by:** 06 — Revisions on re-import
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] The match detail page is fetched only for a new fixture, or when the venue text in the list differs from the stored venue's name. The venue text is read only from `Match-place`; finished rows (which show "odehráno" in `Match-status` instead) never trigger a fetch or a venue change.
-- [ ] Requests are paced with a pause between them; the pause is configurable so tests don't wait.
-- [ ] From the detail page the import takes the arena ID, the name and the address; "Čáslavská 274<br>Kutná Hora" is stored as "Čáslavská 274, Kutná Hora".
-- [ ] The venue is looked up by external ID: created with its address when missing, renamed when it exists under another name.
-- [ ] A changed venue writes a revision whose old and new values are venue **names**.
-- [ ] An HTML snapshot of a live match detail page is saved for tests (same rule as ticket 05: ask if blocked).
-- [ ] Feature tests cover: a new fixture gets a venue with an address, an unchanged venue is not fetched again, a venue change writes a revision, a finished row doesn't touch the venue, an existing venue under a new name is renamed.
-- [ ] `composer ci:check` passes.
+- [x] The match detail page is fetched only for a new fixture, or when the venue text in the list differs from the stored venue's name. The venue text is read only from `Match-place`; finished rows (which show "odehráno" in `Match-status` instead) never trigger a fetch or a venue change.
+- [x] Requests are paced with a pause between them; the pause is configurable so tests don't wait.
+- [x] From the detail page the import takes the arena ID, the name and the address; "Čáslavská 274<br>Kutná Hora" is stored as "Čáslavská 274, Kutná Hora".
+- [x] The venue is looked up by external ID: created with its address when missing, renamed when it exists under another name.
+- [x] A changed venue writes a revision whose old and new values are venue **names**.
+- [x] An HTML snapshot of a live match detail page is saved for tests (same rule as ticket 05: ask if blocked).
+- [x] Feature tests cover: a new fixture gets a venue with an address, an unchanged venue is not fetched again, a venue change writes a revision, a finished row doesn't touch the venue, an existing venue under a new name is renamed.
+- [x] `composer ci:check` passes.

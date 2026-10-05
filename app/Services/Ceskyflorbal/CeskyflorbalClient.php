@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Services\Ceskyflorbal;
 
 use App\Models\TeamSeason;
+use Illuminate\Container\Attributes\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
 
 final readonly class CeskyflorbalClient
 {
@@ -17,7 +19,12 @@ final readonly class CeskyflorbalClient
     /**
      * Create a new instance.
      */
-    public function __construct(private FixtureListParser $fixtureListParser) {}
+    public function __construct(
+        private FixtureListParser $fixtureListParser,
+        private MatchDetailParser $matchDetailParser,
+        #[Config('services.ceskyflorbal.request_pause_milliseconds')]
+        private int $requestPauseMilliseconds,
+    ) {}
 
     /**
      * Download and parse the team season's fixture list page.
@@ -25,6 +32,19 @@ final readonly class CeskyflorbalClient
     public function fixtureList(TeamSeason $teamSeason): FixtureListPageData
     {
         return $this->fixtureListParser->parse($this->download($teamSeason->source_url), $teamSeason);
+    }
+
+    /**
+     * Download and parse the match detail page of a fixture, pausing first.
+     *
+     * A match detail page is always requested after the fixture list or another detail page, so the pause spaces out the requests.
+     */
+    public function matchDetail(int $fixtureExternalId): MatchDetailPageData
+    {
+        Sleep::for($this->requestPauseMilliseconds)->milliseconds();
+
+        // The "Informace" tab; the default tab of the match detail shows the venue's name only.
+        return $this->matchDetailParser->parse($this->download("https://www.ceskyflorbal.cz/match/detail/info/{$fixtureExternalId}"));
     }
 
     /**
