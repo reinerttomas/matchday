@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Actions\Imports\ImportTeamSeason;
+use App\Enums\ImportStatus;
 use App\Enums\ImportTrigger;
 use App\Models\TeamSeason;
 use Illuminate\Console\Attributes\Description;
@@ -33,6 +34,12 @@ final class ImportFixturesCommand extends Command
         }
 
         $import = $importTeamSeason->handle($teamSeason, ImportTrigger::Schedule);
+
+        if ($import->status !== ImportStatus::Ok) {
+            error("Import finished as {$import->status->value}: {$import->error}");
+
+            return self::FAILURE;
+        }
 
         info("Import finished as {$import->status->value}, {$import->fixtures_found} fixtures found.");
 

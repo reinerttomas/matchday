@@ -18,7 +18,7 @@ final readonly class FixtureListParser
     /**
      * Parse the team season's fixture list page from ceskyflorbal.cz.
      *
-     * @throws UnexpectedValueException when a fixture row lacks markup the import cannot do without
+     * @throws UnexpectedValueException when the team header or a fixture row lacks markup the import cannot do without
      */
     public function parse(string $html, TeamSeason $teamSeason): FixtureListPageData
     {
@@ -35,10 +35,23 @@ final readonly class FixtureListParser
         $teamName = $this->text($document, ".Match a[href=\"/team/detail/overview/{$teamSeason->external_id}\"] .Match-teamName");
 
         return new FixtureListPageData(
+            seasonName: $this->seasonName($this->text($document, 'h3.ProfileClub-header--city') ?? ''),
             teamName: $teamName,
             competitionName: $this->text($document, '.Matches-body--sectionHeader h3'),
             rows: $rows,
         );
+    }
+
+    /**
+     * Read the season from the team header, such as "PH A SČ LIGA MUŽŮ 2026/2027", and name it like our seasons ("2026/27").
+     */
+    private function seasonName(string $header): string
+    {
+        if (preg_match('/(\d{4})\/\d{2}(\d{2})$/', $header, $matches) !== 1) {
+            throw new UnexpectedValueException("Unreadable season in the team header [{$header}].");
+        }
+
+        return "{$matches[1]}/{$matches[2]}";
     }
 
     /**

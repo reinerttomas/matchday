@@ -36,6 +36,7 @@ arch('avoid mutation')
         'App\Console\Commands',
         'App\Http\Middleware',
         'App\Http\Requests',
+        'App\Mail',
         'App\Models',
         'App\Providers',
     ]);
@@ -48,6 +49,7 @@ arch('avoid inheritance')
         'App\Console\Commands',
         'App\Http\Middleware',
         'App\Http\Requests',
+        'App\Mail',
         'App\Models',
         'App\Providers',
     ]);
