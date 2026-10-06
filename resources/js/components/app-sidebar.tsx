@@ -1,5 +1,14 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    CalendarDays,
+    CalendarRange,
+    DownloadCloud,
+    Globe,
+    History,
+    MapPin,
+    Users,
+} from 'lucide-react';
+import { AdminSelectionSwitcher } from '@/components/admin-selection-switcher';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -13,31 +22,38 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
-import type { NavItem } from '@/types';
+import { dashboard, publicTeamPage } from '@/routes';
+import { index as imports } from '@/routes/imports';
+import type { NavItem, SidebarNavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
+// Pages without a route yet stay disabled (href null) until their tickets add them.
+const teamNavItems: SidebarNavItem[] = [
+    { title: 'Rozpis zápasů', href: null, icon: CalendarDays },
+    { title: 'Změny', href: null, icon: History },
+    { title: 'Importy', href: imports(), icon: DownloadCloud },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: FolderGit2,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
-    },
+const settingsNavItems: SidebarNavItem[] = [
+    { title: 'Týmy', href: null, icon: Users },
+    { title: 'Haly', href: null, icon: MapPin },
+    { title: 'Sezony', href: null, icon: CalendarRange },
 ];
 
 export function AppSidebar() {
+    const { adminSelection } = usePage().props;
+    const teamSeason = adminSelection?.teamSeason ?? null;
+
+    const footerNavItems: NavItem[] =
+        teamSeason === null
+            ? []
+            : [
+                  {
+                      title: 'Veřejná stránka týmu',
+                      href: publicTeamPage(teamSeason.teamSlug),
+                      icon: Globe,
+                  },
+              ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -50,10 +66,12 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
+                <AdminSelectionSwitcher />
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain title="Tým" items={teamNavItems} />
+                <NavMain title="Nastavení" items={settingsNavItems} />
             </SidebarContent>
 
             <SidebarFooter>

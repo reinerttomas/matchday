@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Services\AdminSelection;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -17,6 +18,11 @@ final class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    /**
+     * Create a new instance.
+     */
+    public function __construct(private readonly AdminSelection $adminSelection) {}
 
     /**
      * Determines the current asset version.
@@ -43,6 +49,8 @@ final class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // Every admin page's sidebar switches the selection, so only guests go without it.
+            'adminSelection' => fn (): ?array => $request->user() === null ? null : $this->adminSelection->present(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 return [
 
+    'statuses' => [
+        'scheduled' => 'Naplánováno',
+        'postponed' => 'Odloženo',
+        'finished' => 'Odehráno',
+        'cancelled' => 'Zrušeno',
+    ],
+
     'rounds' => [
         'default' => ':round. kolo',
         'rescheduled' => 'dohrávka :round. kola',
@@ -26,10 +33,6 @@ return [
         'match_day_with_year' => ':weekday :date :year',
         'matchup' => ':home – :away',
         'score' => ':home_score::away_score',
-        'statuses' => [
-            'postponed' => 'Odloženo',
-            'cancelled' => 'Zrušeno',
-        ],
     ],
 
 ];

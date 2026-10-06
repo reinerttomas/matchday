@@ -4,6 +4,18 @@ declare(strict_types=1);
 
 return [
 
+    'statuses' => [
+        'running' => 'Probíhá',
+        'ok' => 'OK',
+        'error' => 'Chyba',
+        'aborted' => 'Přerušeno',
+    ],
+
+    'triggers' => [
+        'schedule' => 'automaticky',
+        'manual' => 'ručně',
+    ],
+
     'change_summary' => [
         'header' => '📅 Změny v rozpisu :team_season',
         'bullet' => '• :weekday :date :home – :away: :revisions',
@@ -87,6 +99,14 @@ return [
 
     'team_page' => [
         'last_import' => ':date v :time',
+    ],
+
+    'history' => [
+        'started_at' => ':date :time',
+        'duration' => [
+            'seconds' => ':seconds s',
+            'minutes' => ':minutes min :seconds s',
+        ],
     ],
 
 ];

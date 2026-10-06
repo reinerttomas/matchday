@@ -15,8 +15,9 @@ test('users can log in from the welcome page', function () {
         ->fill('password', 'password')
         ->assertSeeIn('@login-button', 'Login')
         ->click('@login-button')
-        ->assertPathIs('/dashboard')
-        ->assertSee('Dashboard')
+        // The dashboard redirects to the first admin page.
+        ->assertPathIs('/imports')
+        ->assertSee('Importy')
         ->assertNoJavaScriptErrors();
 
     $this->assertAuthenticatedAs($user);

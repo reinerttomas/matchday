@@ -113,7 +113,7 @@ final readonly class TeamPagePresenter
             return null;
         }
 
-        return __("fixtures.team_page.statuses.{$fixture->status->value}");
+        return $fixture->status->label();
     }
 
     /**

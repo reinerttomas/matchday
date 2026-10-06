@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\AdminSelectionController;
 use App\Http\Controllers\Auth\GoogleCallbackController;
 use App\Http\Controllers\Auth\GoogleRedirectController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PublicTeamPageController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,7 +22,12 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    // Points to the fixture list once it exists; until then Importy is the first admin page.
+    Route::redirect('dashboard', '/imports')->name('dashboard');
+
+    Route::post('admin-selection', AdminSelectionController::class)->name('admin-selection.update');
+
+    Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
 });
 
 require __DIR__.'/settings.php';

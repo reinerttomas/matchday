@@ -12,3 +12,10 @@ export type NavItem = {
     icon?: LucideIcon | null;
     isActive?: boolean;
 };
+
+/**
+ * A sidebar link whose page may not exist yet; it stays visible but disabled until its route lands.
+ */
+export type SidebarNavItem = Omit<NavItem, 'href'> & {
+    href: NavItem['href'] | null;
+};

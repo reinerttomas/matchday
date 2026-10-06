@@ -1,3 +1,4 @@
+import type { AdminSelection } from '@/types/admin';
 import type { Auth } from '@/types/auth';
 
 declare module 'react' {
@@ -11,6 +12,7 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             auth: Auth;
+            adminSelection: AdminSelection | null;
             sidebarOpen: boolean;
             [key: string]: unknown;
         };
