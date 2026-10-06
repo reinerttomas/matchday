@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 /*
@@ -16,8 +17,10 @@ use Tests\TestCase;
 |
 */
 
+// Notifications are faked everywhere, so no test emails the administrators by accident.
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->beforeEach(fn () => Notification::fake())
     ->in('Feature', 'Browser');
 
 pest()->tia()->locally();

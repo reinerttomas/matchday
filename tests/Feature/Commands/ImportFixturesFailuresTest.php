@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 use App\Enums\ImportStatus;
 use App\Enums\RevisionField;
-use App\Mail\ImportFailed;
 use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Revision;
 use App\Models\TeamSeason;
 use App\Models\User;
 use App\Models\Venue;
+use App\Notifications\ImportFailed;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\Support\Ceskyflorbal;
 
 use function Pest\Laravel\artisan;
@@ -71,10 +71,10 @@ function assertAdministratorsEmailedAbout(Import $import): void
     $users = User::query()->get();
 
     foreach ($users as $user) {
-        Mail::assertQueued(ImportFailed::class, fn (ImportFailed $mail): bool => $mail->hasTo($user->email) && $mail->import->is($import));
+        Notification::assertSentTo($user, ImportFailed::class, fn (ImportFailed $notification): bool => $notification->import->is($import));
     }
 
-    Mail::assertQueuedCount($users->count());
+    Notification::assertCount($users->count());
 }
 
 test('ends the import as error without changing data when ceskyflorbal.cz blocks the download', function () {
@@ -83,7 +83,6 @@ test('ends the import as error without changing data when ceskyflorbal.cz blocks
     User::factory()->count(2)->create();
     $dataBefore = importableData();
     Ceskyflorbal::fake(Http::response('Forbidden', 403));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])
         ->expectsOutputToContain('Import finished as error: HTTP 403 – požadavek zablokován')
@@ -101,7 +100,6 @@ test('ends the import as error without changing data when ceskyflorbal.cz blocks
 test('describes in Czech why ceskyflorbal.cz refused the fixture list', function (int $status, string $reason) {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     Ceskyflorbal::fake(Http::response('', $status));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
 
@@ -118,7 +116,6 @@ test('ends the import as error without changing data when ceskyflorbal.cz cannot
     User::factory()->create();
     $dataBefore = importableData();
     Ceskyflorbal::fake(Http::failedConnection());
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
 
@@ -135,7 +132,6 @@ test('ends the import as error without changing data when a fixture row cannot b
     User::factory()->create();
     $dataBefore = importableData();
     Ceskyflorbal::fake(Http::response(str_replace('SO, 17. 10.', 'SO, 17.', Ceskyflorbal::fixtureListSnapshot())));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
 
@@ -153,7 +149,6 @@ test('aborts the import without changing data when the fixture list page shows n
     User::factory()->create();
     $dataBefore = importableData();
     Ceskyflorbal::fake(Http::response(fixtureListSnapshotWithFirstRows(0)));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])
         ->expectsOutputToContain('Import finished as aborted: Parser vrátil 0 zápasů (minule 24)')
@@ -173,7 +168,6 @@ test('aborts the import without changing data when the page shows fewer than hal
     User::factory()->create();
     $dataBefore = importableData();
     Ceskyflorbal::fake(Http::response(fixtureListSnapshotWithFirstRows($rows)));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
 
@@ -192,20 +186,18 @@ test('aborts the import without changing data when the page shows fewer than hal
 test('applies a page with half of the fixtures of the last ok import', function () {
     $teamSeason = importedKutnaHoraTeamSeason();
     Ceskyflorbal::fake(Http::response(fixtureListSnapshotWithFirstRows(12)));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
 
     expect(latestImport())
         ->status->toBe(ImportStatus::Ok)
         ->fixtures_found->toBe(12);
-    Mail::assertNotQueued(ImportFailed::class);
+    Notification::assertSentTimes(ImportFailed::class, 0);
 });
 
 test('aborts the first import of a team season whose page shows no fixtures', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     Ceskyflorbal::fake(Http::response(fixtureListSnapshotWithFirstRows(0)));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
 
@@ -219,7 +211,6 @@ test('aborts the import without changing data when the page belongs to another s
     User::factory()->create();
     $dataBefore = importableData();
     Ceskyflorbal::fake(Http::response(str_replace('PH A SČ LIGA MUŽŮ 2026/2027', 'PH A SČ LIGA MUŽŮ 2025/2026', Ceskyflorbal::fixtureListSnapshot())));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
 
@@ -235,7 +226,6 @@ test('aborts the import without changing data when the page belongs to another s
 test('ends the import as error when the team header shows no season', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     Ceskyflorbal::fake(Http::response(str_replace('PH A SČ LIGA MUŽŮ 2026/2027', 'PH A SČ LIGA MUŽŮ', Ceskyflorbal::fixtureListSnapshot())));
-    Mail::fake();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
 
@@ -252,7 +242,6 @@ test('applies a fixture with its venue unchanged and logs it when its match deta
         Ceskyflorbal::fixtureListSnapshot(),
     );
     Ceskyflorbal::fake(Http::response($snapshot), [Ceskyflorbal::MATCH_DETAIL_URL.'1306754' => $matchDetailPage]);
-    Mail::fake();
     Log::spy();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
@@ -269,7 +258,7 @@ test('applies a fixture with its venue unchanged and logs it when its match deta
             && $context['team_season_id'] === $teamSeason->id
             && $context['external_id'] === 1306754)
         ->once();
-    Mail::assertNotQueued(ImportFailed::class);
+    Notification::assertSentTimes(ImportFailed::class, 0);
 })->with([
     'blocked' => fn () => Http::response('Forbidden', 403),
     'unreachable' => fn () => Http::failedConnection(),

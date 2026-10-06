@@ -7,7 +7,7 @@ use App\Models\Import;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Tests\Support\Ceskyflorbal;
 
 use function Pest\Laravel\artisan;
@@ -34,7 +34,6 @@ test('ends a running import older than 15 minutes as error without emailing and 
     User::factory()->create();
     $deadImport = Import::factory()->for($teamSeason)->running()->create(['started_at' => '2026-10-05 07:44:00']);
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
-    Mail::fake();
     Log::spy();
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])
@@ -52,5 +51,5 @@ test('ends a running import older than 15 minutes as error without emailing and 
             'team_season_id' => $teamSeason->id,
         ])
         ->once();
-    Mail::assertNothingOutgoing();
+    Notification::assertNothingSent();
 });

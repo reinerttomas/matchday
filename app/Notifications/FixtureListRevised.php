@@ -2,23 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Mail;
+namespace App\Notifications;
 
 use App\Models\Import;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
-final class FixtureListRevised extends Mailable implements ShouldQueue
+final class FixtureListRevised extends Notification implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable;
 
     /**
-     * Create the message giving an administrator the change summary of an import that recorded revisions, ready to send to the team's WhatsApp group.
+     * Create the notification giving an administrator the change summary of an import that recorded revisions, ready to send to the team's WhatsApp group.
      */
     public function __construct(
         public Import $import,
@@ -27,28 +25,27 @@ final class FixtureListRevised extends Mailable implements ShouldQueue
     ) {}
 
     /**
-     * Get the message envelope.
+     * Get the notification's delivery channels.
+     *
+     * @return list<string>
      */
-    public function envelope(): Envelope
+    public function via(object $notifiable): array
     {
-        return new Envelope(
-            subject: "Změny v rozpisu: {$this->import->teamSeason->displayNameWithSeason()}",
-        );
+        return ['mail'];
     }
 
     /**
-     * Get the message content definition.
+     * Get the mail representation of the notification.
      */
-    public function content(): Content
+    public function toMail(object $notifiable): MailMessage
     {
-        return new Content(
-            markdown: 'mail.fixture-list-revised',
-            with: [
+        return (new MailMessage)
+            ->subject("Změny v rozpisu: {$this->import->teamSeason->displayNameWithSeason()}")
+            ->markdown('mail.fixture-list-revised', [
                 'teamSeason' => $this->import->teamSeason->displayNameWithSeason(),
-                // Named apart from the summary property, which the view receives as it is.
                 'summaryLines' => $this->summaryAsLiteralMarkdown(),
-            ],
-        );
+                'whatsAppUrl' => $this->whatsAppUrl,
+            ]);
     }
 
     /**

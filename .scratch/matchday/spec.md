@@ -292,7 +292,7 @@ The admin pages sit behind auth. The starter-kit dashboard redirects to the fixt
 - **Seam 1 – import.**
     - Tests run an import the way the app does, through the Artisan command or job for a team season, with `Http::fake()` returning saved HTML snapshots of ceskyflorbal.cz: the fixture list page and a match detail page.
     - Variants of the snapshots cover the scenarios: changed time, TBD → time, venue change, warning icon, a fixture missing once and twice, a fixture reappearing, a new fixture after the initial import, 0 fixtures, fewer than half, a season mismatch, HTTP 403, and an identical second import.
-    - Assertions cover fixtures, revisions, the import's status and reason, venues with addresses, and emails (`Mail::fake()`).
+    - Assertions cover fixtures, revisions, the import's status and reason, venues with addresses, and the administrators' notifications (`Notification::fake()`).
     - There are no separate parser unit tests; the parser is covered through these scenarios.
     - Concurrency is covered by importing while a `running` import exists (skipped) and while a `running` import older than 15 minutes exists (it ends as `error`, the new import goes ahead).
 - **Seam 2 – HTTP routes.** Feature tests call the routes, with data set up by factories:

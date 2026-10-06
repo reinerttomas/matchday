@@ -38,6 +38,16 @@ final class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
+     * Address emailed notifications to the user's name and email, as the "To" header otherwise carries only the email.
+     *
+     * @return array<string, string>
+     */
+    public function routeNotificationForMail(): array
+    {
+        return [$this->email => $this->name];
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
