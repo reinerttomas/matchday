@@ -48,4 +48,12 @@ final class Team extends Model
             ->whereRelation('season', 'is_current', true)
             ->chaperone();
     }
+
+    /**
+     * Name the team's calendar after its team season in the current season, or after its slug while it has none.
+     */
+    public function calendarName(): string
+    {
+        return $this->currentTeamSeason?->displayName() ?? $this->slug;
+    }
 }

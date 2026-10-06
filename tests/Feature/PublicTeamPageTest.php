@@ -51,6 +51,22 @@ test('shows the team season of the current season to a guest', function () {
         ->etc());
 });
 
+test('offers subscribe links derived from the team\'s permanent calendar address', function () {
+    kutnaHoraTeamSeason();
+
+    $response = $this->get('https://matchday.cz/t/kutna-hora-b');
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('pageUrl', 'https://matchday.cz/t/kutna-hora-b')
+        ->where('calendar', [
+            'address' => 'https://matchday.cz/calendar/kutna-hora-b.ics',
+            'google' => 'https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fmatchday.cz%2Fcalendar%2Fkutna-hora-b.ics',
+            'webcal' => 'webcal://matchday.cz/calendar/kutna-hora-b.ics',
+            'outlook' => 'https://outlook.live.com/calendar/0/addfromweb?url=https%3A%2F%2Fmatchday.cz%2Fcalendar%2Fkutna-hora-b.ics&name=FBC%20Kutn%C3%A1%20Hora%20B',
+        ])
+        ->etc());
+});
+
 test('lists fixtures from today in Prague on, in date and time order', function () {
     $teamSeason = kutnaHoraTeamSeason();
     $later = Fixture::factory()->for($teamSeason)->create(['date' => '2026-10-11', 'time' => '10:00:00']);
@@ -232,5 +248,7 @@ test('names the current season when the team has no team season in it', function
     $response->assertInertia(fn (Assert $page) => $page
         ->component('public/team')
         ->where('season', '2026/27')
-        ->where('teamSeason', null));
+        ->where('teamSeason', null)
+        ->where('calendar.outlook', fn (string $outlook): bool => str_ends_with($outlook, '&name=kutna-hora-b'))
+        ->etc());
 });

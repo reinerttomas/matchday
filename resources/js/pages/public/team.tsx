@@ -1,10 +1,25 @@
 import { Head } from '@inertiajs/react';
-import { MapPin } from 'lucide-react';
+import { CalendarClock, CalendarOff, MapPin } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
+import CalendarSubscription from '@/components/calendar-subscription';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import { cn } from '@/lib/utils';
-import type { MatchDay, TeamPageFixture, TeamPageTeamSeason } from '@/types';
+import type {
+    CalendarLinks,
+    MatchDay,
+    TeamPageFixture,
+    TeamPageTeamSeason,
+} from '@/types';
 
 /**
  * Match days shown before the player asks for the rest of the season, so the page stays short.
@@ -14,20 +29,30 @@ const INITIAL_MATCH_DAYS = 4;
 type Props = {
     season: string | null;
     teamSeason: TeamPageTeamSeason | null;
+    calendar: CalendarLinks;
+    pageUrl: string;
 };
 
-export default function Team({ season, teamSeason }: Props) {
+export default function Team({ season, teamSeason, calendar, pageUrl }: Props) {
+    const calendarSubscription = (
+        <CalendarSubscription calendar={calendar} pageUrl={pageUrl} />
+    );
+
     return (
         <>
             <Head title={teamSeason?.name ?? 'Rozpis zápasů'} />
             <div className="min-h-screen bg-background text-foreground">
                 <main className="mx-auto flex w-full max-w-xl flex-col gap-8 px-4 py-8 sm:py-12">
                     {teamSeason === null ? (
-                        <NoTeamSeason season={season} />
+                        <NoTeamSeason
+                            season={season}
+                            calendarSubscription={calendarSubscription}
+                        />
                     ) : (
                         <TeamSeasonSchedule
                             season={season}
                             teamSeason={teamSeason}
+                            calendarSubscription={calendarSubscription}
                         />
                     )}
                 </main>
@@ -36,7 +61,13 @@ export default function Team({ season, teamSeason }: Props) {
     );
 }
 
-function NoTeamSeason({ season }: { season: string | null }) {
+function NoTeamSeason({
+    season,
+    calendarSubscription,
+}: {
+    season: string | null;
+    calendarSubscription: ReactNode;
+}) {
     return (
         <>
             <header>
@@ -44,11 +75,12 @@ function NoTeamSeason({ season }: { season: string | null }) {
                     Rozpis zápasů
                 </h1>
             </header>
-            <EmptyState>
+            <EmptyState icon={CalendarClock}>
                 {season === null
-                    ? 'Zatím není rozpis.'
-                    : `Pro sezonu ${season} zatím není rozpis.`}
+                    ? 'Zatím není rozpis'
+                    : `Pro sezonu ${season} zatím není rozpis`}
             </EmptyState>
+            {calendarSubscription}
         </>
     );
 }
@@ -56,9 +88,11 @@ function NoTeamSeason({ season }: { season: string | null }) {
 function TeamSeasonSchedule({
     season,
     teamSeason,
+    calendarSubscription,
 }: {
     season: string | null;
     teamSeason: TeamPageTeamSeason;
+    calendarSubscription: ReactNode;
 }) {
     const [showsWholeSeason, setShowsWholeSeason] = useState(false);
     const matchDays = showsWholeSeason
@@ -78,8 +112,10 @@ function TeamSeasonSchedule({
                 </p>
             </header>
 
+            {calendarSubscription}
+
             {teamSeason.matchDays.length === 0 ? (
-                <EmptyState>Sezona skončila.</EmptyState>
+                <EmptyState icon={CalendarOff}>Sezona skončila</EmptyState>
             ) : (
                 <div className="flex flex-col gap-6">
                     {matchDays.map((matchDay) => (
@@ -133,11 +169,13 @@ function MatchDaySection({ matchDay }: { matchDay: MatchDay }) {
                 </h2>
                 {matchDay.venue !== null && <Venue name={matchDay.venue} />}
             </div>
-            <ul className="divide-y rounded-lg border bg-card text-card-foreground">
-                {matchDay.fixtures.map((fixture) => (
-                    <FixtureItem key={fixture.id} fixture={fixture} />
-                ))}
-            </ul>
+            <Card className="gap-0 py-0">
+                <ul className="divide-y">
+                    {matchDay.fixtures.map((fixture) => (
+                        <FixtureItem key={fixture.id} fixture={fixture} />
+                    ))}
+                </ul>
+            </Card>
         </section>
     );
 }
@@ -200,10 +238,21 @@ function Venue({ name }: { name: string }) {
     );
 }
 
-function EmptyState({ children }: { children: string }) {
+function EmptyState({
+    icon: Icon,
+    children,
+}: {
+    icon: LucideIcon;
+    children: string;
+}) {
     return (
-        <p className="rounded-lg border border-dashed px-4 py-8 text-center text-muted-foreground">
-            {children}
-        </p>
+        <Empty className="border">
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <Icon aria-hidden />
+                </EmptyMedia>
+                <EmptyTitle>{children}</EmptyTitle>
+            </EmptyHeader>
+        </Empty>
     );
 }

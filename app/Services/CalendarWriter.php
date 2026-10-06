@@ -42,7 +42,7 @@ final readonly class CalendarWriter
     {
         $teamSeason = $team->currentTeamSeason;
 
-        $calendar = Calendar::create($teamSeason?->displayName() ?? $team->slug)
+        $calendar = Calendar::create($team->calendarName())
             ->refreshInterval(self::REFRESH_MINUTES);
 
         if ($teamSeason === null) {

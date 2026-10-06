@@ -34,3 +34,10 @@ export type TeamPageTeamSeason = {
     lastImportedAt: string | null;
     matchDays: MatchDay[];
 };
+
+export type CalendarLinks = {
+    address: string;
+    google: string;
+    webcal: string;
+    outlook: string;
+};

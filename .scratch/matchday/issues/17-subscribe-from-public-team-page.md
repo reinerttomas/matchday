@@ -4,19 +4,19 @@
 
 **Blocked by:** 16 — Public team page with upcoming fixtures
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] The page receives the team's calendar URLs, all derived from the permanent `/calendar/{slug}.ics` address: a Google Calendar subscribe link, a `webcal://` link for iPhone / Mac, and an Outlook subscribe link.
-- [ ] Button order is decided on the client: on an Apple device "iPhone / Mac" comes first; on any other device "Google Kalendář" comes first.
-- [ ] The player can copy the calendar address.
-- [ ] Step-by-step instructions are shown in tabs: Google, Android, iPhone, Outlook.
-- [ ] The page tells the player that changes show up within a few hours and are also announced in the team's WhatsApp group.
-- [ ] No link or button downloads the `.ics` file.
-- [ ] On a wide screen the page shows a QR code linking to the page itself; on a phone it is hidden.
-- [ ] `qrcode.react` is installed and renders the QR code.
-- [ ] A feature test covers the calendar URL props.
-- [ ] Browser tests cover: the button order on an emulated iPhone vs. Android and desktop; switching the instruction tabs; copying the address; the QR code visible on a wide screen only; no horizontal scroll and no JavaScript errors on mobile.
-- [ ] `composer ci:check` passes.
+- [x] The page receives the team's calendar URLs, all derived from the permanent `/calendar/{slug}.ics` address: a Google Calendar subscribe link, a `webcal://` link for iPhone / Mac, and an Outlook subscribe link.
+- [x] Button order is decided on the client: on an Apple device "iPhone / Mac" comes first; on any other device "Google Kalendář" comes first.
+- [x] The player can copy the calendar address.
+- [x] Step-by-step instructions are shown in tabs: Google, Android, iPhone, Outlook.
+- [x] The page tells the player that changes show up within a few hours and are also announced in the team's WhatsApp group.
+- [x] No link or button downloads the `.ics` file.
+- [x] On a wide screen the page shows a QR code linking to the page itself; on a phone it is hidden.
+- [x] `qrcode.react` is installed and renders the QR code.
+- [x] A feature test covers the calendar URL props.
+- [x] Browser tests cover: the button order on an emulated iPhone vs. Android and desktop; switching the instruction tabs; copying the address; the QR code visible on a wide screen only; no horizontal scroll and no JavaScript errors on mobile.
+- [x] `composer ci:check` passes.
 
 ## Notes
 
