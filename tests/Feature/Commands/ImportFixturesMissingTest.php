@@ -5,39 +5,15 @@ declare(strict_types=1);
 use App\Enums\FixtureStatus;
 use App\Enums\RevisionField;
 use App\Models\Fixture;
-use App\Models\Import;
 use App\Models\Revision;
 use App\Models\TeamSeason;
-use GuzzleHttp\Promise\PromiseInterface;
-use Illuminate\Support\Facades\Http;
 use Tests\Support\Ceskyflorbal;
-
-use function Pest\Laravel\artisan;
-
-/**
- * Import the team season once for each fixture list page, in turn, returning the imports in the order they ran.
- *
- * @return list<Import>
- */
-function importFixtureListPagesInTurn(TeamSeason $teamSeason, string ...$fixtureListPages): array
-{
-    Ceskyflorbal::fake(Http::sequence(array_map(
-        fn (string $fixtureListPage): PromiseInterface => Http::response($fixtureListPage),
-        array_values($fixtureListPages),
-    )));
-
-    for ($run = 1; $run <= count($fixtureListPages); $run++) {
-        artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
-    }
-
-    return Import::query()->orderBy('id')->get()->all();
-}
 
 test('counts a fixture missing from the fixture list once without changing it', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     $fixtureOfAnotherTeamSeason = Fixture::factory()->for(TeamSeason::factory()->for($teamSeason->season))->create();
 
-    importFixtureListPagesInTurn($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshotWithout(1306757));
+    Ceskyflorbal::importFixtureListPagesInTurn($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshotWithout(1306757));
 
     $fixture = Fixture::query()->where('external_id', 1306757)->sole();
     expect($fixture)
@@ -55,7 +31,7 @@ test('cancels a fixture missing from the fixture list in two consecutive imports
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     $fixtureListWithoutFixture = Ceskyflorbal::fixtureListSnapshotWithout(1306757);
 
-    [, , $import] = importFixtureListPagesInTurn($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $fixtureListWithoutFixture, $fixtureListWithoutFixture);
+    [, , $import] = Ceskyflorbal::importFixtureListPagesInTurn($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $fixtureListWithoutFixture, $fixtureListWithoutFixture);
 
     $fixture = Fixture::query()->where('external_id', 1306757)->sole();
     expect($fixture)
@@ -74,7 +50,7 @@ test('does not cancel a fixture missing from two imports that were not consecuti
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     $fixtureListWithoutFixture = Ceskyflorbal::fixtureListSnapshotWithout(1306757);
 
-    importFixtureListPagesInTurn(
+    Ceskyflorbal::importFixtureListPagesInTurn(
         $teamSeason,
         Ceskyflorbal::fixtureListSnapshot(),
         $fixtureListWithoutFixture,
@@ -94,7 +70,7 @@ test('leaves a cancelled fixture unchanged while it stays missing from the fixtu
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     $fixtureListWithoutFixture = Ceskyflorbal::fixtureListSnapshotWithout(1306757);
 
-    importFixtureListPagesInTurn(
+    Ceskyflorbal::importFixtureListPagesInTurn(
         $teamSeason,
         Ceskyflorbal::fixtureListSnapshot(),
         $fixtureListWithoutFixture,
@@ -114,7 +90,7 @@ test('takes the status from the fixture list again when a cancelled fixture reap
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     $fixtureListWithoutFixture = Ceskyflorbal::fixtureListSnapshotWithout(1306757);
 
-    [, , $cancellingImport, $reappearingImport] = importFixtureListPagesInTurn(
+    [, , $cancellingImport, $reappearingImport] = Ceskyflorbal::importFixtureListPagesInTurn(
         $teamSeason,
         Ceskyflorbal::fixtureListSnapshot(),
         $fixtureListWithoutFixture,

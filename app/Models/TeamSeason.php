@@ -76,6 +76,23 @@ final class TeamSeason extends Model
     }
 
     /**
+     * Name the team season by its team's name that season, such as "FBC Kutná Hora B".
+     */
+    public function displayName(): string
+    {
+        // A team season gets its name from its first ok import, so until then the team's slug stands in for it.
+        return $this->name ?? $this->team->slug;
+    }
+
+    /**
+     * Name the team season by its team's name and the season, such as "FBC Kutná Hora B 2026/27".
+     */
+    public function displayNameWithSeason(): string
+    {
+        return "{$this->displayName()} {$this->season->name}";
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

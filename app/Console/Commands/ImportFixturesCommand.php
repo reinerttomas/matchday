@@ -67,7 +67,7 @@ final class ImportFixturesCommand extends Command
             try {
                 $import = $importTeamSeason->handle($teamSeason, ImportTrigger::Schedule);
             } catch (Throwable $exception) {
-                // Any import that was started has already ended as error; the remaining team seasons are still imported.
+                // An import that failed while downloading or applying has already ended as error, while one whose change summary failed to send stays ok yet counts as failed here. Either way the remaining team seasons are still imported.
                 report($exception);
                 error("{$prefix}Import failed: {$exception->getMessage()}");
                 $failed++;

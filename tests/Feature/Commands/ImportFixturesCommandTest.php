@@ -10,7 +10,6 @@ use App\Mail\ImportFailed;
 use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Revision;
-use App\Models\TeamSeason;
 use App\Models\User;
 use App\Models\Venue;
 use Illuminate\Http\Client\Request;
@@ -23,20 +22,6 @@ use Tests\Support\Ceskyflorbal;
 
 use function Pest\Laravel\artisan;
 use function Pest\Laravel\travelTo;
-
-/**
- * The fixture list snapshot after fixture 1306757 at Unihoc Aréna Praha was played and won 5:3 by the home team.
- */
-function fixtureListSnapshotWithFinishedFixture(): string
-{
-    return Str::of(Ceskyflorbal::fixtureListSnapshot())
-        ->replaceMatches(
-            '#<time datetime="" class="Match-startTime">\s*<a href="/match/detail/default/1306757">15:00</a>\s*</time>#',
-            '<span class="Match-score"><a href="/match/detail/default/1306757">5:3</a></span>',
-        )
-        ->replace('<p class="Match-place">Unihoc Aréna Praha</p>', '<p class="Match-status">odehráno</p>')
-        ->toString();
-}
 
 test('imports the fixture list of a team season', function () {
     travelTo('2026-10-05 08:00:00');
@@ -218,24 +203,6 @@ test('keeps the stored status and logs it when a row shows neither a venue nor a
         ->once();
 });
 
-/**
- * Run the initial import of the team season and then a second import, returning the second one.
- *
- * @param  array<string, mixed>  $matchDetailPages
- */
-function importTwice(TeamSeason $teamSeason, string $initialSnapshot, string $nextSnapshot, array $matchDetailPages = []): Import
-{
-    Ceskyflorbal::fake(Http::sequence([
-        Http::response($initialSnapshot),
-        Http::response($nextSnapshot),
-    ]), $matchDetailPages);
-
-    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
-    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
-
-    return Import::query()->latest('id')->firstOrFail();
-}
-
 test('stores the fixtures of the initial import without revisions', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
@@ -258,13 +225,9 @@ test('treats the first ok import as the initial import even after a failed one',
 
 test('records a changed start time', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
-    $snapshot = str_replace(
-        '<a href="/match/detail/default/1306757">15:00</a>',
-        '<a href="/match/detail/default/1306757">16:30</a>',
-        Ceskyflorbal::fixtureListSnapshot(),
-    );
+    $snapshot = Ceskyflorbal::fixtureListSnapshotWithTime(1306757, '16:30');
 
-    $import = importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot);
+    $import = Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot);
 
     $fixture = Fixture::query()->where('external_id', 1306757)->sole();
     expect($fixture->time)->toBe('16:30:00')
@@ -279,13 +242,9 @@ test('records a changed start time', function () {
 
 test('records a start time set for a fixture with a TBD time', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
-    $snapshot = str_replace(
-        '<a href="/match/detail/default/1306783">00:00</a>',
-        '<a href="/match/detail/default/1306783">18:00</a>',
-        Ceskyflorbal::fixtureListSnapshot(),
-    );
+    $snapshot = Ceskyflorbal::fixtureListSnapshotWithTime(1306783, '18:00');
 
-    importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot);
+    Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot);
 
     expect(Revision::query()->sole())
         ->field->toBe(RevisionField::Time)
@@ -296,7 +255,7 @@ test('records a start time set for a fixture with a TBD time', function () {
 test('records a finished fixture with its score once in the fixture sequence', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
 
-    importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), fixtureListSnapshotWithFinishedFixture());
+    Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshotWithFinishedFixture());
 
     $fixture = Fixture::query()->where('external_id', 1306757)->sole();
     expect($fixture->time)->toBe('15:00:00')
@@ -319,7 +278,7 @@ test('records a fixture moved to a new date with the warning icon', function () 
         )
         ->toString();
 
-    importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot);
+    Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot);
 
     $fixture = Fixture::query()->where('external_id', 1306757)->sole();
     expect($fixture->status)->toBe(FixtureStatus::Scheduled)
@@ -334,7 +293,7 @@ test('records a fixture moved to a new date with the warning icon', function () 
 test('records a fixture that appears after the initial import as added', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
 
-    $import = importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshotWithout(1306796), Ceskyflorbal::fixtureListSnapshot());
+    $import = Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshotWithout(1306796), Ceskyflorbal::fixtureListSnapshot());
 
     $fixture = Fixture::query()->where('external_id', 1306796)->sole();
     expect($fixture->sequence)->toBe(0);
@@ -349,7 +308,7 @@ test('records a fixture that appears after the initial import as added', functio
 test('records nothing when the fixture list did not change', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
 
-    importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshot());
+    Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshot());
 
     expect(Revision::query()->count())->toBe(0)
         ->and($teamSeason->fixtures()->where('sequence', '>', 0)->count())->toBe(0);
@@ -361,11 +320,7 @@ test('keeps the fixtures unchanged and ends the import as error when recording a
     Mail::fake();
     Ceskyflorbal::fake(Http::sequence([
         Http::response(Ceskyflorbal::fixtureListSnapshot()),
-        Http::response(str_replace(
-            '<a href="/match/detail/default/1306757">15:00</a>',
-            '<a href="/match/detail/default/1306757">16:30</a>',
-            Ceskyflorbal::fixtureListSnapshot(),
-        )),
+        Http::response(Ceskyflorbal::fixtureListSnapshotWithTime(1306757, '16:30')),
     ]));
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
     Revision::creating(fn () => throw new RuntimeException('Writing the revision failed.'));
@@ -424,7 +379,7 @@ test('pauses before each match detail page request', function () {
 test('does not download a match detail page again for an unchanged venue', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
 
-    importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshot());
+    Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshot());
 
     expect(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(20)
         ->and(Revision::query()->count())->toBe(0);
@@ -438,7 +393,7 @@ test('records a fixture moved to another venue', function () {
         Ceskyflorbal::fixtureListSnapshot(),
     );
 
-    $import = importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot, [
+    $import = Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot, [
         Ceskyflorbal::MATCH_DETAIL_URL.'1306754' => Http::sequence([
             Http::response(Ceskyflorbal::matchDetailSnapshot()),
             Http::response(Ceskyflorbal::matchDetailSnapshot('SH Kutná Hora Šipší', 731)),
@@ -462,7 +417,7 @@ test('records a fixture moved to another venue', function () {
 test('keeps the venue of a fixture whose row shows it finished', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
 
-    importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), fixtureListSnapshotWithFinishedFixture());
+    Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshotWithFinishedFixture());
 
     expect(Fixture::query()->where('external_id', 1306757)->sole()->venue->name)->toBe('Unihoc Aréna Praha')
         ->and(Revision::query()->where('field', RevisionField::Venue)->count())->toBe(0)

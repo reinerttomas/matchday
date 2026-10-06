@@ -30,7 +30,7 @@ final class ImportFailed extends Mailable implements ShouldQueue
         $outcome = $this->import->status === ImportStatus::Aborted ? 'přerušen' : 'selhal';
 
         return new Envelope(
-            subject: "Import rozpisu {$outcome}: {$this->teamSeasonLabel()}",
+            subject: "Import rozpisu {$outcome}: {$this->import->teamSeason->displayNameWithSeason()}",
         );
     }
 
@@ -43,21 +43,10 @@ final class ImportFailed extends Mailable implements ShouldQueue
             markdown: 'mail.import-failed',
             with: [
                 'isAborted' => $this->import->status === ImportStatus::Aborted,
-                'teamSeason' => $this->teamSeasonLabel(),
+                'teamSeason' => $this->import->teamSeason->displayNameWithSeason(),
                 'reason' => $this->import->error,
                 'sourceUrl' => $this->import->teamSeason->source_url,
             ],
         );
-    }
-
-    /**
-     * Name the team season by its team name and season, such as "FBC Kutná Hora B 2026/27".
-     */
-    private function teamSeasonLabel(): string
-    {
-        $teamSeason = $this->import->teamSeason;
-
-        // A team season gets its name from its first ok import, so until then the team's slug stands in for it.
-        return ($teamSeason->name ?? $teamSeason->team->slug).' '.$teamSeason->season->name;
     }
 }

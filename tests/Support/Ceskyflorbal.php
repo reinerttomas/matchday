@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Models\Import;
 use App\Models\Season;
+use App\Models\Team;
 use App\Models\TeamSeason;
+use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+
+use function Pest\Laravel\artisan;
 
 final class Ceskyflorbal
 {
@@ -40,6 +45,7 @@ final class Ceskyflorbal
     public static function kutnaHoraTeamSeason(): TeamSeason
     {
         return TeamSeason::factory()
+            ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
             ->for(Season::factory()->current()->state(['name' => '2026/27']))
             ->notImported()
             ->create([
@@ -67,6 +73,33 @@ final class Ceskyflorbal
             $rows,
             fn (string $row): bool => ! str_contains($row, "/match/detail/default/{$externalId}\""),
         ));
+    }
+
+    /**
+     * The fixture list snapshot, or the given fixture list page, with the start time of one fixture changed; 00:00 shows a TBD time.
+     */
+    public static function fixtureListSnapshotWithTime(int $externalId, string $time, ?string $fixtureListPage = null): string
+    {
+        return Str::of($fixtureListPage ?? self::fixtureListSnapshot())
+            ->replaceMatches(
+                "#(<time datetime=\"\" class=\"Match-startTime\">\\s*<a href=\"/match/detail/default/{$externalId}\">)\\d{2}:\\d{2}(</a>)#",
+                "\${1}{$time}\${2}",
+            )
+            ->toString();
+    }
+
+    /**
+     * The fixture list snapshot after fixture 1306757 at Unihoc Aréna Praha was played and won 5:3 by the home team.
+     */
+    public static function fixtureListSnapshotWithFinishedFixture(): string
+    {
+        return Str::of(self::fixtureListSnapshot())
+            ->replaceMatches(
+                '#<time datetime="" class="Match-startTime">\s*<a href="/match/detail/default/1306757">15:00</a>\s*</time>#',
+                '<span class="Match-score"><a href="/match/detail/default/1306757">5:3</a></span>',
+            )
+            ->replace('<p class="Match-place">Unihoc Aréna Praha</p>', '<p class="Match-status">odehráno</p>')
+            ->toString();
     }
 
     /**
@@ -112,5 +145,42 @@ final class Ceskyflorbal
             ->map(fn (array $exchange): string => $exchange[0]->url())
             ->values()
             ->all();
+    }
+
+    /**
+     * Run the initial import of the team season and then a second import, returning the second one.
+     *
+     * @param  array<string, mixed>  $matchDetailPages
+     */
+    public static function importTwice(TeamSeason $teamSeason, string $initialSnapshot, string $nextSnapshot, array $matchDetailPages = []): Import
+    {
+        self::fake(Http::sequence([
+            Http::response($initialSnapshot),
+            Http::response($nextSnapshot),
+        ]), $matchDetailPages);
+
+        artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+        artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+        return Import::query()->latest('id')->firstOrFail();
+    }
+
+    /**
+     * Import the team season once for each fixture list page, in turn, returning the imports in the order they ran.
+     *
+     * @return list<Import>
+     */
+    public static function importFixtureListPagesInTurn(TeamSeason $teamSeason, string ...$fixtureListPages): array
+    {
+        self::fake(Http::sequence(array_map(
+            fn (string $fixtureListPage): PromiseInterface => Http::response($fixtureListPage),
+            array_values($fixtureListPages),
+        )));
+
+        for ($run = 1; $run <= count($fixtureListPages); $run++) {
+            artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+        }
+
+        return Import::query()->orderBy('id')->get()->all();
     }
 }

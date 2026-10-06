@@ -6,6 +6,7 @@ namespace App\Actions\Imports;
 
 use App\Enums\ImportStatus;
 use App\Enums\ImportTrigger;
+use App\Mail\FixtureListRevised;
 use App\Mail\ImportFailed;
 use App\Models\Import;
 use App\Models\TeamSeason;
@@ -13,6 +14,7 @@ use App\Models\User;
 use App\Services\Ceskyflorbal\CeskyflorbalClient;
 use App\Services\Ceskyflorbal\FixtureListPageData;
 use App\Services\Ceskyflorbal\MatchDetailPageData;
+use App\Services\ChangeSummaryWriter;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Http\Client\RequestException;
@@ -35,12 +37,13 @@ final readonly class ImportTeamSeason
     public function __construct(
         private CeskyflorbalClient $ceskyflorbal,
         private ApplyFixtureList $applyFixtureList,
+        private ChangeSummaryWriter $changeSummaryWriter,
     ) {}
 
     /**
      * Download the team season's fixture list and the match detail pages it needs from ceskyflorbal.cz and apply them, recording the run as an import.
      *
-     * Returns null without importing while another import of the team season is running. A fixture list that fails to download or read ends the import as error, and one that looks broken aborts it; either way no data changes and every user is emailed the reason. Any other failure also ends the import as error before it is rethrown.
+     * Returns null without importing while another import of the team season is running. A fixture list that fails to download or read ends the import as error, and one that looks broken aborts it; either way no data changes and every user is emailed the reason. Any other failure also ends the import as error before it is rethrown. An ok import whose revisions make a change summary emails it to every user.
      */
     public function handle(TeamSeason $teamSeason, ImportTrigger $trigger): ?Import
     {
@@ -51,7 +54,7 @@ final readonly class ImportTeamSeason
         }
 
         try {
-            return $this->downloadAndApply($teamSeason, $import);
+            $this->downloadAndApply($teamSeason, $import);
         } catch (Throwable $exception) {
             // The fixture list's transaction has rolled back by now, but the import may still hold the ok state written inside it.
             $import->refresh();
@@ -59,6 +62,11 @@ final readonly class ImportTeamSeason
 
             throw $exception;
         }
+
+        // Outside the try, because the fixture list is committed by now, so a failure to send can't turn the import into an error.
+        $this->announceRevisions($import);
+
+        return $import;
     }
 
     /**
@@ -224,6 +232,26 @@ final readonly class ImportTeamSeason
         }
 
         return $import;
+    }
+
+    /**
+     * Email every user the change summary of an ok import, unless none of its revisions is worth telling the team.
+     *
+     * The initial import records no revisions, so its additions are never announced.
+     */
+    private function announceRevisions(Import $import): void
+    {
+        $summary = $import->status === ImportStatus::Ok ? $this->changeSummaryWriter->write($import) : null;
+
+        if ($summary === null) {
+            return;
+        }
+
+        $whatsAppUrl = $this->changeSummaryWriter->whatsAppUrl($summary);
+
+        foreach (User::query()->get() as $user) {
+            Mail::to($user)->send(new FixtureListRevised($import, $summary, $whatsAppUrl));
+        }
     }
 
     /**

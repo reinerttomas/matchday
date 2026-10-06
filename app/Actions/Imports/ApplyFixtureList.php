@@ -67,7 +67,7 @@ final readonly class ApplyFixtureList
      */
     private function apply(Fixture $fixture, FixtureListRowData $row, ?MatchDetailPageData $matchDetail, Import $import, bool $isInitialImport): void
     {
-        $valuesBefore = $fixture->exists ? $this->revisableValues($fixture) : null;
+        $valuesBefore = $fixture->exists ? $fixture->revisableValues() : null;
 
         $fixture->fill([
             'round' => $row->round,
@@ -97,7 +97,7 @@ final readonly class ApplyFixtureList
      */
     private function countMissing(Fixture $fixture, Import $import, bool $isInitialImport): void
     {
-        $valuesBefore = $this->revisableValues($fixture);
+        $valuesBefore = $fixture->revisableValues();
 
         $fixture->missing_count++;
 
@@ -115,7 +115,7 @@ final readonly class ApplyFixtureList
      */
     private function saveWithRevisions(Fixture $fixture, ?array $valuesBefore, Import $import, bool $isInitialImport): void
     {
-        $revisions = $isInitialImport ? [] : $this->revisions($valuesBefore, $this->revisableValues($fixture));
+        $revisions = $isInitialImport ? [] : $this->revisions($valuesBefore, $fixture->revisableValues());
 
         if ($fixture->exists && $revisions !== []) {
             $fixture->sequence++;
@@ -142,24 +142,6 @@ final readonly class ApplyFixtureList
         $venue->save();
 
         return $venue;
-    }
-
-    /**
-     * Read the fixture's revisable fields as revisions store them, keyed by the revision field.
-     *
-     * @return array{date: string, time: string|null, venue: string|null, status: string, is_rescheduled: string, home_score: string|null, away_score: string|null}
-     */
-    private function revisableValues(Fixture $fixture): array
-    {
-        return [
-            RevisionField::Date->value => $fixture->date->toDateString(),
-            RevisionField::Time->value => $fixture->time === null ? null : mb_substr($fixture->time, 0, 5),
-            RevisionField::Venue->value => $fixture->venue?->name,
-            RevisionField::Status->value => $fixture->status->value,
-            RevisionField::IsRescheduled->value => $fixture->is_rescheduled ? '1' : '0',
-            RevisionField::HomeScore->value => $fixture->home_score === null ? null : (string) $fixture->home_score,
-            RevisionField::AwayScore->value => $fixture->away_score === null ? null : (string) $fixture->away_score,
-        ];
     }
 
     /**

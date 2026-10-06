@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\FixtureStatus;
+use App\Enums\RevisionField;
 use Database\Factories\FixtureFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
@@ -85,6 +86,24 @@ final class Fixture extends Model
     public function revisions(): HasMany
     {
         return $this->hasMany(Revision::class);
+    }
+
+    /**
+     * Read the fixture's revisable fields as revisions store them, keyed by the revision field.
+     *
+     * @return array{date: string, time: string|null, venue: string|null, status: string, is_rescheduled: string, home_score: string|null, away_score: string|null}
+     */
+    public function revisableValues(): array
+    {
+        return [
+            RevisionField::Date->value => $this->date->toDateString(),
+            RevisionField::Time->value => $this->time === null ? null : mb_substr($this->time, 0, 5),
+            RevisionField::Venue->value => $this->venue?->name,
+            RevisionField::Status->value => $this->status->value,
+            RevisionField::IsRescheduled->value => $this->is_rescheduled ? '1' : '0',
+            RevisionField::HomeScore->value => $this->home_score === null ? null : (string) $this->home_score,
+            RevisionField::AwayScore->value => $this->away_score === null ? null : (string) $this->away_score,
+        ];
     }
 
     /**
