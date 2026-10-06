@@ -26,7 +26,7 @@ arch('ensure no extends')
     ->not->toBeAbstract();
 
 /**
- * Framework base classes rely on mutable state, so only our own classes are readonly.
+ * Framework base classes and queue traits rely on mutable state, so only our own classes are readonly.
  */
 arch('avoid mutation')
     ->expect('App')
@@ -36,6 +36,7 @@ arch('avoid mutation')
         'App\Console\Commands',
         'App\Http\Middleware',
         'App\Http\Requests',
+        'App\Jobs',
         'App\Mail',
         'App\Models',
         'App\Providers',

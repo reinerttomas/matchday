@@ -8,7 +8,7 @@ A team's fixture list lives on ceskyflorbal.cz. The federation keeps changing it
 
 ## Solution
 
-A web app that downloads the fixture lists of our teams from ceskyflorbal.cz every three hours, stores them, and spots what changed since the previous import.
+A web app that downloads the fixture lists of our teams from ceskyflorbal.cz every four hours, stores them, and spots what changed since the previous import.
 
 - Each team gets a permanent public calendar address. Players add it to Google, Apple or Outlook calendar once, and from then on changes reach them automatically.
 - Each team gets a public page that explains how to add the calendar and lists upcoming fixtures.
@@ -116,7 +116,7 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 
 ### Administrator — imports
 
-78. As the administrator, I want the Importy page to say "Rozpis se stahuje z ceskyflorbal.cz každé 3 hodiny." and offer a "Synchronizovat" button, so that I understand and control the schedule.
+78. As the administrator, I want the Importy page to say "Rozpis se stahuje z ceskyflorbal.cz každé 4 hodiny." and offer a "Synchronizovat" button, so that I understand and control the schedule.
 79. As the administrator, I want a paginated list (20 per page) of the selected team season's imports, newest first, with start time ("ručně" for manual ones), result badge (OK / Chyba / Přerušeno / Probíhá) with the reason under error and aborted, duration, fixtures found and revision count (highlighted when non-zero), so that I can investigate problems.
 
 ### Administrator — venues
@@ -134,7 +134,7 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 
 ### System — import behaviour
 
-87. As the administrator, I want every active team season of the current season imported automatically every three hours, so that changes are picked up without me.
+87. As the administrator, I want every active team season of the current season imported automatically every four hours, so that changes are picked up without me.
 88. As the administrator, I want only one import of a team season to run at a time, so that concurrent imports can't corrupt data.
 89. As the administrator, I want each import recorded with trigger, start and end time, result, fixtures found and its revisions, so that I have a history.
 90. As the administrator, I want a 00:00 time treated as a TBD time, so that it isn't presented as midnight.
@@ -185,12 +185,18 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
 
 ### Import module
 
-- **Entry point.** A deep module whose interface is "import this team season with this trigger", returning the finished Import. Everything else happens inside: fetching, parsing, applying, recording revisions and sending admin emails.
+- **Entry point.** A deep module whose interface is "import this team season with this trigger", returning the finished Import, or none when it was skipped because an import of the team season is already running. Everything else happens inside: fetching, parsing, applying, recording revisions and sending admin emails.
 - **Triggers.**
-    - The scheduler runs every three hours and dispatches a queued job for each team season with auto import enabled in the current season.
-    - An Artisan command imports one team season, or all eligible ones, and is what the schedule calls.
-    - The manual "Synchronizovat" action dispatches the same job with trigger `manual`. A manual import also works for team seasons outside the current season, for example when preparing the next one.
-- **Concurrency.** The job is unique per team season (lock), so two imports of one team season never overlap.
+    - The scheduler runs the Artisan command every four hours, without overlapping a previous run.
+    - Without a team season, the command imports each team season with auto import enabled in the current season, one after another, with trigger `schedule`. One after another keeps the request rate at ceskyflorbal.cz at a single client's pace, and a console command has no time limit.
+    - With a team season, the command imports just that one with trigger `manual`.
+    - The manual "Synchronizovat" action dispatches a queued job that imports the team season with trigger `manual`, so the HTTP request doesn't wait for the download. The job allows 300 seconds, because an initial import downloads every match detail page, and is not retried. The queue's `retry_after` (`DB_QUEUE_RETRY_AFTER`) must be longer than that.
+    - A manual import also works for team seasons outside the current season, for example when preparing the next one.
+- **Concurrency.**
+    - Two imports of one team season never overlap. An import of a team season that already has a `running` import is skipped: no import is created.
+    - The check and the creation of the new `running` import happen under a short atomic lock, so two triggers arriving at once can't both start.
+    - A `running` import older than 15 minutes is treated as dead (a killed worker or process). It ends as `error` with the reason "Import nebyl dokončen.", no email is sent, but it is logged as an error (so it reaches Nightwatch), and the new import goes ahead.
+    - The "Synchronizovat" button is disabled while an import of the team season runs (user story 57).
 - **Fetching.**
     - Uses Laravel's HTTP client with a browser-like User-Agent and a pause between requests.
     - A non-2xx response or a network failure ends the import with status `error`; the reason ("HTTP 403 – požadavek zablokován") goes into `error`.
@@ -225,7 +231,7 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
     - The initial import of a 24-fixture team season therefore makes about 24 extra paced requests once.
 - **Admin emails.**
     - After an `ok` import with revisions, a mail with the change summary and the WhatsApp link goes to the administrators (all users). The initial import doesn't send one.
-    - After `error` or `aborted`, a mail with the reason is sent.
+    - After `error` or `aborted`, a mail with the reason is sent, except for a dead `running` import (see Concurrency).
 
 ### Change summary
 
@@ -288,7 +294,7 @@ The admin pages sit behind auth. The starter-kit dashboard redirects to the fixt
     - Variants of the snapshots cover the scenarios: changed time, TBD → time, venue change, warning icon, a fixture missing once and twice, a fixture reappearing, a new fixture after the initial import, 0 fixtures, fewer than half, a season mismatch, HTTP 403, and an identical second import.
     - Assertions cover fixtures, revisions, the import's status and reason, venues with addresses, and emails (`Mail::fake()`).
     - There are no separate parser unit tests; the parser is covered through these scenarios.
-    - The concurrency lock is covered by asserting that the job is unique per team season.
+    - Concurrency is covered by importing while a `running` import exists (skipped) and while a `running` import older than 15 minutes exists (it ends as `error`, the new import goes ahead).
 - **Seam 2 – HTTP routes.** Feature tests call the routes, with data set up by factories:
     - the ICS feed: event content, UID/SEQUENCE, the all-day TBD event, 55 minutes, cancelled, postponed, the venue address in the location, an empty calendar outside the current season, 404,
     - the public page props and its empty states,

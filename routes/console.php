@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use App\Console\Commands\ImportFixturesCommand;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// The overlap lock expires before the next run, so a killed scheduler holds back imports for one run instead of the default 24 hours.
+Schedule::command(ImportFixturesCommand::class)->everyFourHours()->withoutOverlapping(expiresAt: 230);

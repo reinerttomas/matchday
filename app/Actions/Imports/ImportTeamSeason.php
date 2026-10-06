@@ -16,6 +16,7 @@ use App\Services\Ceskyflorbal\MatchDetailPageData;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -23,6 +24,11 @@ use UnexpectedValueException;
 
 final readonly class ImportTeamSeason
 {
+    /**
+     * A running import older than this is taken for one whose worker or process was killed, as it is well past the queued import's 300 second timeout. A scheduled import only comes near it when nearly every request runs into the client's 30 second timeout.
+     */
+    private const int DEAD_RUNNING_IMPORT_MINUTES = 15;
+
     /**
      * Create a new instance.
      */
@@ -34,16 +40,15 @@ final readonly class ImportTeamSeason
     /**
      * Download the team season's fixture list and the match detail pages it needs from ceskyflorbal.cz and apply them, recording the run as an import.
      *
-     * A fixture list that fails to download or read ends the import as error, and one that looks broken aborts it; either way no data changes and every user is emailed the reason. Any other failure also ends the import as error before it is rethrown.
+     * Returns null without importing while another import of the team season is running. A fixture list that fails to download or read ends the import as error, and one that looks broken aborts it; either way no data changes and every user is emailed the reason. Any other failure also ends the import as error before it is rethrown.
      */
-    public function handle(TeamSeason $teamSeason, ImportTrigger $trigger): Import
+    public function handle(TeamSeason $teamSeason, ImportTrigger $trigger): ?Import
     {
-        // Created outside the transaction so a running import is visible while the pages download, and a failed one stays in the history.
-        $import = $teamSeason->imports()->create([
-            'trigger' => $trigger,
-            'status' => ImportStatus::Running,
-            'started_at' => now(),
-        ]);
+        $import = $this->start($teamSeason, $trigger);
+
+        if ($import === null) {
+            return null;
+        }
 
         try {
             return $this->downloadAndApply($teamSeason, $import);
@@ -54,6 +59,55 @@ final readonly class ImportTeamSeason
 
             throw $exception;
         }
+    }
+
+    /**
+     * Record a running import of the team season, or return null when another import of it is running.
+     *
+     * The lock covers only the check and the creation, so two triggers arriving at once can't both start. When another process holds it, that process is starting an import of the team season right now, so this one is skipped instead of waiting.
+     */
+    private function start(TeamSeason $teamSeason, ImportTrigger $trigger): ?Import
+    {
+        $import = Cache::lock("imports:team-season:{$teamSeason->id}", 10)->get(function () use ($teamSeason, $trigger): ?Import {
+            $runningImports = $teamSeason->imports()->where('status', ImportStatus::Running)->get();
+            $deadAfter = now()->subMinutes(self::DEAD_RUNNING_IMPORT_MINUTES);
+
+            if ($runningImports->contains(fn (Import $runningImport): bool => $runningImport->started_at->isAfter($deadAfter))) {
+                return null;
+            }
+
+            foreach ($runningImports as $deadImport) {
+                $this->endDeadImport($deadImport);
+            }
+
+            // Created outside the fixture list's transaction so a running import is visible while the pages download, and a failed one stays in the history.
+            return $teamSeason->imports()->create([
+                'trigger' => $trigger,
+                'status' => ImportStatus::Running,
+                'started_at' => now(),
+            ]);
+        });
+
+        return $import instanceof Import ? $import : null;
+    }
+
+    /**
+     * End a running import whose worker or process was killed, so it no longer blocks the team season's imports.
+     *
+     * Nobody is emailed; the error log reaches Nightwatch instead.
+     */
+    private function endDeadImport(Import $import): void
+    {
+        $import->update([
+            'status' => ImportStatus::Error,
+            'finished_at' => now(),
+            'error' => 'Import nebyl dokončen.',
+        ]);
+
+        Log::error('A running import was never finished, so it ends as error.', [
+            'import_id' => $import->id,
+            'team_season_id' => $import->team_season_id,
+        ]);
     }
 
     /**

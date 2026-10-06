@@ -53,7 +53,7 @@ test('imports the fixture list of a team season', function () {
 
     expect(Import::query()->sole())
         ->team_season_id->toBe($teamSeason->id)
-        ->trigger->toBe(ImportTrigger::Schedule)
+        ->trigger->toBe(ImportTrigger::Manual)
         ->status->toBe(ImportStatus::Ok)
         ->started_at->toDateTimeString()->toBe('2026-10-05 08:00:00')
         ->finished_at->toDateTimeString()->toBe('2026-10-05 08:00:00')
@@ -103,6 +103,19 @@ test('imports the fixture list of a team season', function () {
 
     Http::assertSent(fn (Request $request): bool => $request->url() === Ceskyflorbal::FIXTURE_LIST_URL
         && str_starts_with($request->header('User-Agent')[0], 'Mozilla/5.0'));
+});
+
+test('imports a given team season outside the current season with auto import disabled', function () {
+    $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
+    $teamSeason->update(['auto_import_enabled' => false]);
+    $teamSeason->season->update(['is_current' => false]);
+    Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect(Import::query()->sole())
+        ->team_season_id->toBe($teamSeason->id)
+        ->status->toBe(ImportStatus::Ok);
 });
 
 test('infers the year of a fixture date from the season, not from today', function () {
