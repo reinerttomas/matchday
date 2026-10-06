@@ -19,6 +19,9 @@ return [
     'ceskyflorbal' => [
         'url' => 'https://www.ceskyflorbal.cz',
 
+        // Fixture dates and times are wall-clock values in the federation's timezone, while the app stores timestamps in UTC.
+        'timezone' => 'Europe/Prague',
+
         // The federation's bot protection blocks clients that request pages in quick succession.
         'request_pause_milliseconds' => (int) env('CESKYFLORBAL_REQUEST_PAUSE_MILLISECONDS', 2000),
     ],

@@ -105,6 +105,20 @@ final class Fixture extends Model
     }
 
     /**
+     * Name the fixture's round, or the round it makes up for when it is rescheduled, so the out-of-order date makes sense.
+     */
+    public function roundLabel(): ?string
+    {
+        if ($this->round === null) {
+            return null;
+        }
+
+        return $this->is_rescheduled
+            ? __('fixtures.rounds.rescheduled', ['round' => $this->round])
+            : __('fixtures.rounds.default', ['round' => $this->round]);
+    }
+
+    /**
      * Read the fixture's revisable fields as revisions store them, keyed by the revision field.
      *
      * @return array{date: string, time: string|null, venue: string|null, status: string, is_rescheduled: string, home_score: string|null, away_score: string|null}

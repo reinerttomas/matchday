@@ -85,4 +85,8 @@ return [
         ],
     ],
 
+    'team_page' => [
+        'last_import' => ':date v :time',
+    ],
+
 ];

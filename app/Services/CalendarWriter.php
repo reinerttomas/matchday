@@ -16,11 +16,6 @@ use Spatie\IcalendarGenerator\Enums\EventStatus;
 final readonly class CalendarWriter
 {
     /**
-     * Fixture dates and times are Prague wall-clock values as the federation publishes them.
-     */
-    private const string TIMEZONE = 'Europe/Prague';
-
-    /**
      * How long the event of a fixture with a known start time blocks the calendar.
      */
     private const int EVENT_MINUTES = 60;
@@ -36,6 +31,8 @@ final readonly class CalendarWriter
     public function __construct(
         #[Config('services.ceskyflorbal.url')]
         private string $ceskyflorbalUrl,
+        #[Config('services.ceskyflorbal.timezone')]
+        private string $timezone,
     ) {}
 
     /**
@@ -43,10 +40,7 @@ final readonly class CalendarWriter
      */
     public function write(Team $team): string
     {
-        $teamSeason = $team->teamSeasons()
-            ->chaperone()
-            ->whereRelation('season', 'is_current', true)
-            ->first();
+        $teamSeason = $team->currentTeamSeason;
 
         $calendar = Calendar::create($teamSeason?->displayName() ?? $team->slug)
             ->refreshInterval(self::REFRESH_MINUTES);
@@ -83,7 +77,7 @@ final readonly class CalendarWriter
             // Until the federation sets a start time, the fixture shows on its date without a made-up time.
             $event->startsAt($fixture->date, withTime: false)->fullDay()->withoutTimezone();
         } else {
-            $startsAt = CarbonImmutable::parse("{$fixture->date->toDateString()} {$fixture->time}", self::TIMEZONE);
+            $startsAt = CarbonImmutable::parse("{$fixture->date->toDateString()} {$fixture->time}", $this->timezone);
             $event->startsAt($startsAt)->endsAt($startsAt->addMinutes(self::EVENT_MINUTES));
         }
 
@@ -148,22 +142,8 @@ final readonly class CalendarWriter
     {
         return implode("\n", array_filter([
             $fixture->teamSeason->competition_name,
-            $this->round($fixture),
+            $fixture->roundLabel(),
             __('fixtures.calendar.match_detail', ['url' => $matchDetailUrl]),
         ]));
-    }
-
-    /**
-     * Name the fixture's round, or the round it makes up for when it is rescheduled, so the out-of-order date makes sense.
-     */
-    private function round(Fixture $fixture): ?string
-    {
-        if ($fixture->round === null) {
-            return null;
-        }
-
-        return $fixture->is_rescheduled
-            ? __('fixtures.calendar.rescheduled_round', ['round' => $fixture->round])
-            : __('fixtures.calendar.round', ['round' => $fixture->round]);
     }
 }

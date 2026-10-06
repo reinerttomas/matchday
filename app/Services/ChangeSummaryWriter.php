@@ -50,7 +50,7 @@ final readonly class ChangeSummaryWriter
             __('imports.change_summary.header', ['team_season' => $teamSeason->displayName()]),
             ...$bullets,
             '',
-            __('imports.change_summary.calendar', ['url' => url("t/{$teamSeason->team->slug}")]),
+            __('imports.change_summary.calendar', ['url' => route('public-team-page', $teamSeason->team)]),
         ]);
     }
 

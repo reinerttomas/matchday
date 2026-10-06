@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 return [
 
+    'rounds' => [
+        'default' => ':round. kolo',
+        'rescheduled' => 'dohrávka :round. kola',
+    ],
+
     'calendar' => [
         'titles' => [
             'default' => ':home – :away',
@@ -13,9 +18,18 @@ return [
             'cancelled' => 'ZRUŠENO: :home – :away',
         ],
         'location' => ':venue, :address',
-        'round' => ':round. kolo',
-        'rescheduled_round' => 'dohrávka :round. kola',
         'match_detail' => 'Zápas na ceskyflorbal.cz: :url',
+    ],
+
+    'team_page' => [
+        'match_day' => ':weekday :date',
+        'match_day_with_year' => ':weekday :date :year',
+        'matchup' => ':home – :away',
+        'score' => ':home_score::away_score',
+        'statuses' => [
+            'postponed' => 'Odloženo',
+            'cancelled' => 'Zrušeno',
+        ],
     ],
 
 ];

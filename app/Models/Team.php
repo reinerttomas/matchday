@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -18,6 +19,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, TeamSeason> $teamSeasons
+ * @property-read TeamSeason|null $currentTeamSeason
  */
 #[Fillable(['slug'])]
 final class Team extends Model
@@ -33,5 +35,17 @@ final class Team extends Model
     public function teamSeasons(): HasMany
     {
         return $this->hasMany(TeamSeason::class);
+    }
+
+    /**
+     * Get the team's participation in the current season, which the calendar feed and the public team page show.
+     *
+     * @return HasOne<TeamSeason, $this>
+     */
+    public function currentTeamSeason(): HasOne
+    {
+        return $this->hasOne(TeamSeason::class)
+            ->whereRelation('season', 'is_current', true)
+            ->chaperone();
     }
 }
