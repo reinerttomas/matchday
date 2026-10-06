@@ -17,6 +17,8 @@ return [
     */
 
     'ceskyflorbal' => [
+        'url' => 'https://www.ceskyflorbal.cz',
+
         // The federation's bot protection blocks clients that request pages in quick succession.
         'request_pause_milliseconds' => (int) env('CESKYFLORBAL_REQUEST_PAUSE_MILLISECONDS', 2000),
     ],

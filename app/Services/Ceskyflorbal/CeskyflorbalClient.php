@@ -24,6 +24,8 @@ final readonly class CeskyflorbalClient
         private MatchDetailParser $matchDetailParser,
         #[Config('services.ceskyflorbal.request_pause_milliseconds')]
         private int $requestPauseMilliseconds,
+        #[Config('services.ceskyflorbal.url')]
+        private string $ceskyflorbalUrl,
     ) {}
 
     /**
@@ -44,7 +46,7 @@ final readonly class CeskyflorbalClient
         Sleep::for($this->requestPauseMilliseconds)->milliseconds();
 
         // The "Informace" tab; the default tab of the match detail shows the venue's name only.
-        return $this->matchDetailParser->parse($this->download("https://www.ceskyflorbal.cz/match/detail/info/{$fixtureExternalId}"));
+        return $this->matchDetailParser->parse($this->download("{$this->ceskyflorbalUrl}/match/detail/info/{$fixtureExternalId}"));
     }
 
     /**

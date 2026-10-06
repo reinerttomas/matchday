@@ -27,7 +27,7 @@ final readonly class ChangeSummaryWriter
     public function write(Import $import): ?string
     {
         $teamSeason = $import->teamSeason;
-        $revisions = $import->revisions()->with('fixture.venue')->get();
+        $revisions = $import->revisions()->with(['fixture.venue', 'fixture.teamSeason.team'])->get();
         $valuesAfterImport = $this->valuesAfterImport($import, $revisions->pluck('fixture'));
 
         $bullets = $revisions
@@ -36,7 +36,6 @@ final readonly class ChangeSummaryWriter
                 $fixtureRevisions->firstOrFail()->fixture,
                 $valuesAfterImport[$fixtureId],
                 $fixtureRevisions->keyBy(fn (Revision $revision): string => $revision->field->value ?? self::ADDED),
-                $teamSeason->displayName(),
             ))
             ->filter()
             ->sort(fn (array $bullet, array $otherBullet): int => [$bullet['date'], $bullet['time'], $bullet['fixtureId']]
@@ -96,7 +95,7 @@ final readonly class ChangeSummaryWriter
      * @param  Collection<string, Revision>  $revisions  keyed by the revision field, or by "added"
      * @return array{date: string, time: string, fixtureId: int, line: string}|null
      */
-    private function bullet(Fixture $fixture, array $values, Collection $revisions, string $teamName): ?array
+    private function bullet(Fixture $fixture, array $values, Collection $revisions): ?array
     {
         $date = CarbonImmutable::parse((string) $values[RevisionField::Date->value]);
 
@@ -120,8 +119,8 @@ final readonly class ChangeSummaryWriter
             'line' => __('imports.change_summary.bullet', [
                 'weekday' => mb_strtoupper($date->isoFormat('dd')),
                 'date' => $date->format('j. n.'),
-                'home' => $fixture->is_home ? $teamName : $fixture->opponent_name,
-                'away' => $fixture->is_home ? $fixture->opponent_name : $teamName,
+                'home' => $fixture->homeTeamName(),
+                'away' => $fixture->awayTeamName(),
                 'revisions' => implode('; ', $descriptions),
             ]),
         ];

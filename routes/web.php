@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Auth\GoogleCallbackController;
 use App\Http\Controllers\Auth\GoogleRedirectController;
+use App\Http\Controllers\CalendarController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
+
+Route::get('calendar/{team:slug}.ics', CalendarController::class)->name('calendar');
 
 Route::middleware('guest')->group(function () {
     Route::get('auth/google/redirect', GoogleRedirectController::class)->name('auth.google.redirect');

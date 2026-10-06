@@ -89,6 +89,22 @@ final class Fixture extends Model
     }
 
     /**
+     * Name the home side: our team season when the fixture is at home, otherwise the opponent.
+     */
+    public function homeTeamName(): string
+    {
+        return $this->is_home ? $this->teamSeason->displayName() : $this->opponent_name;
+    }
+
+    /**
+     * Name the away side: the opponent when the fixture is at home, otherwise our team season.
+     */
+    public function awayTeamName(): string
+    {
+        return $this->is_home ? $this->opponent_name : $this->teamSeason->displayName();
+    }
+
+    /**
      * Read the fixture's revisable fields as revisions store them, keyed by the revision field.
      *
      * @return array{date: string, time: string|null, venue: string|null, status: string, is_rescheduled: string, home_score: string|null, away_score: string|null}
