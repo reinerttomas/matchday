@@ -42,6 +42,8 @@ final readonly class TeamPagePresenter
             ->with('venue')
             ->where('date', '>=', $today->toDateString())
             ->orderBy('date')
+            // Databases disagree on where NULL sorts, so a TBD time is put after the known times explicitly.
+            ->orderByRaw('time is null')
             ->orderBy('time')
             ->orderBy('id')
             ->get();

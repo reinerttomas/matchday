@@ -66,6 +66,16 @@ test('lists fixtures from today in Prague on, in date and time order', function 
         ->toBe([$morning->id, $evening->id, $later->id]);
 });
 
+test('lists fixtures with a tbd time after the timed fixtures of their match day', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    $tbd = Fixture::factory()->for($teamSeason)->tbdTime()->create(['date' => '2026-10-04']);
+    $timed = Fixture::factory()->for($teamSeason)->create(['date' => '2026-10-04', 'time' => '19:00:00']);
+
+    $fixtures = $this->get('/t/kutna-hora-b')->inertiaProps('teamSeason.matchDays.0.fixtures');
+
+    expect(array_column($fixtures, 'id'))->toBe([$timed->id, $tbd->id]);
+});
+
 test('groups fixtures by match day under the date, adding the year outside the current year', function () {
     $teamSeason = kutnaHoraTeamSeason();
     Fixture::factory()->for($teamSeason)->create(['date' => '2026-10-04', 'time' => '10:00:00']);
