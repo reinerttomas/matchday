@@ -7,7 +7,6 @@ use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Revision;
 use App\Services\ChangeSummaryWriter;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Tests\Support\Ceskyflorbal;
@@ -273,15 +272,6 @@ test('announces an added fixture by its time even when it is stored as scheduled
     expect(changeSummaryOf($import))->toBe(kutnaHoraChangeSummary(
         '• SO 17. 10. Tatran Střešovice C – FBC Kutná Hora B: nový zápas v rozpisu, 15:00',
     ));
-});
-
-test('writes Czech weekdays whatever the app locale', function () {
-    App::setLocale('de');
-    $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
-
-    $import = Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshotWithTime(1306783, '09:00'));
-
-    expect(changeSummaryOf($import))->toContain('• NE 15. 11. ');
 });
 
 test('links to a WhatsApp chat prefilled with the URL-encoded summary', function () {

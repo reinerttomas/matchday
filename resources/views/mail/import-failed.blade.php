@@ -1,11 +1,11 @@
 <x-mail::message>
-# {{ $isAborted ? 'Import rozpisu byl přerušen' : 'Import rozpisu selhal' }}
+# {{ __("imports.notifications.failed.{$outcome}.heading") }}
 
-Import rozpisu zápasů týmu **{{ $teamSeason }}** z ceskyflorbal.cz {{ $isAborted ? 'byl přerušen' : 'skončil chybou' }}. Uložený rozpis zápasů zůstal beze změny.
+{{ __("imports.notifications.failed.{$outcome}.body", ['team_season' => $teamSeason]) }}
 
-**Důvod:** {{ $reason }}
+{{ __('imports.notifications.failed.reason', ['reason' => $reason]) }}
 
 <x-mail::button :url="$sourceUrl">
-Otevřít rozpis na ceskyflorbal.cz
+{{ __('imports.notifications.failed.button') }}
 </x-mail::button>
 </x-mail::message>

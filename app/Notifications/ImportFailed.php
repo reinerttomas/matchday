@@ -10,6 +10,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use LogicException;
 
 final class ImportFailed extends Notification implements ShouldQueue
 {
@@ -35,14 +36,18 @@ final class ImportFailed extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $isAborted = $this->import->status === ImportStatus::Aborted;
-        $outcome = $isAborted ? 'přerušen' : 'selhal';
+        $outcome = match ($this->import->status) {
+            ImportStatus::Error => 'error',
+            ImportStatus::Aborted => 'aborted',
+            ImportStatus::Ok, ImportStatus::Running => throw new LogicException("Import {$this->import->id} did not fail, so there is no failure to report."),
+        };
+        $teamSeason = $this->import->teamSeason->displayNameWithSeason();
 
         return (new MailMessage)
-            ->subject("Import rozpisu {$outcome}: {$this->import->teamSeason->displayNameWithSeason()}")
+            ->subject(__("imports.notifications.failed.{$outcome}.subject", ['team_season' => $teamSeason]))
             ->markdown('mail.import-failed', [
-                'isAborted' => $isAborted,
-                'teamSeason' => $this->import->teamSeason->displayNameWithSeason(),
+                'outcome' => $outcome,
+                'teamSeason' => $teamSeason,
                 'reason' => $this->import->error,
                 'sourceUrl' => $this->import->teamSeason->source_url,
             ]);

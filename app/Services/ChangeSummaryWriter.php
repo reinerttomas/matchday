@@ -20,7 +20,7 @@ final readonly class ChangeSummaryWriter
     private const string ADDED = 'added';
 
     /**
-     * Write the change summary of an import in Czech: one bullet per revised fixture, then a link to the team's public page; or return null when none of its revisions is worth telling the team.
+     * Write the change summary of an import: one bullet per revised fixture, then a link to the team's public page; or return null when none of its revisions is worth telling the team.
      *
      * A bullet shows each fixture as it was right after the import, so the summary of an old import reads the same after later imports revised its fixtures again. Only the names and which side is home, which no revision records, come from the fixture as it is stored now.
      */
@@ -48,10 +48,10 @@ final readonly class ChangeSummaryWriter
         }
 
         return implode("\n", [
-            "📅 Změny v rozpisu {$teamSeason->displayName()}",
+            __('imports.change_summary.header', ['team_season' => $teamSeason->displayName()]),
             ...$bullets,
             '',
-            'Kalendář: '.url("t/{$teamSeason->team->slug}"),
+            __('imports.change_summary.calendar', ['url' => url("t/{$teamSeason->team->slug}")]),
         ]);
     }
 
@@ -99,7 +99,6 @@ final readonly class ChangeSummaryWriter
     private function bullet(Fixture $fixture, array $values, Collection $revisions, string $teamName): ?array
     {
         $date = CarbonImmutable::parse((string) $values[RevisionField::Date->value]);
-        $teams = $fixture->is_home ? "{$teamName} – {$fixture->opponent_name}" : "{$fixture->opponent_name} – {$teamName}";
 
         $descriptions = $revisions->has(self::ADDED) ? [$this->describeAddition($values)] : array_filter([
             $this->describeStatus($revisions->get(RevisionField::Status->value), $values),
@@ -118,8 +117,13 @@ final readonly class ChangeSummaryWriter
             'date' => $date->toDateString(),
             'time' => $values[RevisionField::Time->value] ?? '',
             'fixtureId' => $fixture->id,
-            // Weekday names come from Carbon's own Czech translation, so neither the app locale nor the system locale changes them.
-            'line' => '• '.mb_strtoupper($date->settings(['locale' => 'cs'])->isoFormat('dd'))." {$date->format('j. n.')} {$teams}: ".implode('; ', $descriptions),
+            'line' => __('imports.change_summary.bullet', [
+                'weekday' => mb_strtoupper($date->isoFormat('dd')),
+                'date' => $date->format('j. n.'),
+                'home' => $fixture->is_home ? $teamName : $fixture->opponent_name,
+                'away' => $fixture->is_home ? $fixture->opponent_name : $teamName,
+                'revisions' => implode('; ', $descriptions),
+            ]),
         ];
     }
 
@@ -134,10 +138,10 @@ final readonly class ChangeSummaryWriter
         $time = $values[RevisionField::Time->value];
 
         $details = $status === FixtureStatus::Scheduled
-            ? [$time === null ? 'čas TBD' : $this->formatTime($time), $values[RevisionField::Venue->value]]
+            ? [$time === null ? __('imports.change_summary.time.tbd') : $this->formatTime($time), $values[RevisionField::Venue->value]]
             : [$this->describeStatusChange($status, null, $values)];
 
-        return implode(', ', ['nový zápas v rozpisu', ...array_filter($details)]);
+        return __('imports.change_summary.added', ['details' => implode(', ', array_filter($details))]);
     }
 
     /**
@@ -157,11 +161,12 @@ final readonly class ChangeSummaryWriter
      */
     private function describeStatusChange(FixtureStatus $status, ?string $statusBefore, array $values): string
     {
-        return match ($status) {
-            FixtureStatus::Scheduled => $statusBefore === FixtureStatus::Cancelled->value ? 'znovu v rozpisu' : 'znovu naplánováno',
-            FixtureStatus::Postponed => 'odloženo, nový termín zatím není známý',
-            FixtureStatus::Finished => mb_trim('odehráno '.$this->formatScore($values[RevisionField::HomeScore->value], $values[RevisionField::AwayScore->value])),
-            FixtureStatus::Cancelled => 'zrušeno',
+        $score = $this->formatScore($values[RevisionField::HomeScore->value], $values[RevisionField::AwayScore->value]);
+
+        return match (true) {
+            $status === FixtureStatus::Scheduled && $statusBefore === FixtureStatus::Cancelled->value => __('imports.change_summary.statuses.reappeared'),
+            $status === FixtureStatus::Finished && $score !== null => __('imports.change_summary.statuses.finished_with_score', ['score' => $score]),
+            default => __("imports.change_summary.statuses.{$status->value}"),
         };
     }
 
@@ -189,11 +194,14 @@ final readonly class ChangeSummaryWriter
             $awayScore === null ? $awayScoreAfter : $awayScore->old_value,
         );
 
+        if ($scoreBefore === null && $scoreAfter === null) {
+            return null;
+        }
+
         return match (true) {
-            $scoreBefore === null && $scoreAfter === null => null,
-            $scoreBefore === null => "skóre {$scoreAfter}",
-            $scoreAfter === null => "skóre odstraněno (původně {$scoreBefore})",
-            default => "opravené skóre {$scoreAfter} (původně {$scoreBefore})",
+            $scoreBefore === null => __('imports.change_summary.score.set', ['score' => $scoreAfter]),
+            $scoreAfter === null => __('imports.change_summary.score.removed', ['score_before' => $scoreBefore]),
+            default => __('imports.change_summary.score.corrected', ['score' => $scoreAfter, 'score_before' => $scoreBefore]),
         };
     }
 
@@ -206,10 +214,10 @@ final readonly class ChangeSummaryWriter
             return null;
         }
 
-        $dateAfter = CarbonImmutable::parse((string) $date->new_value)->format('j. n. Y');
-        $dateBefore = CarbonImmutable::parse((string) $date->old_value)->format('j. n. Y');
-
-        return "přeloženo, nový termín {$dateAfter} (původně {$dateBefore})";
+        return __('imports.change_summary.date', [
+            'date' => CarbonImmutable::parse((string) $date->new_value)->format('j. n. Y'),
+            'date_before' => CarbonImmutable::parse((string) $date->old_value)->format('j. n. Y'),
+        ]);
     }
 
     /**
@@ -217,11 +225,17 @@ final readonly class ChangeSummaryWriter
      */
     private function describeTime(?Revision $time): ?string
     {
+        if ($time === null) {
+            return null;
+        }
+
         return match (true) {
-            $time === null => null,
-            $time->new_value === null => 'čas TBD (původně '.$this->formatTime((string) $time->old_value).')',
-            $time->old_value === null => 'čas doplněn '.$this->formatTime($time->new_value),
-            default => 'nový čas '.$this->formatTime($time->new_value).' (původně '.$this->formatTime($time->old_value).')',
+            $time->new_value === null => __('imports.change_summary.time.back_to_tbd', ['time_before' => $this->formatTime((string) $time->old_value)]),
+            $time->old_value === null => __('imports.change_summary.time.set', ['time' => $this->formatTime($time->new_value)]),
+            default => __('imports.change_summary.time.changed', [
+                'time' => $this->formatTime($time->new_value),
+                'time_before' => $this->formatTime($time->old_value),
+            ]),
         };
     }
 
@@ -230,11 +244,14 @@ final readonly class ChangeSummaryWriter
      */
     private function describeVenue(?Revision $venue): ?string
     {
+        if ($venue === null) {
+            return null;
+        }
+
         return match (true) {
-            $venue === null => null,
-            $venue->old_value === null => "hala doplněna {$venue->new_value}",
-            $venue->new_value === null => "hala neuvedena (původně {$venue->old_value})",
-            default => "nová hala {$venue->new_value} (původně {$venue->old_value})",
+            $venue->old_value === null => __('imports.change_summary.venue.set', ['venue' => $venue->new_value]),
+            $venue->new_value === null => __('imports.change_summary.venue.removed', ['venue_before' => $venue->old_value]),
+            default => __('imports.change_summary.venue.changed', ['venue' => $venue->new_value, 'venue_before' => $venue->old_value]),
         };
     }
 
@@ -249,10 +266,11 @@ final readonly class ChangeSummaryWriter
     {
         $isRescheduled = $revisions->get(RevisionField::IsRescheduled->value);
 
-        return match (true) {
-            $isRescheduled === null, $isRescheduled->new_value === '0', $revisions->has(RevisionField::Date->value) => null,
-            default => 'nově dohrávka',
-        };
+        if ($isRescheduled === null || $isRescheduled->new_value === '0' || $revisions->has(RevisionField::Date->value)) {
+            return null;
+        }
+
+        return __('imports.change_summary.rescheduled');
     }
 
     /**

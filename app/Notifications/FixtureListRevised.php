@@ -39,10 +39,12 @@ final class FixtureListRevised extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $teamSeason = $this->import->teamSeason->displayNameWithSeason();
+
         return (new MailMessage)
-            ->subject("Změny v rozpisu: {$this->import->teamSeason->displayNameWithSeason()}")
+            ->subject(__('imports.notifications.fixture_list_revised.subject', ['team_season' => $teamSeason]))
             ->markdown('mail.fixture-list-revised', [
-                'teamSeason' => $this->import->teamSeason->displayNameWithSeason(),
+                'teamSeason' => $teamSeason,
                 'summaryLines' => $this->summaryAsLiteralMarkdown(),
                 'whatsAppUrl' => $this->whatsAppUrl,
             ]);

@@ -57,7 +57,7 @@ final readonly class ImportTeamSeason
         } catch (Throwable $exception) {
             // The fixture list's transaction has rolled back by now, but the import may still hold the ok state written inside it.
             $import->refresh();
-            $this->finishWithoutApplying($import, ImportStatus::Error, 'Neočekávaná chyba při importu');
+            $this->finishWithoutApplying($import, ImportStatus::Error, __('imports.errors.unexpected'));
 
             throw $exception;
         }
@@ -108,7 +108,7 @@ final readonly class ImportTeamSeason
         $import->update([
             'status' => ImportStatus::Error,
             'finished_at' => now(),
-            'error' => 'Import nebyl dokončen.',
+            'error' => __('imports.errors.unfinished'),
         ]);
 
         Log::error('A running import was never finished, so it ends as error.', [
@@ -132,9 +132,9 @@ final readonly class ImportTeamSeason
                 'error' => $exception->getMessage(),
             ]);
 
-            return $this->finishWithoutApplying($import, ImportStatus::Error, 'Nepodařilo se spojit s ceskyflorbal.cz');
+            return $this->finishWithoutApplying($import, ImportStatus::Error, __('imports.errors.connection'));
         } catch (UnexpectedValueException $exception) {
-            return $this->finishWithoutApplying($import, ImportStatus::Error, "Stránku s rozpisem zápasů nelze přečíst: {$exception->getMessage()}");
+            return $this->finishWithoutApplying($import, ImportStatus::Error, __('imports.errors.unreadable_fixture_list', ['message' => $exception->getMessage()]));
         }
 
         $abortReason = $this->abortReason($teamSeason, $page);
@@ -199,7 +199,7 @@ final readonly class ImportTeamSeason
     {
         // Checked first, because a page of another season is most likely a fixture list address left unchanged after copying a team to a new season.
         if ($page->seasonName !== $teamSeason->season->name) {
-            return "Rozpis na stránce je ze sezony {$page->seasonName}, ne {$teamSeason->season->name}";
+            return __('imports.errors.season_mismatch', ['page_season' => $page->seasonName, 'season' => $teamSeason->season->name]);
         }
 
         $fixturesFound = count($page->rows);
@@ -209,9 +209,9 @@ final readonly class ImportTeamSeason
             return null;
         }
 
-        $reason = 'Parser vrátil '.trans_choice('{1} :count zápas|[2,4] :count zápasy|[0,*] :count zápasů', $fixturesFound);
-
-        return $fixturesFoundBefore === null ? $reason : "{$reason} (minule {$fixturesFoundBefore})";
+        return $fixturesFoundBefore === null
+            ? trans_choice('imports.errors.fixtures_found', $fixturesFound)
+            : trans_choice('imports.errors.fixtures_found_with_last_import', $fixturesFound, ['last_import_count' => $fixturesFoundBefore]);
     }
 
     /**
@@ -250,18 +250,18 @@ final readonly class ImportTeamSeason
     }
 
     /**
-     * Describe in Czech why ceskyflorbal.cz answered with a non-2xx status.
+     * Describe why ceskyflorbal.cz answered with a non-2xx status.
      */
     private function httpErrorReason(int $status): string
     {
-        $description = match (true) {
-            $status === 403 => 'požadavek zablokován',
-            $status === 404 => 'stránka nenalezena',
-            $status === 429 => 'příliš mnoho požadavků',
-            $status >= 500 => 'chyba serveru ceskyflorbal.cz',
-            default => 'neočekávaná odpověď',
+        $reason = match (true) {
+            $status === 403 => 'forbidden',
+            $status === 404 => 'not_found',
+            $status === 429 => 'too_many_requests',
+            $status >= 500 => 'server_error',
+            default => 'unexpected',
         };
 
-        return "HTTP {$status} – {$description}";
+        return __("imports.errors.http.{$reason}", ['status' => $status]);
     }
 }
