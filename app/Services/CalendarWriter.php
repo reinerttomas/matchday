@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\FixtureStatus;
 use App\Models\Fixture;
 use App\Models\Team;
 use Carbon\CarbonImmutable;
 use Illuminate\Container\Attributes\Config;
 use Spatie\IcalendarGenerator\Components\Calendar;
 use Spatie\IcalendarGenerator\Components\Event;
+use Spatie\IcalendarGenerator\Enums\EventStatus;
 
 final readonly class CalendarWriter
 {
@@ -21,7 +23,7 @@ final readonly class CalendarWriter
     /**
      * How long the event of a fixture with a known start time blocks the calendar.
      */
-    private const int EVENT_MINUTES = 55;
+    private const int EVENT_MINUTES = 60;
 
     /**
      * How often subscribed calendar apps that honour the hint download the feed again.
@@ -71,7 +73,7 @@ final readonly class CalendarWriter
     {
         $matchDetailUrl = "{$this->ceskyflorbalUrl}/match/detail/default/{$fixture->external_id}";
 
-        $event = Event::create(__('fixtures.calendar.title', ['home' => $fixture->homeTeamName(), 'away' => $fixture->awayTeamName()]))
+        $event = Event::create($this->title($fixture))
             ->uniqueIdentifier("matchday-fixture-{$fixture->id}")
             ->sequence($fixture->sequence)
             ->description($this->description($fixture, $matchDetailUrl))
@@ -85,6 +87,16 @@ final readonly class CalendarWriter
             $event->startsAt($startsAt)->endsAt($startsAt->addMinutes(self::EVENT_MINUTES));
         }
 
+        // Only a fixture that will be played at a known time blocks the player's calendar.
+        if ($fixture->time === null || in_array($fixture->status, [FixtureStatus::Postponed, FixtureStatus::Cancelled], true)) {
+            $event->transparent();
+        }
+
+        // Subscribed calendars mark the event cancelled only while it stays in the feed; dropping it would remove it silently.
+        if ($fixture->status === FixtureStatus::Cancelled) {
+            $event->status(EventStatus::Cancelled);
+        }
+
         $location = $this->location($fixture);
 
         if ($location !== null) {
@@ -92,6 +104,27 @@ final readonly class CalendarWriter
         }
 
         return $event;
+    }
+
+    /**
+     * Name the fixture's sides in "Home – Away" order, marked with what a player needs to know about its state.
+     */
+    private function title(Fixture $fixture): string
+    {
+        $sides = ['home' => $fixture->homeTeamName(), 'away' => $fixture->awayTeamName()];
+
+        // A postponed or cancelled fixture is marked even without a start time, since nobody should turn up on that date at all.
+        return match (true) {
+            $fixture->status === FixtureStatus::Postponed => __('fixtures.calendar.titles.postponed', $sides),
+            $fixture->status === FixtureStatus::Cancelled => __('fixtures.calendar.titles.cancelled', $sides),
+            $fixture->status === FixtureStatus::Finished && $fixture->home_score !== null && $fixture->away_score !== null => __('fixtures.calendar.titles.finished', [
+                ...$sides,
+                'home_score' => $fixture->home_score,
+                'away_score' => $fixture->away_score,
+            ]),
+            $fixture->status === FixtureStatus::Scheduled && $fixture->time === null => __('fixtures.calendar.titles.tbd_time', $sides),
+            default => __('fixtures.calendar.titles.default', $sides),
+        };
     }
 
     /**
@@ -115,8 +148,22 @@ final readonly class CalendarWriter
     {
         return implode("\n", array_filter([
             $fixture->teamSeason->competition_name,
-            $fixture->round === null ? null : __('fixtures.calendar.round', ['round' => $fixture->round]),
+            $this->round($fixture),
             __('fixtures.calendar.match_detail', ['url' => $matchDetailUrl]),
         ]));
+    }
+
+    /**
+     * Name the fixture's round, or the round it makes up for when it is rescheduled, so the out-of-order date makes sense.
+     */
+    private function round(Fixture $fixture): ?string
+    {
+        if ($fixture->round === null) {
+            return null;
+        }
+
+        return $fixture->is_rescheduled
+            ? __('fixtures.calendar.rescheduled_round', ['round' => $fixture->round])
+            : __('fixtures.calendar.round', ['round' => $fixture->round]);
     }
 }

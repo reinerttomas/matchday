@@ -4,20 +4,21 @@
 
 **Blocked by:** 14 — Calendar feed for a team's current season
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] TBD time: an all-day event on the fixture's date with "(čas TBD)" in the title, marked TRANSP:TRANSPARENT so it doesn't block the day.
-- [ ] When a TBD time gets a known time, the event becomes a timed 55-minute event with the same UID and a higher SEQUENCE.
-- [ ] Finished: the title carries the score in "Home – Away" order.
-- [ ] Postponed: the title starts with "ODLOŽENO:".
-- [ ] Cancelled: the event has STATUS:CANCELLED and stays in the feed, so subscribed calendars mark it cancelled instead of silently dropping it.
-- [ ] Rescheduled fixture: the description says "dohrávka N. kola" in place of "N. kolo".
-- [ ] Every new text comes from `lang/cs/`, following ticket 12.
-- [ ] Feature tests cover each variant: the all-day TBD event with TRANSP, the score in the title, the "ODLOŽENO:" prefix, STATUS:CANCELLED and the "dohrávka" description.
-- [ ] `composer ci:check` passes.
+- [x] TBD time: an all-day event on the fixture's date with "(čas TBD)" in the title, marked TRANSP:TRANSPARENT so it doesn't block the day.
+- [x] When a TBD time gets a known time, the event becomes a timed 60-minute event with the same UID and a higher SEQUENCE.
+- [x] Finished: the title carries the score in "Home – Away" order.
+- [x] Postponed: the title starts with "ODLOŽENO:". The event doesn't block the day (TRANSP:TRANSPARENT), with or without a known time; with a TBD time the title has no "(čas TBD)".
+- [x] Cancelled: the event has STATUS:CANCELLED and stays in the feed, so subscribed calendars mark it cancelled instead of silently dropping it. Its title starts with "ZRUŠENO:", so apps that ignore STATUS still show it as cancelled, and it doesn't block the day.
+- [x] Rescheduled fixture: the description says "dohrávka N. kola" in place of "N. kolo".
+- [x] Every new text comes from `lang/cs/`, following ticket 12.
+- [x] Feature tests cover each variant: the all-day TBD event with TRANSP, the score in the title, the "ODLOŽENO:" prefix, STATUS:CANCELLED and the "dohrávka" description.
+- [x] `composer ci:check` passes.
 
 ## Notes
 
 - Spec: "Calendar feed (ICS)" → "Event variants", user stories 8–12.
 - How the variants combine (e.g. a postponed fixture with a TBD time) is left to the implementer, as long as each rule above holds.
 - Ticket 14 already renders a TBD-time fixture as a plain all-day event (no "(čas TBD)", no TRANSP, untested) so it never shows as a fake 00:00 event. Replace that branch in `CalendarWriter` instead of adding a second one, and add its test.
+- After review, the user decided: postponed and cancelled events don't block the day, cancelled titles start with "ZRUŠENO:", and the event length is 60 minutes instead of 55.

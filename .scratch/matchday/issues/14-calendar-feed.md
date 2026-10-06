@@ -14,11 +14,11 @@
 - [x] An unknown slug returns 404.
 - [x] Each event has a UID that is stable per fixture row (the same across requests and imports) and SEQUENCE equal to the fixture's `sequence`.
 - [x] Title: "Home – Away".
-- [x] A fixture with a known time starts at that time in Europe/Prague (TZID, not floating or UTC-shifted) and lasts 55 minutes, an application constant.
+- [x] A fixture with a known time starts at that time in Europe/Prague (TZID, not floating or UTC-shifted) and lasts 60 minutes, an application constant.
 - [x] Location: the venue name, followed by its address when the venue has one; no location when the fixture has no venue. An address an administrator edited shows up in the next feed response.
 - [x] Description: the team season's competition, "N. kolo" when the round is known, and a link to the fixture's match detail page on ceskyflorbal.cz.
 - [x] Every text the feed produces comes from `lang/cs/`, following ticket 12.
-- [x] Feature tests call the route with factory data and cover: event content, UID/SEQUENCE, the 55-minute Prague-time event, venue with and without an address, a fixture from another season left out, the empty calendar outside the current season, and 404.
+- [x] Feature tests call the route with factory data and cover: event content, UID/SEQUENCE, the 60-minute Prague-time event, venue with and without an address, a fixture from another season left out, the empty calendar outside the current season, and 404.
 - [x] `composer ci:check` passes.
 
 ## Notes

@@ -27,7 +27,7 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 4. As a player, I want to copy the raw calendar address, so that I can add it to any other calendar app.
 5. As a player on Android, I want separate instructions, so that I can subscribe even though the Google Calendar Android app cannot add a calendar from a link.
 6. As a player, I want a fixture whose time changed to update the existing event in my calendar, so that I never see two events for one fixture.
-7. As a player, I want a fixture with a known start time to block 55 minutes, so that my calendar shows when I'm busy.
+7. As a player, I want a fixture with a known start time to block an hour, so that my calendar shows when I'm busy.
 8. As a player, I want a fixture with a TBD time to be an all-day event marked "(čas TBD)" that doesn't block my day, so that I know a game is coming without a false time.
 9. As a player, I want finished fixtures to show the result in the title, so that the calendar doubles as a results history for the season.
 10. As a player, I want a rescheduled fixture's description to say "dohrávka X. kola", so that I understand why the round order looks odd.
@@ -169,7 +169,7 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
 - Statuses, triggers and the revisable field names are backed PHP enums.
 - Opponents are only a name on the fixture. There are no `competitions`, `tracked_teams` or opponent team tables (ADR-0002).
 - A fixture between two of our teams exists once per team season, each copy with its own revisions and change summary.
-- The calendar event length (55 minutes) is an application constant, not a column.
+- The calendar event length (60 minutes) is an application constant, not a column.
 
 ### Revisions
 
@@ -257,11 +257,11 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
     - location: the venue name plus address when present,
     - description: competition, "N. kolo", "dohrávka N. kola" for rescheduled fixtures, and a link to the federation's match detail page.
 - Event variants:
-    - Known time: DTSTART/DTEND with TZID Europe/Prague, 55 minutes long.
+    - Known time: DTSTART/DTEND with TZID Europe/Prague, 60 minutes long.
     - TBD time: an all-day event with "(čas TBD)" in the title and TRANSP:TRANSPARENT.
     - Finished: the score in the title.
-    - Postponed: the title starts with "ODLOŽENO:".
-    - Cancelled: STATUS:CANCELLED.
+    - Postponed: the title starts with "ODLOŽENO:" and the event is TRANSP:TRANSPARENT; it keeps its time if it has one.
+    - Cancelled: STATUS:CANCELLED, the title starts with "ZRUŠENO:" and the event is TRANSP:TRANSPARENT.
 
 ### Public team page
 
@@ -296,7 +296,7 @@ The admin pages sit behind auth. The starter-kit dashboard redirects to the fixt
     - There are no separate parser unit tests; the parser is covered through these scenarios.
     - Concurrency is covered by importing while a `running` import exists (skipped) and while a `running` import older than 15 minutes exists (it ends as `error`, the new import goes ahead).
 - **Seam 2 – HTTP routes.** Feature tests call the routes, with data set up by factories:
-    - the ICS feed: event content, UID/SEQUENCE, the all-day TBD event, 55 minutes, cancelled, postponed, the venue address in the location, an empty calendar outside the current season, 404,
+    - the ICS feed: event content, UID/SEQUENCE, the all-day TBD event, 60 minutes, cancelled, postponed, the venue address in the location, an empty calendar outside the current season, 404,
     - the public page props and its empty states,
     - each admin page's Inertia props: grouping, badges, the 7-day "Změněno" window, win/loss/draw, the warning after a failed import, empty states, the sidebar count,
     - the actions: manual import dispatch, mark as sent, add a team (new or carried over), toggle auto import, create a season, mark a season as current, edit a venue address, switch season and team,

@@ -73,8 +73,8 @@ test('serves a fixture of the current team season as an event', function () {
     ]);
 });
 
-test('keeps the uid of a revised fixture and carries its sequence', function () {
-    $fixture = Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->create(['sequence' => 2]);
+test('turns a tbd-time event into a timed event with the same uid and a higher sequence', function () {
+    $fixture = Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->tbdTime()->create(['date' => '2026-10-17', 'sequence' => 2]);
 
     $before = calendarEvents($this->get('/calendar/kutna-hora-b.ics'))->sole();
     $fixture->update(['time' => '19:30:00', 'sequence' => 3]);
@@ -82,10 +82,14 @@ test('keeps the uid of a revised fixture and carries its sequence', function () 
 
     expect($before['SEQUENCE'])->toBe('2')
         ->and($after['SEQUENCE'])->toBe('3')
-        ->and($after['UID'])->toBe($before['UID']);
+        ->and($after['UID'])->toBe($before['UID'])
+        ->and($after)->toMatchArray([
+            'DTSTART;TZID=Europe/Prague' => '20261017T193000',
+            'DTEND;TZID=Europe/Prague' => '20261017T203000',
+        ])->not->toHaveKey('TRANSP');
 });
 
-test('blocks 55 minutes from the start time in Prague time', function (string $date, string $time, string $startsAt, string $endsAt) {
+test('blocks an hour from the start time in Prague time', function (string $date, string $time, string $startsAt, string $endsAt) {
     Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->create(['date' => $date, 'time' => $time]);
 
     $event = calendarEvents($this->get('/calendar/kutna-hora-b.ics'))->sole();
@@ -95,9 +99,66 @@ test('blocks 55 minutes from the start time in Prague time', function (string $d
         'DTEND;TZID=Europe/Prague' => $endsAt,
     ]);
 })->with([
-    'summer time' => ['2026-10-17', '15:00:00', '20261017T150000', '20261017T155500'],
-    'winter time, ending after midnight' => ['2026-11-28', '23:30:00', '20261128T233000', '20261129T002500'],
+    'summer time' => ['2026-10-17', '15:00:00', '20261017T150000', '20261017T160000'],
+    'winter time, ending after midnight' => ['2026-11-28', '23:30:00', '20261128T233000', '20261129T003000'],
 ]);
+
+test('shows a fixture with a tbd time as an all-day event that does not block the day', function () {
+    Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->home()->tbdTime()->create([
+        'opponent_name' => 'Tatran Střešovice C',
+        'date' => '2026-10-17',
+    ]);
+
+    $event = calendarEvents($this->get('/calendar/kutna-hora-b.ics'))->sole();
+
+    expect($event)->toMatchArray([
+        'SUMMARY' => 'FBC Kutná Hora B – Tatran Střešovice C (čas TBD)',
+        'DTSTART;VALUE=DATE' => '20261017',
+        'TRANSP' => 'TRANSPARENT',
+    ]);
+});
+
+test('shows the score of a finished fixture in home – away order', function () {
+    Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->away()->finished()->create([
+        'opponent_name' => 'Tatran Střešovice C',
+        'home_score' => 7,
+        'away_score' => 4,
+    ]);
+
+    $event = calendarEvents($this->get('/calendar/kutna-hora-b.ics'))->sole();
+
+    expect($event['SUMMARY'])->toBe('Tatran Střešovice C – FBC Kutná Hora B 7:4');
+});
+
+test('marks a postponed fixture in its title without blocking the day', function (?string $time, string $startKey) {
+    Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->home()->postponed()->create([
+        'opponent_name' => 'Tatran Střešovice C',
+        'time' => $time,
+    ]);
+
+    $event = calendarEvents($this->get('/calendar/kutna-hora-b.ics'))->sole();
+
+    expect($event)->toMatchArray([
+        'SUMMARY' => 'ODLOŽENO: FBC Kutná Hora B – Tatran Střešovice C',
+        'TRANSP' => 'TRANSPARENT',
+    ])->toHaveKey($startKey);
+})->with([
+    'known time' => ['15:00:00', 'DTSTART;TZID=Europe/Prague'],
+    'tbd time' => [null, 'DTSTART;VALUE=DATE'],
+]);
+
+test('keeps a cancelled fixture in the feed as a cancelled event that does not block the day', function () {
+    $fixture = Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->home()->cancelled()->create(['opponent_name' => 'Tatran Střešovice C']);
+
+    $event = calendarEvents($this->get('/calendar/kutna-hora-b.ics'))->sole();
+
+    expect($event)->toMatchArray([
+        'UID' => "matchday-fixture-{$fixture->id}",
+        'SUMMARY' => 'ZRUŠENO: FBC Kutná Hora B – Tatran Střešovice C',
+        'STATUS' => 'CANCELLED',
+        'TRANSP' => 'TRANSPARENT',
+    ]);
+});
 
 test('shows away fixtures with the opponent as the home side', function () {
     Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->away()->create(['opponent_name' => 'Tatran Střešovice C']);
@@ -134,6 +195,14 @@ test('shows an address the administrator edited in the next response', function 
     $event = calendarEvents($this->get('/calendar/kutna-hora-b.ics'))->sole();
 
     expect($event['LOCATION'])->toBe('Sportovní hala Kutná Hora, Čáslavská 274, Kutná Hora');
+});
+
+test('describes a rescheduled fixture as a dohrávka of its round', function () {
+    Fixture::factory()->for(kutnaHoraCurrentTeamSeason())->rescheduled()->create(['external_id' => 1306757, 'round' => 3]);
+
+    $event = calendarEvents($this->get('/calendar/kutna-hora-b.ics'))->sole();
+
+    expect($event['DESCRIPTION'])->toBe("2. liga mužů, skupina 3\ndohrávka 3. kola\nZápas na ceskyflorbal.cz: https://www.ceskyflorbal.cz/match/detail/default/1306757");
 });
 
 test('leaves the round out of the description when it is unknown', function () {
