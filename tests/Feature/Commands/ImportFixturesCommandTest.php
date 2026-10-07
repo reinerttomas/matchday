@@ -56,8 +56,7 @@ test('imports the fixture list of a team season', function () {
         ->status->toBe(FixtureStatus::Finished)
         ->home_score->toBe(3)
         ->away_score->toBe(6)
-        ->is_rescheduled->toBeFalse()
-        ->venue_id->toBeNull();
+        ->is_rescheduled->toBeFalse();
 
     expect(Fixture::query()->where('external_id', 1306733)->sole())
         ->is_home->toBeTrue()
@@ -354,14 +353,62 @@ test('stores the venue of a new fixture with its address from the match detail p
         && str_starts_with($request->header('User-Agent')[0], 'Mozilla/5.0'));
 });
 
-test('downloads no match detail page for a finished row', function () {
+test('fills in the venue of a finished fixture from its match detail page without recording it', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
+    Import::factory()->for($teamSeason)->create(['fixtures_found' => 24]);
+    $fixture = Fixture::factory()->for($teamSeason)->finished()->create([
+        'external_id' => 1306729,
+        'date' => '2026-09-19',
+        'time' => null,
+        'home_score' => 3,
+        'away_score' => 6,
+        'venue_id' => null,
+    ]);
+    Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
+    Log::spy();
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect($fixture->refresh()->venue)
+        ->external_id->toBe(602)
+        ->name->toBe('SH Kutná Hora Klimeška')
+        ->address->toBe('Čáslavská 274, Kutná Hora');
+    expect($fixture->sequence)->toBe(0)
+        ->and($fixture->revisions()->exists())->toBeFalse();
+    // A finished row shows no venue, so there is nothing to compare the match detail page with.
+    Log::shouldNotHaveReceived('warning', ['The match detail page names the venue differently than the fixture list, so it is downloaded again on every import.', Mockery::any()]);
+});
+
+test('downloads no match detail page for a finished row whose fixture has a venue', function () {
+    $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
+    $venue = Venue::factory()->create();
+    Fixture::factory()->for($teamSeason)->for($venue)->finished()->create(['external_id' => 1306729]);
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
 
     expect(Ceskyflorbal::requestedMatchDetailUrls())->not->toContain(Ceskyflorbal::MATCH_DETAIL_URL.'1306729')
-        ->and(Fixture::query()->where('external_id', 1306729)->sole()->venue_id)->toBeNull();
+        ->and(Fixture::query()->where('external_id', 1306729)->sole()->venue_id)->toBe($venue->id);
+});
+
+test('records the venue filled in for a scheduled fixture', function () {
+    $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
+    Import::factory()->for($teamSeason)->create(['fixtures_found' => 24]);
+    $fixture = Fixture::factory()->for($teamSeason)->create([
+        'external_id' => 1306754,
+        'date' => '2026-11-25',
+        'time' => null,
+        'is_rescheduled' => true,
+        'venue_id' => null,
+    ]);
+    Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
+
+    expect($fixture->refresh()->revisions()->sole())
+        ->field->toBe(RevisionField::Venue)
+        ->old_value->toBeNull()
+        ->new_value->toBe('SH Kutná Hora Klimeška');
 });
 
 test('pauses before each match detail page request', function () {
@@ -371,8 +418,8 @@ test('pauses before each match detail page request', function () {
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
 
-    expect(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(20);
-    Sleep::assertSequence(array_fill(0, 20, Sleep::for(1500)->milliseconds()));
+    expect(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(24);
+    Sleep::assertSequence(array_fill(0, 24, Sleep::for(1500)->milliseconds()));
 });
 
 test('does not download a match detail page again for an unchanged venue', function () {
@@ -380,7 +427,7 @@ test('does not download a match detail page again for an unchanged venue', funct
 
     Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshot());
 
-    expect(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(20)
+    expect(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(24)
         ->and(Revision::query()->count())->toBe(0);
 });
 
@@ -410,7 +457,7 @@ test('records a fixture moved to another venue', function () {
         ->field->toBe(RevisionField::Venue)
         ->old_value->toBe('SH Kutná Hora Klimeška')
         ->new_value->toBe('SH Kutná Hora Šipší');
-    expect(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(21);
+    expect(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(25);
 });
 
 test('keeps the venue of a fixture whose row shows it finished', function () {
@@ -420,7 +467,7 @@ test('keeps the venue of a fixture whose row shows it finished', function () {
 
     expect(Fixture::query()->where('external_id', 1306757)->sole()->venue->name)->toBe('Unihoc Aréna Praha')
         ->and(Revision::query()->where('field', RevisionField::Venue)->count())->toBe(0)
-        ->and(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(20);
+        ->and(Ceskyflorbal::requestedMatchDetailUrls())->toHaveCount(24);
 });
 
 test('renames a stored venue the match detail page shows under another name', function () {

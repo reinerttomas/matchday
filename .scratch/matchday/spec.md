@@ -146,7 +146,7 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 96. As the administrator, I want an import to end with an error without changing data when the download fails (e.g. HTTP 403), so that blocks by the bot protection are visible.
 97. As the administrator, I want an import aborted when the page's season differs from the team season's season, so that a forgotten URL change after copying a team is caught.
 98. As the administrator, I want fixture dates to get the right year from the season (July to December → first year, January to June → second year), because the source list omits the year.
-99. As the administrator, I want the source fetched gently (detail pages only for new fixtures or a changed venue, with pauses between requests), so that the bot protection doesn't block the app.
+99. As the administrator, I want the source fetched gently (detail pages only for new fixtures, a changed venue or a fixture still without a venue, with pauses between requests), so that the bot protection doesn't block the app.
 100.    As the administrator, I want the initial import of each team season not announced to the team, so that the WhatsApp group isn't flooded at the start of a season.
 101.    As the administrator, I want an import that finds nothing different to record no revisions, so that the change history only holds real changes.
 
@@ -224,10 +224,12 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
     - Set `missing_count` to 0 on fixtures that were seen. Increment it on non-cancelled fixtures of the team season that were not seen; at 2 the status becomes `cancelled` and a revision is written.
     - Update `team_seasons.name` and `competition_name`.
 - **Venues.**
-    - The match detail page's "Informace" tab (`/match/detail/info/{id}`) is fetched only when a fixture is new, or when its venue text in the list differs from its stored venue's name (not for finished rows). The default tab (`/match/detail/default/{id}`) shows only the venue name, without the arena link or address (verified 2026-10).
+    - The match detail page's "Informace" tab (`/match/detail/info/{id}`) is fetched only when a fixture is new, when its venue text in the list differs from its stored venue's name, or when its row shows no venue (finished rows) and the fixture has no stored venue. A fixture that already has a venue is never fetched again because of a finished row, so a fixture first seen finished costs one request, once. The default tab (`/match/detail/default/{id}`) shows only the venue name, without the arena link or address (verified 2026-10).
+    - Filling in the missing venue of a finished fixture is a backfill, not a change: it records no revision, so it shows neither on the changes page nor as changed on the fixture list, and it is not announced in a change summary. Filling in or changing the venue of any other fixture records a revision.
+    - A row that shows no venue has nothing to compare the detail page with, so only rows that show a venue log a warning when the detail page names the venue differently.
     - From the detail page we take the arena ID (`MatchCenter-placeView` link to `/arena/detail/default/{id}`), the name (its `h3`) and the address (the "Adresa:" row of `MatchCenter-placeTable`; "Čáslavská 274<br>Kutná Hora" is stored as "Čáslavská 274, Kutná Hora").
     - The venue is looked up by external ID. If it doesn't exist it is created with the address; if it exists under another name, the name is updated. A stored venue without an address gets the page's address; an existing address is never overwritten, because administrators edit addresses by hand.
-    - A match detail page that fails to download or can't be read doesn't fail the import: the fixture's venue stays unchanged and the problem is logged. The page is fetched again by a later import, because the venue text still differs.
+    - A match detail page that fails to download or can't be read doesn't fail the import: the fixture's venue stays unchanged and the problem is logged. The page is fetched again by a later import, because the venue text still differs or the fixture still has no venue.
     - The initial import of a 24-fixture team season therefore makes about 24 extra paced requests once.
 - **Admin emails.**
     - After an `ok` import with revisions, a mail with the change summary and the WhatsApp link goes to the administrators (all users). The initial import doesn't send one.

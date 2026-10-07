@@ -145,9 +145,9 @@ final readonly class ImportTeamSeason
     }
 
     /**
-     * Download the match detail page of each fixture that is new or whose venue in the fixture list differs from the stored venue's name.
+     * Download the match detail page of each fixture that is new or whose venue in the fixture list differs from the stored venue's name, and of each fixture without a venue whose row shows none.
      *
-     * Finished rows show no venue, so they never need one. A page that fails is skipped; its fixture still differs from the list, so a later import tries it again.
+     * Finished rows show no venue, so a fixture first seen finished gets its venue from the match detail page once, and one that has a venue keeps it. A page that fails is skipped; its fixture still differs from the list or still has no venue, so a later import tries it again.
      *
      * @return array<int, MatchDetailPageData> keyed by the fixture's external ID
      */
@@ -157,29 +157,34 @@ final readonly class ImportTeamSeason
         $matchDetails = [];
 
         foreach ($page->rows as $row) {
-            if ($row->venueName !== null && $row->venueName !== $storedFixtures->get($row->externalId)?->venue?->name) {
-                try {
-                    $matchDetail = $this->ceskyflorbal->matchDetail($row->externalId);
-                } catch (HttpClientException|UnexpectedValueException $exception) {
-                    Log::warning('The match detail page failed, so the fixture keeps its venue until a later import.', [
-                        'team_season_id' => $teamSeason->id,
-                        'external_id' => $row->externalId,
-                        'error' => $exception->getMessage(),
-                    ]);
+            $storedVenue = $storedFixtures->get($row->externalId)?->venue;
+            $needsMatchDetail = $row->venueName === null ? $storedVenue === null : $row->venueName !== $storedVenue?->name;
 
-                    continue;
-                }
-
-                if ($matchDetail->venueName !== $row->venueName) {
-                    Log::warning('The match detail page names the venue differently than the fixture list, so it is downloaded again on every import.', [
-                        'external_id' => $row->externalId,
-                        'fixture_list_venue' => $row->venueName,
-                        'match_detail_venue' => $matchDetail->venueName,
-                    ]);
-                }
-
-                $matchDetails[$row->externalId] = $matchDetail;
+            if (! $needsMatchDetail) {
+                continue;
             }
+
+            try {
+                $matchDetail = $this->ceskyflorbal->matchDetail($row->externalId);
+            } catch (HttpClientException|UnexpectedValueException $exception) {
+                Log::warning('The match detail page failed, so the fixture keeps its venue until a later import.', [
+                    'team_season_id' => $teamSeason->id,
+                    'external_id' => $row->externalId,
+                    'error' => $exception->getMessage(),
+                ]);
+
+                continue;
+            }
+
+            if ($row->venueName !== null && $matchDetail->venueName !== $row->venueName) {
+                Log::warning('The match detail page names the venue differently than the fixture list, so it is downloaded again on every import.', [
+                    'external_id' => $row->externalId,
+                    'fixture_list_venue' => $row->venueName,
+                    'match_detail_venue' => $matchDetail->venueName,
+                ]);
+            }
+
+            $matchDetails[$row->externalId] = $matchDetail;
         }
 
         return $matchDetails;

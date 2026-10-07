@@ -264,3 +264,20 @@ test('applies a fixture with its venue unchanged and logs it when its match deta
     'unreachable' => fn () => Http::failedConnection(),
     'unreadable' => fn () => Http::response('<html><body></body></html>'),
 ]);
+
+test('leaves a finished fixture without a venue until a later import when its match detail page fails', function () {
+    $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
+    Log::spy();
+
+    $import = Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshot(), [
+        Ceskyflorbal::MATCH_DETAIL_URL.'1306729' => Http::response('Forbidden', 403),
+    ]);
+
+    expect($import->status)->toBe(ImportStatus::Ok)
+        ->and(Fixture::query()->where('external_id', 1306729)->sole()->venue_id)->toBeNull()
+        ->and(array_count_values(Ceskyflorbal::requestedMatchDetailUrls())[Ceskyflorbal::MATCH_DETAIL_URL.'1306729'])->toBe(2);
+    Log::shouldHaveReceived('warning')
+        ->withArgs(fn (string $message, array $context): bool => $message === 'The match detail page failed, so the fixture keeps its venue until a later import.'
+            && $context['external_id'] === 1306729)
+        ->twice();
+});

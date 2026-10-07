@@ -63,7 +63,7 @@ final readonly class ApplyFixtureList
     }
 
     /**
-     * Update the fixture a fixture list row shows, and its venue when the match detail page was downloaded, recording its revisions unless this is the initial import.
+     * Update the fixture a fixture list row shows, and its venue when the match detail page was downloaded, recording its revisions unless this is the initial import; the venue filled in for a finished fixture without one is a backfill and records none.
      */
     private function apply(Fixture $fixture, FixtureListRowData $row, ?MatchDetailPageData $matchDetail, Import $import, bool $isInitialImport): void
     {
@@ -86,7 +86,14 @@ final readonly class ApplyFixtureList
         }
 
         if ($matchDetail !== null) {
-            $fixture->venue()->associate($this->venue($matchDetail));
+            $venue = $this->venue($matchDetail);
+
+            // Finished rows show no venue, so filling in the missing venue of a finished fixture is a backfill that records no revision.
+            if ($valuesBefore !== null && $valuesBefore[RevisionField::Venue->value] === null && $fixture->status === FixtureStatus::Finished) {
+                $valuesBefore[RevisionField::Venue->value] = $venue->name;
+            }
+
+            $fixture->venue()->associate($venue);
         }
 
         $this->saveWithRevisions($fixture, $valuesBefore, $import, $isInitialImport);

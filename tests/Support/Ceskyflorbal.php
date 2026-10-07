@@ -116,6 +116,8 @@ final class Ceskyflorbal
     /**
      * Fake ceskyflorbal.cz: the fixture list page answers as given, and every match detail page shows the venue its row shows in the fixture list snapshot.
      *
+     * Finished rows show no venue, so their match detail pages show SH Kutná Hora Klimeška, as the live one of fixture 1306729 does.
+     *
      * @param  array<string, mixed>  $matchDetailPages  stubs for single match detail pages, which take precedence
      */
     public static function fake(mixed $fixtureListPage, array $matchDetailPages = []): void
@@ -127,7 +129,9 @@ final class Ceskyflorbal
                 $row = Str::of(self::fixtureListSnapshot())
                     ->explode('<div class="Match">')
                     ->first(fn (string $row): bool => str_contains($row, '/match/detail/default/'.Str::afterLast($request->url(), '/').'"'));
-                $venueName = Str::betweenFirst($row, '<p class="Match-place">', '</p>');
+                $venueName = str_contains($row, '<p class="Match-place">')
+                    ? Str::betweenFirst($row, '<p class="Match-place">', '</p>')
+                    : 'SH Kutná Hora Klimeška';
 
                 return Http::response(self::matchDetailSnapshot($venueName, self::ARENA_IDS[$venueName]));
             },

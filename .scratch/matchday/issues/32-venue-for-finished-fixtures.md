@@ -4,17 +4,17 @@
 
 **Blocked by:** —
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] The import downloads the match detail page (`/match/detail/info/{id}`) also for a row with no venue in the fixture list when the fixture has no stored venue (including a fixture new to the app). Rows that show a venue keep today's rule (download when it differs from the stored venue's name).
-- [ ] A fixture that already has a venue is never downloaded again because of a finished row, so each such fixture costs one request, once.
-- [ ] The warning "The match detail page names the venue differently than the fixture list…" is logged only for rows that show a venue; a row with no venue has nothing to compare.
-- [ ] A failed or venue-less match detail page is skipped as today; the fixture stays without a venue and the next import tries again.
-- [ ] Filling in the missing venue of a finished fixture is a backfill, not a change: it records no revision, so it shows neither on Změny nor as "změněno" on Rozpis zápasů, and it is not announced in a change summary. Filling in or changing the venue of any other fixture records a revision as today.
-- [ ] Venues are created or updated by external ID exactly as today (name updated, a missing address filled in, an existing address never overwritten).
-- [ ] The spec's Venues section (`.scratch/matchday/spec.md`, the bullet on when the Informace tab is fetched) is updated to the new rule.
-- [ ] Feature tests cover: a finished row without a stored venue gets the venue from the match detail page with no revision; a finished row whose fixture already has a venue triggers no download; a scheduled row's venue change still records a revision; a failed match detail page leaves the venue empty and the import ok.
-- [ ] `composer ci:check` passes.
+- [x] The import downloads the match detail page (`/match/detail/info/{id}`) also for a row with no venue in the fixture list when the fixture has no stored venue (including a fixture new to the app). Rows that show a venue keep today's rule (download when it differs from the stored venue's name).
+- [x] A fixture that already has a venue is never downloaded again because of a finished row, so each such fixture costs one request, once.
+- [x] The warning "The match detail page names the venue differently than the fixture list…" is logged only for rows that show a venue; a row with no venue has nothing to compare.
+- [x] A failed or venue-less match detail page is skipped as today; the fixture stays without a venue and the next import tries again.
+- [x] Filling in the missing venue of a finished fixture is a backfill, not a change: it records no revision, so it shows neither on Změny nor as "změněno" on Rozpis zápasů, and it is not announced in a change summary. Filling in or changing the venue of any other fixture records a revision as today.
+- [x] Venues are created or updated by external ID exactly as today (name updated, a missing address filled in, an existing address never overwritten).
+- [x] The spec's Venues section (`.scratch/matchday/spec.md`, the bullet on when the Informace tab is fetched) is updated to the new rule.
+- [x] Feature tests cover: a finished row without a stored venue gets the venue from the match detail page with no revision; a finished row whose fixture already has a venue triggers no download; a scheduled row's venue change still records a revision; a failed match detail page leaves the venue empty and the import ok.
+- [x] `composer ci:check` passes.
 
 ## Notes
 
