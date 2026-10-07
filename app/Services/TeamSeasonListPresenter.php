@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 /**
  * @phpstan-type ImportFailureProps array{status: string, statusLabel: string, reason: string|null}
  * @phpstan-type LastImportProps array{startedAt: string, failure: ImportFailureProps|null}
- * @phpstan-type TeamSeasonProps array{id: int, name: string, competition: string|null, slug: string, autoImportEnabled: bool, lastImport: LastImportProps|null, calendarUrl: string, publicPageUrl: string, sourceUrl: string}
+ * @phpstan-type TeamSeasonProps array{id: int, teamId: int, name: string, competition: string|null, slug: string, autoImportEnabled: bool, lastImport: LastImportProps|null, calendarUrl: string, publicPageUrl: string, sourceUrl: string}
  */
 final readonly class TeamSeasonListPresenter
 {
@@ -51,6 +51,7 @@ final readonly class TeamSeasonListPresenter
     {
         return [
             'id' => $teamSeason->id,
+            'teamId' => $teamSeason->team_id,
             'name' => $teamSeason->displayName(),
             'competition' => $teamSeason->competition_name,
             'slug' => $teamSeason->team->slug,

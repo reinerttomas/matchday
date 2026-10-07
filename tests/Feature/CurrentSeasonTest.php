@@ -20,14 +20,14 @@ beforeEach(function () {
 });
 
 test('marks a season as current and the previously current one stops being current', function () {
-    $previous = Season::factory()->current()->create(['name' => '2026/27']);
-    $next = Season::factory()->create(['name' => '2027/28']);
-    $older = Season::factory()->create(['name' => '2025/26']);
+    $previous = Season::factory()->current()->create(['name' => '2026/2027']);
+    $next = Season::factory()->create(['name' => '2027/2028']);
+    $older = Season::factory()->create(['name' => '2025/2026']);
 
     $response = $this->from('/seasons')->post("/seasons/{$next->id}/current");
 
     $response->assertRedirect('/seasons')
-        ->assertInertiaFlash('toast.message', 'Sezona 2027/28 je aktuální. Kalendáře, veřejné stránky a automatické importy teď používají její týmy.');
+        ->assertInertiaFlash('toast.message', 'Sezona 2027/2028 je aktuální. Kalendáře, veřejné stránky a automatické importy teď používají její týmy.');
     expect($next->fresh()->is_current)->toBeTrue()
         ->and($previous->fresh()->is_current)->toBeFalse()
         ->and($older->fresh()->is_current)->toBeFalse();
@@ -39,8 +39,8 @@ test('marks a season as current and the previously current one stops being curre
 });
 
 test('keeps exactly one current season when the current season is marked again', function () {
-    $current = Season::factory()->current()->create(['name' => '2026/27']);
-    Season::factory()->create(['name' => '2027/28']);
+    $current = Season::factory()->current()->create(['name' => '2026/2027']);
+    Season::factory()->create(['name' => '2027/2028']);
 
     $this->from('/seasons')->post("/seasons/{$current->id}/current")->assertRedirect('/seasons');
 
@@ -48,7 +48,7 @@ test('keeps exactly one current season when the current season is marked again',
 });
 
 test('marks a season as current while there is no current season', function () {
-    $season = Season::factory()->create(['name' => '2026/27']);
+    $season = Season::factory()->create(['name' => '2026/2027']);
 
     $this->post("/seasons/{$season->id}/current");
 
@@ -56,9 +56,9 @@ test('marks a season as current while there is no current season', function () {
 });
 
 test('switches the calendar and the public page to the team season of the new current season', function () {
-    $team = Team::factory()->create(['slug' => 'kutna-hora-b']);
-    $previousTeamSeason = TeamSeason::factory()->for($team)->for(Season::factory()->current()->state(['name' => '2026/27']))->create(['name' => 'FBC Kutná Hora B']);
-    $nextTeamSeason = TeamSeason::factory()->for($team)->for(Season::factory()->state(['name' => '2027/28']))->create(['name' => 'FBC Kutná Hora']);
+    $team = Team::factory()->create(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']);
+    $previousTeamSeason = TeamSeason::factory()->for($team)->for(Season::factory()->current()->state(['name' => '2026/2027']))->create(['competition_name' => 'PH a SČ liga mužů']);
+    $nextTeamSeason = TeamSeason::factory()->for($team)->for(Season::factory()->state(['name' => '2027/2028']))->create(['competition_name' => '3. liga mužů']);
     $previousFixture = Fixture::factory()->for($previousTeamSeason)->create();
     $nextFixture = Fixture::factory()->for($nextTeamSeason)->create();
 
@@ -68,14 +68,14 @@ test('switches the calendar and the public page to the team season of the new cu
         ->toContain("UID:matchday-fixture-{$nextFixture->id}\r\n")
         ->not->toContain("UID:matchday-fixture-{$previousFixture->id}\r\n");
     $this->get('/t/kutna-hora-b')->assertInertia(fn (Assert $page) => $page
-        ->where('season', '2027/28')
-        ->where('teamSeason.name', 'FBC Kutná Hora')
+        ->where('season', '2027/2028')
+        ->where('teamSeason.competition', '3. liga mužů')
         ->etc());
 });
 
 test('makes scheduled imports cover the team seasons of the new current season only', function () {
-    TeamSeason::factory()->for(Season::factory()->current()->state(['name' => '2025/26']))->create();
-    $nextTeamSeason = TeamSeason::factory()->for(Season::factory()->state(['name' => '2026/27']))->notImported()->create([
+    TeamSeason::factory()->for(Season::factory()->current()->state(['name' => '2025/2026']))->create();
+    $nextTeamSeason = TeamSeason::factory()->for(Season::factory()->state(['name' => '2026/2027']))->notImported()->create([
         'external_id' => 45019,
         'source_url' => Ceskyflorbal::FIXTURE_LIST_URL,
     ]);
@@ -90,9 +90,9 @@ test('makes scheduled imports cover the team seasons of the new current season o
 });
 
 test('keeps the season the administrator works on, whether picked or shown by default', function (bool $isPicked) {
-    $current = Season::factory()->current()->create(['name' => '2026/27']);
+    $current = Season::factory()->current()->create(['name' => '2026/2027']);
     $teamSeason = TeamSeason::factory()->for($current)->create();
-    $next = Season::factory()->create(['name' => '2027/28']);
+    $next = Season::factory()->create(['name' => '2027/2028']);
 
     if ($isPicked) {
         $this->post('/admin-selection', ['season_id' => $current->id]);
@@ -101,7 +101,7 @@ test('keeps the season the administrator works on, whether picked or shown by de
     $this->post("/seasons/{$next->id}/current");
 
     $this->get('/seasons')->assertInertia(fn (Assert $page) => $page
-        ->where('adminSelection.season', ['id' => $current->id, 'name' => '2026/27', 'isCurrent' => false])
+        ->where('adminSelection.season', ['id' => $current->id, 'name' => '2026/2027', 'isCurrent' => false])
         ->where('adminSelection.teamSeason.id', $teamSeason->id)
         ->etc());
 })->with([
@@ -119,8 +119,8 @@ test('returns 404 for an unknown season', function () {
 
 test('redirects guests to the login page', function () {
     auth()->logout();
-    $current = Season::factory()->current()->create(['name' => '2026/27']);
-    $next = Season::factory()->create(['name' => '2027/28']);
+    $current = Season::factory()->current()->create(['name' => '2026/2027']);
+    $next = Season::factory()->create(['name' => '2027/2028']);
 
     $this->post("/seasons/{$next->id}/current")->assertRedirect('/login');
 

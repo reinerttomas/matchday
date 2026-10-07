@@ -14,8 +14,8 @@ use Illuminate\Testing\Constraints\SeeInOrder;
 test('gives the change summary line by line with a link that opens WhatsApp', function () {
     $import = Import::factory()
         ->for(TeamSeason::factory()
-            ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
-            ->for(Season::factory()->state(['name' => '2026/27']))
+            ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+            ->for(Season::factory()->state(['name' => '2026/2027']))
             ->state(['name' => 'FBC Kutná Hora B']))
         ->create();
     $summary = implode("\n", [
@@ -27,9 +27,9 @@ test('gives the change summary line by line with a link that opens WhatsApp', fu
 
     $mail = (new FixtureListRevised($import, $summary, 'https://wa.me/?text=%F0%9F%93%85'))->toMail(User::factory()->make());
 
-    expect($mail->subject)->toBe('Změny v rozpisu: FBC Kutná Hora B 2026/27');
+    expect($mail->subject)->toBe('Změny v rozpisu: FBC Kutná Hora B 2026/2027');
     $this->assertThat([
-        'FBC Kutná Hora B 2026/27',
+        'FBC Kutná Hora B 2026/2027',
         '📅 Změny v rozpisu FBC Kutná Hora B',
         '• NE 15. 11. FBC Kutná Hora B – TBC Engineers Horoměřice: čas doplněn 9:00',
         'Kalendář: https://matchday.example/t/kutna-hora-b',

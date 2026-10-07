@@ -126,7 +126,7 @@ function CreateSeasonDialog() {
                                     required
                                     autoFocus
                                     autoComplete="off"
-                                    placeholder="2027/28"
+                                    placeholder="2027/2028"
                                     aria-invalid={errors.name !== undefined}
                                 />
                                 <InputError message={errors.name} />

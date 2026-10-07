@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Concerns\TeamNameValidationRules;
 use App\Models\Season;
 use App\Models\Team;
 use App\Models\TeamSeason;
@@ -12,13 +13,16 @@ use App\Services\Ceskyflorbal\FixtureListAddress;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
- * Adds a team to the selected season: a brand-new team by its slug, or a team from a previous season by its ID.
+ * Adds a team to the selected season: a brand-new team by its name, or a team from a previous season by its ID.
  */
 final class StoreTeamSeasonRequest extends FormRequest
 {
+    use TeamNameValidationRules;
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -34,15 +38,25 @@ final class StoreTeamSeasonRequest extends FormRequest
                 Rule::exists('teams', 'id'),
                 Rule::unique('team_seasons', 'team_id')->where('season_id', $this->season()->id),
             ],
-            'slug' => [
-                // A team carried over keeps its slug, so its calendar address doesn't change.
+            'name' => [
+                // A team carried over keeps its name and slug, so its calendar address doesn't change.
                 Rule::excludeIf($this->filled('team_id')),
                 'bail',
-                'required',
-                'string',
-                'max:100',
-                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
-                Rule::unique('teams', 'slug'),
+                ...$this->teamNameRules(),
+                function (string $attribute, string $value, Closure $fail): void {
+                    $slug = Str::slug($value);
+
+                    if ($slug === '') {
+                        $fail(__('teams.validation.name_without_slug'));
+
+                        return;
+                    }
+
+                    // No suffix is added to a taken slug, so the calendar address always follows the name the administrator chose.
+                    if (Team::query()->where('slug', $slug)->exists()) {
+                        $fail(__('teams.validation.name_taken', ['slug' => $slug]));
+                    }
+                },
             ],
             'source_url' => [
                 'bail',
@@ -79,11 +93,7 @@ final class StoreTeamSeasonRequest extends FormRequest
             'team_id.integer' => __('team_seasons.validation.team_unknown'),
             'team_id.exists' => __('team_seasons.validation.team_unknown'),
             'team_id.unique' => __('team_seasons.validation.team_in_season', ['season' => $this->season()->name]),
-            'slug.required' => __('teams.validation.slug_required'),
-            'slug.string' => __('teams.validation.slug_format'),
-            'slug.max' => __('teams.validation.slug_too_long'),
-            'slug.regex' => __('teams.validation.slug_format'),
-            'slug.unique' => __('teams.validation.slug_taken'),
+            ...$this->teamNameMessages(),
             'source_url.required' => __('team_seasons.validation.source_url_required'),
             'source_url.string' => __('team_seasons.validation.source_url_format'),
         ];
@@ -98,13 +108,17 @@ final class StoreTeamSeasonRequest extends FormRequest
     }
 
     /**
-     * Get the team to carry over from a previous season, or a new unsaved team with the chosen slug.
+     * Get the team to carry over from a previous season, or a new unsaved team with the chosen name and the slug derived from it.
      */
     public function team(): Team
     {
-        return $this->filled('team_id')
-            ? Team::query()->findOrFail($this->integer('team_id'))
-            : new Team(['slug' => $this->string('slug')->toString()]);
+        if ($this->filled('team_id')) {
+            return Team::query()->findOrFail($this->integer('team_id'));
+        }
+
+        $name = $this->string('name')->toString();
+
+        return new Team(['name' => $name, 'slug' => Str::slug($name)]);
     }
 
     /**

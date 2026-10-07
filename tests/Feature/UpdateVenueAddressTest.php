@@ -37,7 +37,7 @@ test('changes only the address, never the name the federation gives the venue', 
 test('puts the edited address into the location of the venue\'s calendar events on the next feed request', function () {
     $venue = Venue::factory()->withoutAddress()->create(['name' => 'SH Kutná Hora Klimeška']);
     Fixture::factory()->for($venue)->for(TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current()))
         ->create();
 

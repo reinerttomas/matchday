@@ -7,6 +7,7 @@ use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Revision;
 use App\Models\Season;
+use App\Models\Team;
 use App\Models\TeamSeason;
 use App\Models\User;
 use App\Models\Venue;
@@ -26,7 +27,7 @@ beforeEach(function () {
  */
 function importedTeamSeason(): TeamSeason
 {
-    $teamSeason = TeamSeason::factory()->for(Season::factory()->current())->create(['name' => 'FBC Kutná Hora B']);
+    $teamSeason = TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora B']))->for(Season::factory()->current())->create();
     Import::factory()->for($teamSeason)->create(['started_at' => '2026-10-04 06:00:00']);
 
     return $teamSeason;

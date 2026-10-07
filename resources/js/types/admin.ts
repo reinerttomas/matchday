@@ -157,6 +157,7 @@ export type TeamSeasonLastImport = {
 
 export type TeamSeasonListItem = {
     id: number;
+    teamId: number;
     name: string;
     competition: string | null;
     slug: string;

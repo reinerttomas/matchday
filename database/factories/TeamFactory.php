@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Team>
@@ -20,7 +21,8 @@ final class TeamFactory extends Factory
     public function definition(): array
     {
         return [
-            'slug' => fake()->unique()->slug(2),
+            'name' => 'FBC '.fake()->unique()->city(),
+            'slug' => fn (array $attributes): string => Str::slug($attributes['name']),
         ];
     }
 }

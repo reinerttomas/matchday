@@ -159,12 +159,12 @@ test('reports whether an import of the team season is running', function (bool $
 ]);
 
 test('shows no imports while the selected season has no team seasons', function () {
-    Season::factory()->current()->create(['name' => '2026/27']);
+    Season::factory()->current()->create(['name' => '2026/2027']);
 
     $this->get('/imports')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->where('imports', null)
         ->where('isImportRunning', false)
-        ->where('adminSelection.season.name', '2026/27')
+        ->where('adminSelection.season.name', '2026/2027')
         ->where('adminSelection.teamSeason', null)
         ->where('adminSelection.teamSeasons', [])
         ->etc());

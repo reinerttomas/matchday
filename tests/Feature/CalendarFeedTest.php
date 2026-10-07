@@ -38,13 +38,13 @@ function calendarEvents(TestResponse $response): Collection
 }
 
 /**
- * The team season of FBC Kutná Hora B in the current season 2026/27.
+ * The team season of FBC Kutná Hora B in the current season 2026/2027.
  */
 function kutnaHoraCurrentTeamSeason(): TeamSeason
 {
     return TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
-        ->for(Season::factory()->current()->state(['name' => '2026/27']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current()->state(['name' => '2026/2027']))
         ->create(['name' => 'FBC Kutná Hora B', 'competition_name' => '2. liga mužů, skupina 3']);
 }
 
@@ -214,9 +214,9 @@ test('leaves the round out of the description when it is unknown', function () {
 });
 
 test('serves finished fixtures and leaves out fixtures of other seasons', function () {
-    $team = Team::factory()->create(['slug' => 'kutna-hora-b']);
-    $previousTeamSeason = TeamSeason::factory()->for($team)->for(Season::factory()->state(['name' => '2025/26']))->create();
-    $currentTeamSeason = TeamSeason::factory()->for($team)->for(Season::factory()->current()->state(['name' => '2026/27']))->create();
+    $team = Team::factory()->create(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']);
+    $previousTeamSeason = TeamSeason::factory()->for($team)->for(Season::factory()->state(['name' => '2025/2026']))->create();
+    $currentTeamSeason = TeamSeason::factory()->for($team)->for(Season::factory()->current()->state(['name' => '2026/2027']))->create();
     Fixture::factory()->for($previousTeamSeason)->create();
     $scheduled = Fixture::factory()->for($currentTeamSeason)->create();
     $finished = Fixture::factory()->for($currentTeamSeason)->finished()->create();
@@ -228,8 +228,8 @@ test('serves finished fixtures and leaves out fixtures of other seasons', functi
 
 test('serves a valid calendar without events to a team outside the current season', function () {
     $teamSeason = TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
-        ->for(Season::factory()->state(['name' => '2025/26']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->state(['name' => '2025/2026']))
         ->create();
     Season::factory()->current()->create();
     Fixture::factory()->for($teamSeason)->create();

@@ -9,7 +9,7 @@ use App\Models\TeamSeason;
 
 test('reveals the rest of the season beyond the first four match days', function () {
     $teamSeason = TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
         ->create();
     foreach (range(1, 6) as $week) {
@@ -27,7 +27,7 @@ test('reveals the rest of the season beyond the first four match days', function
 
 test('fits a phone screen without horizontal scrolling', function () {
     $teamSeason = TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
         ->create(['name' => 'FBC Kutná Hora B', 'competition_name' => '2. liga mužů, skupina 3']);
     Fixture::factory()->for($teamSeason)->rescheduled()->postponed()->create([
@@ -46,7 +46,7 @@ test('fits a phone screen without horizontal scrolling', function () {
 
 test('puts the subscribe option and instructions for the player\'s device first', function (string $device, string $userAgent, string $buttons, string $instructionsTab) {
     TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
         ->create();
 
@@ -66,7 +66,7 @@ test('puts the subscribe option and instructions for the player\'s device first'
 
 test('switches the subscribe instructions between devices', function () {
     TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
         ->create();
 
@@ -90,7 +90,7 @@ test('switches the subscribe instructions between devices', function () {
 
 test('copies the calendar address', function () {
     TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
         ->create();
 
@@ -109,7 +109,7 @@ test('copies the calendar address', function () {
 
 test('shows a qr code of the page on a wide screen only', function () {
     TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
         ->create();
 

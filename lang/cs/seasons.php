@@ -9,7 +9,7 @@ return [
 
     'validation' => [
         'name_required' => 'Zadejte název sezony.',
-        'name_format' => 'Název sezony musí být dva po sobě jdoucí roky, např. 2027/28.',
+        'name_format' => 'Název sezony musí být dva po sobě jdoucí roky, např. 2027/2028.',
         // :input is filled in by the validator with the name the administrator entered.
         'name_taken' => 'Sezona :input už existuje.',
     ],

@@ -18,9 +18,9 @@ final readonly class CreateTeamSeason
     public function __construct(private QueueManualImport $queueManualImport) {}
 
     /**
-     * Start tracking the team in the season, and queue the team season's first import, which fills in its name and competition.
+     * Start tracking the team in the season, and queue the team season's first import, which fills in its competition.
      *
-     * A brand-new team is passed unsaved and saved together with its first team season, so a team never exists without one. A team carried over from a previous season keeps its slug, and with it its calendar address.
+     * A brand-new team is passed unsaved and saved together with its first team season, so a team never exists without one. A team carried over from a previous season keeps its name and slug, and with it its calendar address.
      *
      * @param  array{external_id: int, source_url: string}  $attributes
      */

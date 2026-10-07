@@ -37,6 +37,19 @@ test('team can take part in a season only once', function () {
         ->toThrow(UniqueConstraintViolationException::class);
 });
 
+test('team season is named after its team, whatever name its import read from ceskyflorbal.cz', function (?string $importedName) {
+    $teamSeason = TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B']))
+        ->for(Season::factory()->state(['name' => '2026/2027']))
+        ->create(['name' => $importedName]);
+
+    expect($teamSeason->displayName())->toBe('FBC Kutná Hora B')
+        ->and($teamSeason->displayNameWithSeason())->toBe('FBC Kutná Hora B 2026/2027');
+})->with([
+    'not imported yet' => [null],
+    'imported under another name' => ['Florbal Kutná Hora B'],
+]);
+
 test('revising imports are those with revisions, without the initial import, also when eager loaded', function () {
     $teamSeason = TeamSeason::factory()->create();
     Import::factory()->for($teamSeason)->error()->create(['started_at' => '2026-09-01 07:00:00']);

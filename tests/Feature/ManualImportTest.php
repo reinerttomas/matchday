@@ -7,6 +7,7 @@ use App\Enums\ImportTrigger;
 use App\Jobs\ImportFixtureList;
 use App\Models\Import;
 use App\Models\Season;
+use App\Models\Team;
 use App\Models\TeamSeason;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
@@ -23,8 +24,8 @@ beforeEach(function () {
 
 test('queues a manual import of the selected team season and returns to the page', function () {
     $season = Season::factory()->current()->create();
-    TeamSeason::factory()->for($season)->create(['name' => 'FBC Kutná Hora B']);
-    $selected = TeamSeason::factory()->for($season)->create(['name' => 'FBC Kutná Hora C']);
+    TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora B']))->for($season)->create();
+    $selected = TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora C']))->for($season)->create();
     $this->post('/admin-selection', ['season_id' => $season->id, 'team_season_id' => $selected->id]);
     Queue::fake([ImportFixtureList::class]);
 
@@ -37,8 +38,8 @@ test('queues a manual import of the selected team season and returns to the page
 });
 
 test('queues a manual import of a team season outside the current season', function () {
-    Season::factory()->current()->create(['name' => '2026/27']);
-    $next = TeamSeason::factory()->for(Season::factory()->state(['name' => '2027/28']))->create();
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    $next = TeamSeason::factory()->for(Season::factory()->state(['name' => '2027/2028']))->create();
     $this->post('/admin-selection', ['season_id' => $next->season_id, 'team_season_id' => $next->id]);
     Queue::fake([ImportFixtureList::class]);
 

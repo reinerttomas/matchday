@@ -21,8 +21,8 @@ beforeEach(function () {
 function teamSeasonOnChangesPage(): TeamSeason
 {
     $teamSeason = TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
-        ->for(Season::factory()->current()->state(['name' => '2026/27']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current()->state(['name' => '2026/2027']))
         ->create(['name' => 'FBC Kutná Hora B']);
     Import::factory()->for($teamSeason)->create(['started_at' => now()->subWeek()]);
 

@@ -22,7 +22,7 @@ final class SeasonFactory extends Factory
         $startYear = fake()->unique()->numberBetween(2000, 2098);
 
         return [
-            'name' => sprintf('%d/%02d', $startYear, ($startYear + 1) % 100),
+            'name' => sprintf('%d/%d', $startYear, $startYear + 1),
             'is_current' => false,
         ];
     }

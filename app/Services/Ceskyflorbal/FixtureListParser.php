@@ -43,11 +43,11 @@ final readonly class FixtureListParser
     }
 
     /**
-     * Read the season from the team header, such as "PH A SČ LIGA MUŽŮ 2026/2027", and name it like our seasons ("2026/27").
+     * Read the season from the team header, such as "PH A SČ LIGA MUŽŮ 2026/2027", and name it like our seasons ("2026/2027").
      */
     private function seasonName(string $header): string
     {
-        if (preg_match('/(\d{4})\/\d{2}(\d{2})$/', $header, $matches) !== 1) {
+        if (preg_match('/(\d{4})\/(\d{4})$/', $header, $matches) !== 1) {
             throw new UnexpectedValueException("Unreadable season in the team header [{$header}].");
         }
 

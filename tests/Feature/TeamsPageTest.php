@@ -22,21 +22,21 @@ beforeEach(function () {
  */
 function seasonOnTeamsPage(): Season
 {
-    return Season::factory()->current()->create(['name' => '2026/27']);
+    return Season::factory()->current()->create(['name' => '2026/2027']);
 }
 
 test('lists the selected season\'s team seasons by name with what the administrator needs at a glance', function () {
     $season = seasonOnTeamsPage();
     $teamSeason = TeamSeason::factory()
         ->for($season)
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->create([
             'name' => 'FBC Kutná Hora B',
             'competition_name' => '2. liga mužů, skupina 3',
             'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/42001',
         ]);
-    TeamSeason::factory()->for($season)->create(['name' => 'FBC Kutná Hora A']);
-    TeamSeason::factory()->for(Season::factory()->state(['name' => '2025/26']))->create(['name' => 'FBC Kutná Hora C']);
+    TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora A']))->for($season)->create();
+    TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora C']))->for(Season::factory()->state(['name' => '2025/2026']))->create();
 
     $response = $this->get('https://matchday.cz/teams');
 
@@ -46,6 +46,7 @@ test('lists the selected season\'s team seasons by name with what the administra
         ->where('teamSeasons.0.name', 'FBC Kutná Hora A')
         ->where('teamSeasons.1', [
             'id' => $teamSeason->id,
+            'teamId' => $teamSeason->team_id,
             'name' => 'FBC Kutná Hora B',
             'competition' => '2. liga mužů, skupina 3',
             'slug' => 'kutna-hora-b',
@@ -59,8 +60,8 @@ test('lists the selected season\'s team seasons by name with what the administra
 
 test('lists the team seasons of a season the administrator picked instead of the current one', function () {
     seasonOnTeamsPage();
-    $pickedSeason = Season::factory()->create(['name' => '2025/26']);
-    TeamSeason::factory()->for($pickedSeason)->create(['name' => 'FBC Kutná Hora B']);
+    $pickedSeason = Season::factory()->create(['name' => '2025/2026']);
+    TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora B']))->for($pickedSeason)->create();
     $this->post('/admin-selection', ['season_id' => $pickedSeason->id]);
 
     $this->get('/teams')->assertInertia(fn (Assert $page) => $page
@@ -69,15 +70,15 @@ test('lists the team seasons of a season the administrator picked instead of the
         ->etc());
 });
 
-test('names a team season not imported yet by its slug, without a competition', function () {
+test('names a team season not imported yet by its team\'s name, without a competition', function () {
     TeamSeason::factory()
         ->for(seasonOnTeamsPage())
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->notImported()
         ->create();
 
     $this->get('/teams')->assertInertia(fn (Assert $page) => $page
-        ->where('teamSeasons.0.name', 'kutna-hora-b')
+        ->where('teamSeasons.0.name', 'FBC Kutná Hora B')
         ->where('teamSeasons.0.competition', null)
         ->where('teamSeasons.0.lastImport', null)
         ->etc());
@@ -145,23 +146,21 @@ test('finds the last imports without a query per team season', function () {
     expect(count(DB::getQueryLog()))->toBe($queriesForOneTeamSeason);
 });
 
-test('offers the teams not in the selected season yet for carrying over, named after their latest team season', function () {
+test('offers the teams not in the selected season yet for carrying over, alphabetically by their own name', function () {
     $season = seasonOnTeamsPage();
-    $previousSeason = Season::factory()->create(['name' => '2025/26']);
-    $olderSeason = Season::factory()->create(['name' => '2024/25']);
-    $renamed = Team::factory()->create(['slug' => 'kutna-hora-b']);
-    TeamSeason::factory()->for($renamed)->for($olderSeason)->create(['name' => 'Florbal Kutná Hora B']);
-    TeamSeason::factory()->for($renamed)->for($previousSeason)->create(['name' => 'FBC Kutná Hora B']);
-    $notImported = Team::factory()->create(['slug' => 'kutna-hora-a']);
-    TeamSeason::factory()->for($notImported)->for($previousSeason)->notImported()->create();
-    $alreadyInSeason = Team::factory()->create(['slug' => 'kutna-hora-c']);
+    $previousSeason = Season::factory()->create(['name' => '2025/2026']);
+    $kutnaHoraB = Team::factory()->create(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']);
+    TeamSeason::factory()->for($kutnaHoraB)->for($previousSeason)->create(['name' => 'Florbal Kutná Hora B']);
+    $kutnaHoraA = Team::factory()->create(['name' => 'FBC Kutná Hora A', 'slug' => 'kutna-hora-a']);
+    TeamSeason::factory()->for($kutnaHoraA)->for($previousSeason)->notImported()->create();
+    $alreadyInSeason = Team::factory()->create(['name' => 'FBC Kutná Hora C']);
     TeamSeason::factory()->for($alreadyInSeason)->for($previousSeason)->create();
     TeamSeason::factory()->for($alreadyInSeason)->for($season)->create();
 
     $this->get('/teams')->assertInertia(fn (Assert $page) => $page
         ->where('carryOverTeams', [
-            ['id' => $renamed->id, 'name' => 'FBC Kutná Hora B 2025/26', 'slug' => 'kutna-hora-b'],
-            ['id' => $notImported->id, 'name' => 'kutna-hora-a 2025/26', 'slug' => 'kutna-hora-a'],
+            ['id' => $kutnaHoraA->id, 'name' => 'FBC Kutná Hora A', 'slug' => 'kutna-hora-a'],
+            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b'],
         ])
         ->etc());
 });

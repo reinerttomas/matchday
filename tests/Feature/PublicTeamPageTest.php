@@ -13,13 +13,13 @@ use Inertia\Testing\AssertableInertia as Assert;
 use function Pest\Laravel\travelTo;
 
 /**
- * The team season of FBC Kutná Hora B in the current season 2026/27, shown on the page at /t/kutna-hora-b.
+ * The team season of FBC Kutná Hora B in the current season 2026/2027, shown on the page at /t/kutna-hora-b.
  */
 function kutnaHoraTeamSeason(): TeamSeason
 {
     return TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
-        ->for(Season::factory()->current()->state(['name' => '2026/27']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current()->state(['name' => '2026/2027']))
         ->create([
             'external_id' => 45019,
             'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
@@ -39,13 +39,13 @@ test('returns 404 for an unknown slug', function () {
 
 test('shows the team season of the current season to a guest', function () {
     $teamSeason = kutnaHoraTeamSeason();
-    TeamSeason::factory()->for($teamSeason->team)->for(Season::factory()->state(['name' => '2025/26']))->create(['name' => 'FBC Kutná Hora C']);
+    TeamSeason::factory()->for($teamSeason->team)->for(Season::factory()->state(['name' => '2025/2026']))->create(['name' => 'FBC Kutná Hora C']);
 
     $response = $this->get('/t/kutna-hora-b');
 
     $response->assertInertia(fn (Assert $page) => $page
         ->component('public/team')
-        ->where('season', '2026/27')
+        ->where('season', '2026/2027')
         ->where('teamSeason.name', 'FBC Kutná Hora B')
         ->where('teamSeason.competition', '2. liga mužů, skupina 3')
         ->etc());
@@ -237,18 +237,18 @@ test('has no match days once every fixture of the team season is in the past', f
 
 test('names the current season when the team has no team season in it', function () {
     TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
-        ->for(Season::factory()->state(['name' => '2025/26']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->state(['name' => '2025/2026']))
         ->has(Fixture::factory()->state(['date' => '2026-10-11']))
         ->create();
-    Season::factory()->current()->create(['name' => '2026/27']);
+    Season::factory()->current()->create(['name' => '2026/2027']);
 
     $response = $this->get('/t/kutna-hora-b');
 
     $response->assertInertia(fn (Assert $page) => $page
         ->component('public/team')
-        ->where('season', '2026/27')
+        ->where('season', '2026/2027')
         ->where('teamSeason', null)
-        ->where('calendar.outlook', fn (string $outlook): bool => str_ends_with($outlook, '&name=kutna-hora-b'))
+        ->where('calendar.outlook', fn (string $outlook): bool => str_ends_with($outlook, '&name=FBC%20Kutn%C3%A1%20Hora%20B'))
         ->etc());
 });

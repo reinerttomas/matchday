@@ -33,14 +33,14 @@ The other team in a fixture. Known only by name; it has no identity across seaso
 ### Teams and places
 
 **Season**:
-A playing year such as 2026/27, created by the administrator. Exactly one season is current; the current season decides what calendars show and which teams are imported automatically.
+A playing year such as 2026/2027, created by the administrator. Exactly one season is current; the current season decides what calendars show and which teams are imported automatically.
 
 **Team**:
-One of our teams that the app publishes a calendar for. Its slug and calendar address persist across seasons.
+One of our teams that the app publishes a calendar for. The administrator names it when adding it; the name is what the app shows wherever the team is named. Its name, slug (derived from the name) and calendar address persist across seasons.
 _Avoid_: Tracked team
 
 **Team season**:
-A team's participation in one season: the federation's team ID for that season, the team's name and competition that season, and the address of its fixture list.
+A team's participation in one season: the federation's team ID for that season, the name and competition the federation gives the team that season, and the address of its fixture list. The imported name is kept but not shown; the team's own name is.
 
 **Venue**:
 A sports hall where fixtures are played. Name and federation ID come from the source; the address comes from a fixture's detail page.

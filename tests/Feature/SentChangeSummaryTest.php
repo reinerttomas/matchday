@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Import;
 use App\Models\Revision;
 use App\Models\Season;
+use App\Models\Team;
 use App\Models\TeamSeason;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -21,7 +22,7 @@ beforeEach(function () {
  */
 function teamSeasonToMarkSummariesOf(): TeamSeason
 {
-    $teamSeason = TeamSeason::factory()->for(Season::factory()->current()->state(['name' => '2026/27']))->create(['name' => 'FBC Kutná Hora B']);
+    $teamSeason = TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora B']))->for(Season::factory()->current()->state(['name' => '2026/2027']))->create();
     Import::factory()->for($teamSeason)->create(['started_at' => '2026-09-01 06:00:00']);
 
     return $teamSeason;
@@ -65,7 +66,7 @@ test('keeps when the team was told about an import already marked as sent', func
 
 test('marks an import of a team season other than the selected one, as from a tab opened before switching', function () {
     $teamSeason = teamSeasonToMarkSummariesOf();
-    $otherTeamSeason = TeamSeason::factory()->for($teamSeason->season)->create(['name' => 'FBC Kutná Hora C']);
+    $otherTeamSeason = TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora C']))->for($teamSeason->season)->create();
     Import::factory()->for($otherTeamSeason)->create(['started_at' => '2026-09-01 06:00:00']);
     $import = importToAnnounce($otherTeamSeason);
 

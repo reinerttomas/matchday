@@ -15,13 +15,14 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
+ * @property string $name
  * @property string $slug
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, TeamSeason> $teamSeasons
  * @property-read TeamSeason|null $currentTeamSeason
  */
-#[Fillable(['slug'])]
+#[Fillable(['name', 'slug'])]
 final class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -50,10 +51,10 @@ final class Team extends Model
     }
 
     /**
-     * Name the team's calendar after its team season in the current season, or after its slug while it has none.
+     * Name the team's calendar after the team.
      */
     public function calendarName(): string
     {
-        return $this->currentTeamSeason?->displayName() ?? $this->slug;
+        return $this->name;
     }
 }

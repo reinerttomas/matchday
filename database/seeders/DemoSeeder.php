@@ -15,7 +15,6 @@ use App\Models\TeamSeason;
 use App\Models\Venue;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 /**
  * Seeds FBC Kutná Hora B's fixture lists and import history so that every page can be developed on believable data.
@@ -32,9 +31,9 @@ final class DemoSeeder extends Seeder
     public function run(): void
     {
         $teamName = 'FBC Kutná Hora B';
-        $team = Team::factory()->create(['slug' => Str::slug($teamName)]);
-        $pastSeason = Season::factory()->create(['name' => '2025/26']);
-        $currentSeason = Season::factory()->current()->create(['name' => '2026/27']);
+        $team = Team::factory()->create(['name' => $teamName]);
+        $pastSeason = Season::factory()->create(['name' => '2025/2026']);
+        $currentSeason = Season::factory()->current()->create(['name' => '2026/2027']);
 
         $venues = $this->seedVenues();
 

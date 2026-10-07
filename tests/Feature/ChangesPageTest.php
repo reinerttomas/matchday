@@ -7,6 +7,7 @@ use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Revision;
 use App\Models\Season;
+use App\Models\Team;
 use App\Models\TeamSeason;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +25,7 @@ beforeEach(function () {
  */
 function initiallyImportedTeamSeason(): TeamSeason
 {
-    $teamSeason = TeamSeason::factory()->for(Season::factory()->current()->state(['name' => '2026/27']))->create(['name' => 'FBC Kutná Hora B']);
+    $teamSeason = TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora B']))->for(Season::factory()->current()->state(['name' => '2026/2027']))->create();
     Import::factory()->for($teamSeason)->create(['started_at' => '2026-09-01 06:00:00', 'fixtures_found' => 24]);
 
     return $teamSeason;
@@ -48,7 +49,7 @@ test('lists the imports that recorded revisions newest first, without the initia
     Revision::factory()->for($older)->create();
     Revision::factory()->for($newest)->create();
     Revision::factory()->for($teamSeason->initialImport)->create();
-    Revision::factory()->for(Import::factory()->for(TeamSeason::factory()->for(Season::factory()->state(['name' => '2025/26']))))->create();
+    Revision::factory()->for(Import::factory()->for(TeamSeason::factory()->for(Season::factory()->state(['name' => '2025/2026']))))->create();
 
     $response = $this->get('/changes');
 
@@ -143,7 +144,7 @@ test('lists a fixture that appeared after the initial import as a new fixture', 
 });
 
 test('shows the initial import as the number of fixtures it added and those fixtures, without the ones added later', function () {
-    $teamSeason = TeamSeason::factory()->for(Season::factory()->current())->create(['name' => 'FBC Kutná Hora B']);
+    $teamSeason = TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora B']))->for(Season::factory()->current())->create();
     Import::factory()->for($teamSeason)->error()->create(['started_at' => '2026-09-30 06:00:00']);
     $initialImport = Import::factory()->for($teamSeason)->create(['started_at' => '2026-10-01 06:00:00', 'fixtures_found' => 24]);
     $later = Fixture::factory()->for($teamSeason)->away()->create(['date' => '2026-10-18', 'opponent_name' => 'Las Plantas']);
@@ -205,7 +206,7 @@ test('shares how many of the selected team season\'s change summaries wait to be
     Revision::factory()->count(2)->for(Import::factory()->for($teamSeason))->create();
     Revision::factory()->for(Import::factory()->for($teamSeason)->notified())->create();
     Import::factory()->for($teamSeason)->create();
-    $otherTeamSeason = TeamSeason::factory()->for($teamSeason->season)->create(['name' => 'FBC Kutná Hora C']);
+    $otherTeamSeason = TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora C']))->for($teamSeason->season)->create();
     Revision::factory()->for(Import::factory()->for($otherTeamSeason))->create();
 
     $this->get('/changes')->assertInertia(fn (Assert $page) => $page

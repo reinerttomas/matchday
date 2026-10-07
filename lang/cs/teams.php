@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 return [
 
+    'renamed' => 'Tým je přejmenovaný na :team. Adresa kalendáře zůstává stejná.',
+
     'validation' => [
-        'slug_required' => 'Zadejte slug.',
-        'slug_format' => 'Slug smí obsahovat jen malá písmena bez diakritiky a číslice, oddělené pomlčkou, např. kutna-hora-b.',
-        // :max and :input are filled in by the validator.
-        'slug_too_long' => 'Slug může mít nejvýše :max znaků.',
-        'slug_taken' => 'Slug :input už používá jiný tým.',
+        'name_required' => 'Zadejte název týmu.',
+        'name_format' => 'Název týmu musí být text.',
+        // :max is filled in by the validator.
+        'name_too_long' => 'Název týmu může mít nejvýše :max znaků.',
+        'name_without_slug' => 'Název týmu musí obsahovat aspoň jedno písmeno nebo číslici.',
+        'name_taken' => 'Jiný tým už má stejnou adresu kalendáře (:slug). Zvolte jiný název.',
     ],
 
 ];

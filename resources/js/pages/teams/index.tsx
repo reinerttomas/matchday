@@ -4,6 +4,7 @@ import {
     ExternalLink,
     Globe,
     MoreHorizontal,
+    Pencil,
     Plus,
     TriangleAlert,
     Users,
@@ -64,7 +65,9 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useClipboard } from '@/hooks/use-clipboard';
+import { slugify } from '@/lib/utils';
 import { index, store, update } from '@/routes/teams';
+import { update as updateName } from '@/routes/teams/name';
 import type {
     CarryOverTeam,
     TeamSeasonLastImport,
@@ -165,8 +168,8 @@ function AddTeamDialog({
                 <DialogHeader>
                     <DialogTitle>Přidat tým do sezony {seasonName}</DialogTitle>
                     <DialogDescription>
-                        Hned po přidání se stáhne rozpis zápasů týmu. Název týmu
-                        a soutěž se doplní z ceskyflorbal.cz.
+                        Hned po přidání se stáhne rozpis zápasů týmu. Soutěž se
+                        doplní z ceskyflorbal.cz.
                     </DialogDescription>
                 </DialogHeader>
                 <Tabs defaultValue="new">
@@ -208,7 +211,8 @@ function NewTeamForm({
     calendarUrlTemplate: string;
     onSuccess: () => void;
 }) {
-    const [slug, setSlug] = useState('');
+    const [name, setName] = useState('');
+    const slug = slugify(name);
 
     return (
         <Form
@@ -219,25 +223,20 @@ function NewTeamForm({
         >
             {({ processing, errors }) => (
                 <>
-                    <SourceUrlField
-                        id="new-team-source-url"
-                        error={errors.source_url}
-                        autoFocus
-                    />
                     <div className="grid gap-2">
-                        <Label htmlFor="new-team-slug">Slug</Label>
+                        <Label htmlFor="new-team-name">Název týmu</Label>
                         <Input
-                            id="new-team-slug"
-                            name="slug"
+                            id="new-team-name"
+                            name="name"
                             required
+                            autoFocus
                             autoComplete="off"
-                            placeholder="kutna-hora-b"
-                            value={slug}
-                            onChange={(event) => setSlug(event.target.value)}
-                            aria-invalid={errors.slug !== undefined}
+                            placeholder="FBC Kutná Hora B"
+                            value={name}
+                            onChange={(event) => setName(event.target.value)}
+                            aria-invalid={errors.name !== undefined}
                             aria-describedby="new-team-calendar-url"
                         />
-                        <InputError message={errors.slug} />
                         <p
                             id="new-team-calendar-url"
                             className="text-sm text-muted-foreground"
@@ -249,17 +248,24 @@ function NewTeamForm({
                             >
                                 {calendarUrlTemplate.replace(
                                     ':slug',
-                                    slug === '' ? 'slug' : slug,
+                                    slug === '' ? 'nazev-tymu' : slug,
                                 )}
                             </span>
                         </p>
+                        <InputError message={errors.name} />
                     </div>
+                    <SourceUrlField
+                        id="new-team-source-url"
+                        error={errors.source_url}
+                    />
                     <Alert>
                         <TriangleAlert />
-                        <AlertTitle>Slug později nepůjde změnit</AlertTitle>
+                        <AlertTitle>
+                            Adresa kalendáře později nepůjde změnit
+                        </AlertTitle>
                         <AlertDescription>
-                            Je součástí adresy kalendáře, kterou si hráči
-                            přidají do svých kalendářů. Zůstává týmu i v dalších
+                            Vznikne z názvu týmu a hráči si ji přidají do svých
+                            kalendářů. Název i adresa zůstávají týmu i v dalších
                             sezonách.
                         </AlertDescription>
                     </Alert>
@@ -318,7 +324,7 @@ function CarryOverTeamForm({
                         description={`Svaz dává týmu každou sezonu nový rozpis. Zadejte adresu rozpisu pro sezonu ${seasonName}.`}
                     />
                     <p className="text-sm text-muted-foreground">
-                        Slug i adresa kalendáře zůstanou stejné, takže hráči
+                        Název i adresa kalendáře zůstanou stejné, takže hráči
                         nemusí kalendář přidávat znovu.
                     </p>
                     <AddTeamFooter processing={processing} />
@@ -332,12 +338,10 @@ function SourceUrlField({
     id,
     error,
     description = 'Otevřete rozpis zápasů týmu na ceskyflorbal.cz a zkopírujte adresu stránky.',
-    autoFocus = false,
 }: {
     id: string;
     error: string | undefined;
     description?: string;
-    autoFocus?: boolean;
 }) {
     return (
         <div className="grid gap-2">
@@ -346,7 +350,6 @@ function SourceUrlField({
                 id={id}
                 name="source_url"
                 required
-                autoFocus={autoFocus}
                 autoComplete="off"
                 inputMode="url"
                 placeholder="https://www.ceskyflorbal.cz/team/detail/matches/45019"
@@ -513,6 +516,7 @@ function AutoImportSwitch({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
 function TeamSeasonActions({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
     const [, copy] = useClipboard();
     const [isAddressShown, setIsAddressShown] = useState(false);
+    const [isRenaming, setIsRenaming] = useState(false);
 
     // Some browsers block the clipboard, so the address is shown selected for the administrator to copy by hand.
     async function copyCalendarUrl(): Promise<void> {
@@ -539,6 +543,13 @@ function TeamSeasonActions({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                        onSelect={() => setIsRenaming(true)}
+                        data-test="rename-team"
+                    >
+                        <Pencil />
+                        Přejmenovat tým
+                    </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => void copyCalendarUrl()}>
                         <Copy />
                         Kopírovat adresu kalendáře
@@ -586,6 +597,86 @@ function TeamSeasonActions({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
                     />
                 </DialogContent>
             </Dialog>
+            <Dialog open={isRenaming} onOpenChange={setIsRenaming}>
+                <DialogContent>
+                    <RenameTeamForm
+                        teamSeason={teamSeason}
+                        onSuccess={() => setIsRenaming(false)}
+                    />
+                </DialogContent>
+            </Dialog>
         </>
+    );
+}
+
+function RenameTeamForm({
+    teamSeason,
+    onSuccess,
+}: {
+    teamSeason: TeamSeasonListItem;
+    onSuccess: () => void;
+}) {
+    return (
+        <Form
+            {...updateName.form(teamSeason.teamId)}
+            options={{ preserveScroll: true }}
+            onSuccess={onSuccess}
+            className="grid gap-4 text-left"
+        >
+            {({ processing, errors }) => (
+                <>
+                    <DialogHeader>
+                        <DialogTitle>
+                            Přejmenovat tým {teamSeason.name}
+                        </DialogTitle>
+                        <DialogDescription>
+                            Nový název se ukáže ve všech sezonách týmu, v
+                            kalendáři i na veřejné stránce.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-2">
+                        <Label htmlFor={`team-${teamSeason.teamId}-name`}>
+                            Název týmu
+                        </Label>
+                        <Input
+                            id={`team-${teamSeason.teamId}-name`}
+                            name="name"
+                            required
+                            autoFocus
+                            autoComplete="off"
+                            defaultValue={teamSeason.name}
+                            aria-invalid={errors.name !== undefined}
+                            aria-describedby={`team-${teamSeason.teamId}-calendar-url`}
+                        />
+                        <InputError message={errors.name} />
+                        <p
+                            id={`team-${teamSeason.teamId}-calendar-url`}
+                            className="text-sm text-muted-foreground"
+                        >
+                            Adresa kalendáře zůstává stejná, takže hráči nemusí
+                            kalendář přidávat znovu:{' '}
+                            <span className="font-mono text-xs break-all text-foreground">
+                                {teamSeason.calendarUrl}
+                            </span>
+                        </p>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">
+                                Zrušit
+                            </Button>
+                        </DialogClose>
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            data-test="update-team-name"
+                        >
+                            {processing && <Spinner />}
+                            Přejmenovat tým
+                        </Button>
+                    </DialogFooter>
+                </>
+            )}
+        </Form>
     );
 }

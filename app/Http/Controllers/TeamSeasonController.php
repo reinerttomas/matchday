@@ -33,7 +33,7 @@ final readonly class TeamSeasonController
             'carryOverTeams' => $season === null ? [] : $carryOverTeamListPresenter->present(Team::query()
                 ->whereDoesntHave('teamSeasons', fn (Builder $teamSeasons): Builder => $teamSeasons->whereBelongsTo($season))
                 ->get()),
-            // The form previews a new team's calendar address while the slug is typed.
+            // The form previews a new team's calendar address, derived from its name, while the name is typed.
             'calendarUrlTemplate' => route('calendar', ['team' => ':slug']),
         ]);
     }

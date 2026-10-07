@@ -15,8 +15,8 @@ use Illuminate\Testing\Constraints\SeeInOrder;
 function kutnaHoraTeamSeasonFactory(): TeamSeasonFactory
 {
     return TeamSeason::factory()
-        ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
-        ->for(Season::factory()->state(['name' => '2026/27']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->state(['name' => '2026/2027']))
         ->state([
             'name' => 'FBC Kutná Hora B',
             'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
@@ -28,9 +28,9 @@ test('tells why an import ended with an error', function () {
 
     $mail = (new ImportFailed($import))->toMail(User::factory()->make());
 
-    expect($mail->subject)->toBe('Import rozpisu selhal: FBC Kutná Hora B 2026/27');
+    expect($mail->subject)->toBe('Import rozpisu selhal: FBC Kutná Hora B 2026/2027');
     $this->assertThat([
-        'FBC Kutná Hora B 2026/27',
+        'FBC Kutná Hora B 2026/2027',
         'skončil chybou. Uložený rozpis zápasů zůstal beze změny.',
         'HTTP 403 – požadavek zablokován',
     ], new SeeInOrder((string) app(Markdown::class)->renderText($mail->markdown, $mail->data())));
@@ -42,18 +42,18 @@ test('tells why an import was aborted', function () {
 
     $mail = (new ImportFailed($import))->toMail(User::factory()->make());
 
-    expect($mail->subject)->toBe('Import rozpisu přerušen: FBC Kutná Hora B 2026/27');
+    expect($mail->subject)->toBe('Import rozpisu přerušen: FBC Kutná Hora B 2026/2027');
     $this->assertThat([
-        'FBC Kutná Hora B 2026/27',
+        'FBC Kutná Hora B 2026/2027',
         'byl přerušen. Uložený rozpis zápasů zůstal beze změny.',
         'Parser vrátil 0 zápasů (minule 24)',
     ], new SeeInOrder((string) app(Markdown::class)->renderText($mail->markdown, $mail->data())));
 });
 
-test('names a team season that was never imported by its team slug', function () {
-    $import = Import::factory()->for(kutnaHoraTeamSeasonFactory()->notImported())->error()->create();
+test('names the team season by its team\'s name rather than the name its import read', function () {
+    $import = Import::factory()->for(kutnaHoraTeamSeasonFactory()->state(['name' => 'Florbal Kutná Hora B']))->error()->create();
 
     $mail = (new ImportFailed($import))->toMail(User::factory()->make());
 
-    expect($mail->subject)->toBe('Import rozpisu selhal: kutna-hora-b 2026/27');
+    expect($mail->subject)->toBe('Import rozpisu selhal: FBC Kutná Hora B 2026/2027');
 });

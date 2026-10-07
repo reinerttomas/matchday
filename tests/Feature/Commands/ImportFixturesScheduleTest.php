@@ -19,7 +19,7 @@ test('imports each team season of the current season with auto import enabled as
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     $otherTeamSeason = TeamSeason::factory()->for($teamSeason->season)->create();
     TeamSeason::factory()->for($teamSeason->season)->autoImportDisabled()->create();
-    TeamSeason::factory()->for(Season::factory()->state(['name' => '2025/26']))->create();
+    TeamSeason::factory()->for(Season::factory()->state(['name' => '2025/2026']))->create();
     Http::fake([$otherTeamSeason->source_url => Http::response(Ceskyflorbal::fixtureListSnapshot())]);
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
 

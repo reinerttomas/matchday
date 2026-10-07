@@ -40,13 +40,13 @@ final class Ceskyflorbal
     ];
 
     /**
-     * FBC Kutná Hora B in 2026/27, whose live fixture list page was saved as the snapshot.
+     * FBC Kutná Hora B in 2026/2027, whose live fixture list page was saved as the snapshot.
      */
     public static function kutnaHoraTeamSeason(): TeamSeason
     {
         return TeamSeason::factory()
-            ->for(Team::factory()->state(['slug' => 'kutna-hora-b']))
-            ->for(Season::factory()->current()->state(['name' => '2026/27']))
+            ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+            ->for(Season::factory()->current()->state(['name' => '2026/2027']))
             ->notImported()
             ->create([
                 'external_id' => 45019,
@@ -55,7 +55,7 @@ final class Ceskyflorbal
     }
 
     /**
-     * The live fixture list page of FBC Kutná Hora B in 2026/27.
+     * The live fixture list page of FBC Kutná Hora B in 2026/2027.
      */
     public static function fixtureListSnapshot(): string
     {
@@ -63,7 +63,7 @@ final class Ceskyflorbal
     }
 
     /**
-     * The live fixture list page of FBC Kutná Hora B in 2026/27 without the row of one fixture, as if the federation removed it.
+     * The live fixture list page of FBC Kutná Hora B in 2026/2027 without the row of one fixture, as if the federation removed it.
      */
     public static function fixtureListSnapshotWithout(int $externalId): string
     {

@@ -130,16 +130,17 @@ final class TeamSeason extends Model
     }
 
     /**
-     * Name the team season by its team's name that season, such as "FBC Kutná Hora B".
+     * Name the team season by its team's name, such as "FBC Kutná Hora B".
+     *
+     * The name the import reads from ceskyflorbal.cz stays on the team season; the app shows the name the administrator gave the team.
      */
     public function displayName(): string
     {
-        // A team season gets its name from its first ok import, so until then the team's slug stands in for it.
-        return $this->name ?? $this->team->slug;
+        return $this->team->name;
     }
 
     /**
-     * Name the team season by its team's name and the season, such as "FBC Kutná Hora B 2026/27".
+     * Name the team season by its team's name and the season, such as "FBC Kutná Hora B 2026/2027".
      */
     public function displayNameWithSeason(): string
     {

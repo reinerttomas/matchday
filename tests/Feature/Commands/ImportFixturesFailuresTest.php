@@ -216,7 +216,7 @@ test('aborts the import without changing data when the page belongs to another s
 
     expect(latestImport())
         ->status->toBe(ImportStatus::Aborted)
-        ->error->toBe('Rozpis na stránce je ze sezony 2025/26, ne 2026/27')
+        ->error->toBe('Rozpis na stránce je ze sezony 2025/2026, ne 2026/2027')
         ->fixtures_found->toBe(24);
     expect(importableData())->toBe($dataBefore)
         ->and(Ceskyflorbal::requestedMatchDetailUrls())->toBe([]);

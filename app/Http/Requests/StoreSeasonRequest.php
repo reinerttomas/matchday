@@ -48,14 +48,14 @@ final class StoreSeasonRequest extends FormRequest
     }
 
     /**
-     * Determine whether the name is a playing year such as 2027/28: a year, a slash and the last two digits of the next year.
+     * Determine whether the name is a playing year such as 2027/2028: a year, a slash and the next year.
      */
     private function isTwoConsecutiveYears(string $name): bool
     {
-        if (preg_match('#^(\d{4})/(\d{2})$#', $name, $matches) !== 1) {
+        if (preg_match('#^(\d{4})/(\d{4})$#', $name, $matches) !== 1) {
             return false;
         }
 
-        return ((int) $matches[1] + 1) % 100 === (int) $matches[2];
+        return (int) $matches[1] + 1 === (int) $matches[2];
     }
 }
