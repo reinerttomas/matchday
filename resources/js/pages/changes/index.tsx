@@ -116,7 +116,7 @@ function RevisingImportCard({
 }) {
     return (
         <Card className="gap-4">
-            <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
+            <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
                 <CardTitle className="tabular-nums">
                     {revisingImport.startedAt}
                 </CardTitle>
@@ -215,7 +215,7 @@ function InitialImportCard({
     return (
         <Collapsible open={isOpen} onOpenChange={setIsOpen} asChild>
             <Card className="gap-4">
-                <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
+                <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-col gap-1.5">
                         <CardTitle>{initialImport.summary}</CardTitle>
                         <CardDescription className="tabular-nums">

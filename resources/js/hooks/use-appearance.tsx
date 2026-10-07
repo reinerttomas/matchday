@@ -1,3 +1,5 @@
+import { ThemeProvider, useTheme } from 'next-themes';
+import type { ReactNode } from 'react';
 import { useSyncExternalStore } from 'react';
 
 export type ResolvedAppearance = 'light' | 'dark';
@@ -9,17 +11,6 @@ export type UseAppearanceReturn = {
     readonly updateAppearance: (mode: Appearance) => void;
 };
 
-const listeners = new Set<() => void>();
-let currentAppearance: Appearance = 'system';
-
-const prefersDark = (): boolean => {
-    if (typeof window === 'undefined') {
-        return false;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-};
-
 const setCookie = (name: string, value: string, days = 365): void => {
     if (typeof document === 'undefined') {
         return;
@@ -29,86 +20,41 @@ const setCookie = (name: string, value: string, days = 365): void => {
     document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
 };
 
-const getStoredAppearance = (): Appearance => {
-    if (typeof window === 'undefined') {
-        return 'system';
-    }
+const subscribeToNothing = () => () => {};
 
-    return (localStorage.getItem('appearance') as Appearance) || 'system';
-};
-
-const isDarkMode = (appearance: Appearance): boolean => {
-    return appearance === 'dark' || (appearance === 'system' && prefersDark());
-};
-
-const applyTheme = (appearance: Appearance): void => {
-    if (typeof document === 'undefined') {
-        return;
-    }
-
-    const isDark = isDarkMode(appearance);
-
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-};
-
-const subscribe = (callback: () => void) => {
-    listeners.add(callback);
-
-    return () => listeners.delete(callback);
-};
-
-const notify = (): void => listeners.forEach((listener) => listener());
-
-const mediaQuery = (): MediaQueryList | null => {
-    if (typeof window === 'undefined') {
-        return null;
-    }
-
-    return window.matchMedia('(prefers-color-scheme: dark)');
-};
-
-const handleSystemThemeChange = (): void => applyTheme(currentAppearance);
-
-export function initializeTheme(): void {
-    if (typeof window === 'undefined') {
-        return;
-    }
-
-    if (!localStorage.getItem('appearance')) {
-        localStorage.setItem('appearance', 'system');
-        setCookie('appearance', 'system');
-    }
-
-    currentAppearance = getStoredAppearance();
-    applyTheme(currentAppearance);
-
-    // Set up system theme change listener
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+/**
+ * Keeps the appearance in next-themes, so the toasts follow it too; it reads the same localStorage key the app always used.
+ */
+export function AppearanceProvider({ children }: { children: ReactNode }) {
+    return (
+        <ThemeProvider attribute="class" storageKey="appearance">
+            {children}
+        </ThemeProvider>
+    );
 }
 
 export function useAppearance(): UseAppearanceReturn {
-    const appearance: Appearance = useSyncExternalStore(
-        subscribe,
-        () => currentAppearance,
-        () => 'system',
+    const { theme, resolvedTheme, setTheme } = useTheme();
+
+    // The server can't read localStorage, so hydration renders the system appearance like the server did.
+    const isHydrated = useSyncExternalStore(
+        subscribeToNothing,
+        () => true,
+        () => false,
     );
 
-    const resolvedAppearance: ResolvedAppearance = isDarkMode(appearance)
-        ? 'dark'
-        : 'light';
+    const appearance: Appearance = isHydrated
+        ? ((theme as Appearance | undefined) ?? 'system')
+        : 'system';
+
+    const resolvedAppearance: ResolvedAppearance =
+        isHydrated && resolvedTheme === 'dark' ? 'dark' : 'light';
 
     const updateAppearance = (mode: Appearance): void => {
-        currentAppearance = mode;
+        setTheme(mode);
 
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', mode);
-
-        // Store in cookie for SSR...
+        // The server renders the `dark` class from this cookie before any script runs.
         setCookie('appearance', mode);
-
-        applyTheme(mode);
-        notify();
     };
 
     return { appearance, resolvedAppearance, updateAppearance } as const;

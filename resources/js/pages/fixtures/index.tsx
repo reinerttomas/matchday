@@ -433,7 +433,7 @@ function RevisedBadge({
                     {badge.label}
                 </Badge>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent className="max-w-sm">
                 <ul className="space-y-0.5">
                     {revisions.map((revision, position) => (
                         <li key={position}>{revision}</li>
