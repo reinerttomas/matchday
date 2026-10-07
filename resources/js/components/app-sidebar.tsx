@@ -28,12 +28,12 @@ import { index as fixtures } from '@/routes/fixtures';
 import { index as imports } from '@/routes/imports';
 import { index as seasons } from '@/routes/seasons';
 import { index as teams } from '@/routes/teams';
+import { index as venues } from '@/routes/venues';
 import type { NavItem, SidebarNavItem } from '@/types';
 
-// Pages without a route yet stay disabled (href null) until their tickets add them.
 const settingsNavItems: SidebarNavItem[] = [
     { title: 'Týmy', href: teams(), icon: Users },
-    { title: 'Haly', href: null, icon: MapPin },
+    { title: 'Haly', href: venues(), icon: MapPin },
     { title: 'Sezony', href: seasons(), icon: CalendarRange },
 ];
 

@@ -179,3 +179,10 @@ export type CarryOverTeam = {
     name: string;
     slug: string;
 };
+
+export type VenueListItem = {
+    id: number;
+    name: string;
+    address: string | null;
+    fixturesCount: number;
+};

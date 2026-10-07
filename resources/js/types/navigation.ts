@@ -13,11 +13,7 @@ export type NavItem = {
     isActive?: boolean;
 };
 
-/**
- * A sidebar link whose page may not exist yet; it stays visible but disabled until its route lands.
- */
-export type SidebarNavItem = Omit<NavItem, 'href'> & {
-    href: NavItem['href'] | null;
+export type SidebarNavItem = NavItem & {
     /** A count shown next to the link; zero shows nothing. */
     badge?: number | null;
 };

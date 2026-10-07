@@ -15,6 +15,7 @@ use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\SentChangeSummaryController;
 use App\Http\Controllers\TeamSeasonController;
+use App\Http\Controllers\VenueController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -42,6 +43,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('teams', [TeamSeasonController::class, 'index'])->name('teams.index');
     Route::post('teams', [TeamSeasonController::class, 'store'])->name('teams.store');
     Route::patch('teams/{teamSeason}', [TeamSeasonController::class, 'update'])->name('teams.update');
+    Route::get('venues', [VenueController::class, 'index'])->name('venues.index');
+    Route::patch('venues/{venue}', [VenueController::class, 'update'])->name('venues.update');
     Route::get('seasons', [SeasonController::class, 'index'])->name('seasons.index');
     Route::post('seasons', [SeasonController::class, 'store'])->name('seasons.store');
     Route::post('seasons/{season}/current', [CurrentSeasonController::class, 'store'])->name('seasons.current.store');

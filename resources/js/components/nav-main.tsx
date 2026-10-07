@@ -25,27 +25,16 @@ export function NavMain({
             <SidebarMenu>
                 {items.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                        {item.href === null ? (
-                            <SidebarMenuButton
-                                disabled
-                                aria-disabled
-                                tooltip={{ children: item.title }}
-                            >
+                        <SidebarMenuButton
+                            asChild
+                            isActive={isCurrentOrParentUrl(item.href)}
+                            tooltip={{ children: item.title }}
+                        >
+                            <Link href={item.href} prefetch>
                                 {item.icon && <item.icon />}
                                 <span>{item.title}</span>
-                            </SidebarMenuButton>
-                        ) : (
-                            <SidebarMenuButton
-                                asChild
-                                isActive={isCurrentOrParentUrl(item.href)}
-                                tooltip={{ children: item.title }}
-                            >
-                                <Link href={item.href} prefetch>
-                                    {item.icon && <item.icon />}
-                                    <span>{item.title}</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        )}
+                            </Link>
+                        </SidebarMenuButton>
                         {!!item.badge && (
                             <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
                         )}
