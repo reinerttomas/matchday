@@ -1,6 +1,7 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
+import { cn } from 'cn';
 import type { ReactNode } from 'react';
-import { DownloadCloud } from 'lucide-react';
+import { CalendarClock, DownloadCloud, Hand, SearchX } from 'lucide-react';
 import Heading from '@/components/heading';
 import { ImportStatusBadge } from '@/components/import-status-badge';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
@@ -20,24 +21,28 @@ import {
     PaginationItem,
     PaginationLink,
 } from '@/components/ui/pagination';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useImportPolling } from '@/hooks/use-import-polling';
+import { index as changes } from '@/routes/changes';
 import { index } from '@/routes/imports';
-import type { ImportHistoryItem, Paginated } from '@/types';
+import type {
+    ImportHistory,
+    ImportHistoryFilter,
+    ImportHistoryItem,
+    Paginated,
+} from '@/types';
 
 type Props = {
-    imports: Paginated<ImportHistoryItem> | null;
+    importHistory: ImportHistory | null;
     isImportRunning: boolean;
 };
 
-export default function Imports({ imports, isImportRunning }: Props) {
+export default function Imports({ importHistory, isImportRunning }: Props) {
     useImportPolling(isImportRunning);
 
     return (
@@ -49,19 +54,16 @@ export default function Imports({ imports, isImportRunning }: Props) {
                         title="Importy"
                         description="Rozpis se stahuje z ceskyflorbal.cz každé 4 hodiny."
                     />
-                    {imports !== null && (
+                    {importHistory !== null && (
                         <SynchronizeButton isImportRunning={isImportRunning} />
                     )}
                 </div>
-                {imports === null ? (
+                {importHistory === null ? (
                     <NoTeamSeasons />
-                ) : imports.data.length === 0 ? (
+                ) : importHistory.allCount === 0 ? (
                     <NoImports />
                 ) : (
-                    <>
-                        <ImportTable imports={imports.data} />
-                        <ImportPagination imports={imports} />
-                    </>
+                    <FilteredImports importHistory={importHistory} />
                 )}
             </div>
         </>
@@ -94,72 +96,177 @@ function NoImports() {
     );
 }
 
-function ImportTable({ imports }: { imports: ImportHistoryItem[] }) {
+function FilteredImports({ importHistory }: { importHistory: ImportHistory }) {
+    const switchTo = (filter: string) => {
+        router.get(
+            index.url(filter === 'all' ? {} : { query: { filter } }),
+            {},
+            { preserveScroll: true },
+        );
+    };
+
+    // Only the selected filter's imports are loaded, so only its panel is rendered.
     return (
-        <div className="rounded-lg border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Začátek</TableHead>
-                        <TableHead>Výsledek</TableHead>
-                        <TableHead className="hidden sm:table-cell">
-                            Trvání
-                        </TableHead>
-                        <TableHead className="text-right">Zápasů</TableHead>
-                        <TableHead className="text-right">Změn</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {imports.map((item) => (
-                        <TableRow key={item.id}>
-                            <TableCell className="align-top">
-                                <div className="font-medium tabular-nums">
-                                    {item.startedAt}
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                    {item.trigger === 'manual' &&
-                                        item.triggerLabel}
-                                    {item.duration !== null && (
-                                        <span className="sm:hidden">
-                                            {item.trigger === 'manual' && ' · '}
-                                            {item.duration}
-                                        </span>
-                                    )}
-                                </div>
-                            </TableCell>
-                            <TableCell className="align-top whitespace-normal">
-                                <ImportStatusBadge
-                                    status={item.status}
-                                    label={item.statusLabel}
-                                />
-                                {item.reason !== null && (
-                                    <p className="mt-1 max-w-xs text-xs break-words text-muted-foreground">
-                                        {item.reason}
-                                    </p>
-                                )}
-                            </TableCell>
-                            <TableCell className="hidden align-top tabular-nums sm:table-cell">
-                                {item.duration ?? '–'}
-                            </TableCell>
-                            <TableCell className="text-right align-top tabular-nums">
-                                {item.fixturesFound ?? '–'}
-                            </TableCell>
-                            <TableCell className="text-right align-top">
-                                {item.revisionsCount > 0 ? (
-                                    <Badge className="tabular-nums">
-                                        {item.revisionsCount}
-                                    </Badge>
-                                ) : (
-                                    <span className="text-muted-foreground tabular-nums">
-                                        0
-                                    </span>
-                                )}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
+        <Tabs
+            value={importHistory.filter}
+            onValueChange={switchTo}
+            className="gap-4"
+        >
+            <TabsList>
+                <FilterTab value="all" count={importHistory.allCount}>
+                    Vše
+                </FilterTab>
+                <FilterTab value="revised" count={importHistory.revisedCount}>
+                    Se změnami
+                </FilterTab>
+                <FilterTab value="failed" count={importHistory.failedCount}>
+                    Selhané
+                </FilterTab>
+            </TabsList>
+            <TabsContent value={importHistory.filter} className="space-y-4">
+                {importHistory.imports.data.length === 0 ? (
+                    <NoFilteredImports filter={importHistory.filter} />
+                ) : (
+                    <ul className="divide-y rounded-lg border">
+                        {importHistory.imports.data.map((item) => (
+                            <ImportRow key={item.id} item={item} />
+                        ))}
+                    </ul>
+                )}
+                <ImportPagination imports={importHistory.imports} />
+            </TabsContent>
+        </Tabs>
+    );
+}
+
+function FilterTab({
+    value,
+    count,
+    children,
+}: {
+    value: ImportHistoryFilter;
+    count: number;
+    children: ReactNode;
+}) {
+    return (
+        <TabsTrigger value={value}>
+            {children}
+            <span className="text-muted-foreground tabular-nums">{count}</span>
+        </TabsTrigger>
+    );
+}
+
+const noFilteredImportsTitles: Record<ImportHistoryFilter, string> = {
+    all: 'Zatím žádné importy',
+    revised: 'Žádné importy se změnami',
+    failed: 'Žádné selhané importy',
+};
+
+function NoFilteredImports({ filter }: { filter: ImportHistoryFilter }) {
+    return (
+        <Empty className="border">
+            <EmptyHeader>
+                <EmptyMedia variant="icon">
+                    <SearchX />
+                </EmptyMedia>
+                <EmptyTitle>{noFilteredImportsTitles[filter]}</EmptyTitle>
+            </EmptyHeader>
+        </Empty>
+    );
+}
+
+/**
+ * One import per line on every screen, tinted like a revised fixture on Rozpis zápasů, so a failed or revising import stands out and a failure reason never makes its row taller than the others.
+ */
+function ImportRow({ item }: { item: ImportHistoryItem }) {
+    return (
+        <li
+            className={cn(
+                'grid grid-cols-[auto_auto_auto_minmax(0,1fr)_auto] items-center gap-x-3 px-3 py-2.5 text-sm',
+                'xl:grid-cols-[6.5rem_3rem_1rem_6rem_minmax(0,1fr)_5.5rem_6rem]',
+                item.status === 'error' && 'bg-rose-50/60 dark:bg-rose-950/30',
+                item.status === 'aborted' &&
+                    'bg-amber-50/60 dark:bg-amber-950/30',
+                item.status === 'ok' &&
+                    item.revisionsCount > 0 &&
+                    'bg-violet-50/60 dark:bg-violet-950/30',
+            )}
+        >
+            {/* The date sits above the time on a phone and gets its own column on a wide screen. */}
+            <div className="flex flex-col text-xs tabular-nums xl:contents xl:text-sm">
+                <span className="text-muted-foreground">{item.startedOn}</span>
+                <span className="font-medium">{item.startedAt}</span>
+            </div>
+            <ImportTriggerIcon trigger={item.trigger} />
+            <div>
+                <ImportStatusBadge
+                    status={item.status}
+                    label={item.statusLabel}
+                />
+            </div>
+            <ImportOutcome item={item} />
+            <span className="hidden text-muted-foreground tabular-nums xl:block">
+                {item.duration ?? '–'}
+            </span>
+            <div className="text-right">
+                {item.revisionsCount > 0 && (
+                    <Badge
+                        asChild
+                        variant="outline"
+                        className="border-violet-600/30 bg-violet-50 text-violet-700 dark:border-violet-400/30 dark:bg-violet-950 dark:text-violet-300"
+                    >
+                        <Link href={changes()}>{item.revisionsLabel}</Link>
+                    </Badge>
+                )}
+            </div>
+        </li>
+    );
+}
+
+function ImportTriggerIcon({
+    trigger,
+}: {
+    trigger: ImportHistoryItem['trigger'];
+}) {
+    const label =
+        trigger === 'manual' ? 'Spuštěno ručně' : 'Automaticky každé 4 hodiny';
+    const Icon = trigger === 'manual' ? Hand : CalendarClock;
+
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <span className="text-muted-foreground">
+                    <Icon className="size-4" aria-label={label} role="img" />
+                </span>
+            </TooltipTrigger>
+            <TooltipContent>{label}</TooltipContent>
+        </Tooltip>
+    );
+}
+
+/**
+ * The reason of a failed import in place of the fixtures found, cut to one line.
+ */
+function ImportOutcome({ item }: { item: ImportHistoryItem }) {
+    if (item.reason === null) {
+        return (
+            <span className="truncate text-muted-foreground tabular-nums">
+                {item.fixturesFoundLabel ?? '–'}
+            </span>
+        );
+    }
+
+    return (
+        <span
+            className={cn(
+                'truncate',
+                item.status === 'error'
+                    ? 'text-rose-700 dark:text-rose-300'
+                    : 'text-amber-800 dark:text-amber-300',
+            )}
+        >
+            {item.reason}
+        </span>
     );
 }
 

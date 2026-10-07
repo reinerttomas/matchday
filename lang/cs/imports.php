@@ -11,11 +11,6 @@ return [
         'aborted' => 'Přerušeno',
     ],
 
-    'triggers' => [
-        'schedule' => 'automaticky',
-        'manual' => 'ručně',
-    ],
-
     'change_summary' => [
         'header' => '📅 Změny v rozpisu :team_season',
         'bullet' => '• :day :home – :away: :revisions',
@@ -117,6 +112,8 @@ return [
 
     'history' => [
         'started_at' => ':date :time',
+        'fixtures_found' => '{1} :count zápas|[2,4] :count zápasy|[0,*] :count zápasů',
+        'revisions' => '{1} :count změna|[2,4] :count změny|[0,*] :count změn',
         'duration' => [
             'seconds' => ':seconds s',
             'minutes' => ':minutes min :seconds s',

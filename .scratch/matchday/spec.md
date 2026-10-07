@@ -117,7 +117,7 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 ### Administrator — imports
 
 78. As the administrator, I want the Importy page to say "Rozpis se stahuje z ceskyflorbal.cz každé 4 hodiny." and offer a "Synchronizovat" button, so that I understand and control the schedule.
-79. As the administrator, I want a paginated list (20 per page) of the selected team season's imports, newest first, with start time ("ručně" for manual ones), result badge (OK / Chyba / Přerušeno / Probíhá) with the reason under error and aborted, duration, fixtures found and revision count (highlighted when non-zero), so that I can investigate problems.
+79. As the administrator, I want a paginated list (20 per page) of the selected team season's imports, newest first, one single-line row per import in the tinted row layout of the fixture list (error rows rose, aborted rows amber, ok rows with revisions violet), each showing the start date and time, a trigger icon (automatic or manual, explained in a tooltip), the result badge (OK / Chyba / Přerušeno / Probíhá), the reason of an error or aborted import cut to one line in place of the fixtures found ("22 zápasů"), the duration (hidden on a phone) and a revision count badge ("3 změny") linking to Změny, plus tabs "Vše", "Se změnami" and "Selhané" with their counts over the whole history that narrow the list on the server, so that I can investigate problems.
 
 ### Administrator — venues
 

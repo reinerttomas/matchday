@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\ImportHistoryFilter;
 use App\Enums\ImportStatus;
 use App\Models\Import;
 use App\Models\TeamSeason;
 use Illuminate\Container\Attributes\Config;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
- * @phpstan-type ImportProps array{id: int, startedAt: string, trigger: string, triggerLabel: string, status: string, statusLabel: string, reason: string|null, duration: string|null, fixturesFound: int|null, revisionsCount: int}
+ * @phpstan-type ImportProps array{id: int, startedOn: string, startedAt: string, trigger: string, status: string, statusLabel: string, reason: string|null, duration: string|null, fixturesFoundLabel: string|null, revisionsCount: int, revisionsLabel: string}
+ * @phpstan-type ImportHistoryProps array{filter: string, allCount: int, revisedCount: int, failedCount: int, imports: LengthAwarePaginator<int, ImportProps>}
  */
 final readonly class ImportHistoryPresenter
 {
@@ -29,18 +32,40 @@ final readonly class ImportHistoryPresenter
     ) {}
 
     /**
-     * List the team season's imports for the Importy page, newest first, so the administrator can see when the fixture list was downloaded and investigate problems.
+     * List the team season's imports for the Importy page, newest first and narrowed by the filter, so the administrator can see when the fixture list was downloaded and investigate problems; each filter's tab counts its imports over the whole history.
      *
-     * @return LengthAwarePaginator<int, ImportProps>
+     * @return ImportHistoryProps
      */
-    public function present(TeamSeason $teamSeason): LengthAwarePaginator
+    public function present(TeamSeason $teamSeason, ImportHistoryFilter $filter): array
     {
-        return $teamSeason->imports()
-            ->withCount('revisions')
-            ->latest('started_at')
-            ->latest('id')
-            ->paginate(self::PER_PAGE)
-            ->through(fn (Import $import): array => $this->import($import));
+        return [
+            'filter' => $filter->value,
+            'allCount' => $this->filtered($teamSeason->imports(), ImportHistoryFilter::All)->count(),
+            'revisedCount' => $this->filtered($teamSeason->imports(), ImportHistoryFilter::Revised)->count(),
+            'failedCount' => $this->filtered($teamSeason->imports(), ImportHistoryFilter::Failed)->count(),
+            'imports' => $this->filtered($teamSeason->imports(), $filter)
+                ->withCount('revisions')
+                ->latest('started_at')
+                ->latest('id')
+                ->paginate(self::PER_PAGE)
+                ->appends($filter === ImportHistoryFilter::All ? [] : ['filter' => $filter->value])
+                ->through(fn (Import $import): array => $this->import($import)),
+        ];
+    }
+
+    /**
+     * Narrow the imports to the ones the filter lists.
+     *
+     * @param  HasMany<Import, TeamSeason>  $imports
+     * @return HasMany<Import, TeamSeason>
+     */
+    private function filtered(HasMany $imports, ImportHistoryFilter $filter): HasMany
+    {
+        return match ($filter) {
+            ImportHistoryFilter::All => $imports,
+            ImportHistoryFilter::Revised => $imports->has('revisions'),
+            ImportHistoryFilter::Failed => $imports->whereIn('status', [ImportStatus::Error, ImportStatus::Aborted]),
+        };
     }
 
     /**
@@ -51,18 +76,20 @@ final readonly class ImportHistoryPresenter
     private function import(Import $import): array
     {
         $startedAt = $import->started_at->toImmutable()->setTimezone($this->timezone);
+        $revisionsCount = (int) $import->getAttribute('revisions_count');
 
         return [
             'id' => $import->id,
-            'startedAt' => __('imports.history.started_at', ['date' => $startedAt->format('j. n. Y'), 'time' => $startedAt->format('H:i')]),
+            'startedOn' => $startedAt->format('j. n. Y'),
+            'startedAt' => $startedAt->format('H:i'),
             'trigger' => $import->trigger->value,
-            'triggerLabel' => $import->trigger->label(),
             'status' => $import->status->value,
             'statusLabel' => $import->status->label(),
             'reason' => in_array($import->status, [ImportStatus::Error, ImportStatus::Aborted], true) ? $import->error : null,
             'duration' => $this->duration($import),
-            'fixturesFound' => $import->fixtures_found,
-            'revisionsCount' => (int) $import->getAttribute('revisions_count'),
+            'fixturesFoundLabel' => $import->fixtures_found === null ? null : trans_choice('imports.history.fixtures_found', $import->fixtures_found),
+            'revisionsCount' => $revisionsCount,
+            'revisionsLabel' => trans_choice('imports.history.revisions', $revisionsCount),
         ];
     }
 

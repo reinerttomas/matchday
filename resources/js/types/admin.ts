@@ -25,15 +25,26 @@ export type ImportTrigger = 'schedule' | 'manual';
 
 export type ImportHistoryItem = {
     id: number;
+    startedOn: string;
     startedAt: string;
     trigger: ImportTrigger;
-    triggerLabel: string;
     status: ImportStatus;
     statusLabel: string;
     reason: string | null;
     duration: string | null;
-    fixturesFound: number | null;
+    fixturesFoundLabel: string | null;
     revisionsCount: number;
+    revisionsLabel: string;
+};
+
+export type ImportHistoryFilter = 'all' | 'revised' | 'failed';
+
+export type ImportHistory = {
+    filter: ImportHistoryFilter;
+    allCount: number;
+    revisedCount: number;
+    failedCount: number;
+    imports: Paginated<ImportHistoryItem>;
 };
 
 export type PaginationLink = {
