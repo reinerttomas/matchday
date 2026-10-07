@@ -7,10 +7,12 @@ use App\Http\Controllers\Auth\GoogleCallbackController;
 use App\Http\Controllers\Auth\GoogleRedirectController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ChangeSummaryController;
+use App\Http\Controllers\CurrentSeasonController;
 use App\Http\Controllers\FixtureController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PublicTeamPageController;
 use App\Http\Controllers\RevisionController;
+use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\SentChangeSummaryController;
 use App\Http\Controllers\TeamSeasonController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +41,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
     Route::get('teams', [TeamSeasonController::class, 'index'])->name('teams.index');
     Route::patch('teams/{teamSeason}', [TeamSeasonController::class, 'update'])->name('teams.update');
+    Route::get('seasons', [SeasonController::class, 'index'])->name('seasons.index');
+    Route::post('seasons', [SeasonController::class, 'store'])->name('seasons.store');
+    Route::post('seasons/{season}/current', [CurrentSeasonController::class, 'store'])->name('seasons.current.store');
 });
 
 require __DIR__.'/settings.php';

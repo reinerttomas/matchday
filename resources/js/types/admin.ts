@@ -166,3 +166,10 @@ export type TeamSeasonListItem = {
     publicPageUrl: string;
     sourceUrl: string;
 };
+
+export type SeasonListItem = {
+    id: number;
+    name: string;
+    isCurrent: boolean;
+    teamSeasonsCount: number;
+};

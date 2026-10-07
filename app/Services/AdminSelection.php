@@ -78,6 +78,18 @@ final readonly class AdminSelection
     }
 
     /**
+     * Remember the season and team season shown now, so the selection stays put when another season becomes current or a newer one is created.
+     */
+    public function keep(): void
+    {
+        $season = $this->season();
+
+        if ($season !== null) {
+            $this->select($season, $this->teamSeason());
+        }
+    }
+
+    /**
      * Describe the selection and the seasons and team seasons the switcher offers, for every admin page.
      *
      * @return SelectionProps
