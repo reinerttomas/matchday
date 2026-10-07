@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\RevisionField;
+use App\Enums\RevisionHistoryFilter;
 use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Revision;
@@ -21,9 +22,9 @@ use Illuminate\Support\Collection;
  *
  * @phpstan-type RevisedFixtureProps array{id: int, day: string, matchup: list<MatchupPart>, revisions: list<list<RevisionPart>>}
  * @phpstan-type AddedFixtureProps array{id: int, day: string, matchup: list<MatchupPart>}
- * @phpstan-type RevisingImportProps array{id: int, startedAt: string, notified: string|null, fixtures: list<RevisedFixtureProps>}
- * @phpstan-type InitialImportProps array{id: int, startedAt: string, summary: string, fixtures: list<AddedFixtureProps>}
- * @phpstan-type RevisionHistoryProps array{imports: list<RevisingImportProps>, initialImport: InitialImportProps|null}
+ * @phpstan-type RevisingImportProps array{id: int, startedOn: string, startedAt: string, revisionsLabel: string, notified: string|null, fixtures: list<RevisedFixtureProps>}
+ * @phpstan-type InitialImportProps array{id: int, startedOn: string, startedAt: string, summary: string, fixtures: list<AddedFixtureProps>}
+ * @phpstan-type RevisionHistoryProps array{filter: string, unsentCount: int, allCount: int, imports: list<RevisingImportProps>, initialImport: InitialImportProps|null}
  */
 final readonly class RevisionHistoryPresenter
 {
@@ -37,13 +38,13 @@ final readonly class RevisionHistoryPresenter
     ) {}
 
     /**
-     * Describe what changed in the team season's fixture list and when, one entry per import that recorded revisions, newest first, and whether the team has been told about it; the initial import comes separately, as it is never announced.
+     * Describe what changed in the team season's fixture list and when, one entry per import that recorded revisions, newest first, and whether the team has been told about it, narrowed by the filter; without one, the page opens on the imports still to send, or on every import when there is nothing to send. A fixture list that never changed has nothing to narrow, so it ignores the filter, such as one kept in the address after switching team seasons. The list of every import also gets the initial import, separately, as it is never announced.
      *
-     * Every revision of the team season is shown, so all fixtures are loaded with all their revisions at once and grouped by import in memory.
+     * Every revision of the team season is shown, so all fixtures are loaded with all their revisions at once and grouped by import in memory, and the revising imports are counted and filtered in memory too.
      *
      * @return RevisionHistoryProps
      */
-    public function present(TeamSeason $teamSeason): array
+    public function present(TeamSeason $teamSeason, ?RevisionHistoryFilter $filter): array
     {
         $fixtures = $teamSeason->fixtures()
             ->chaperone()
@@ -51,15 +52,26 @@ final readonly class RevisionHistoryPresenter
             ->get()
             ->keyBy('id');
         $revisionsByImport = $fixtures->flatMap(fn (Fixture $fixture): Collection => $fixture->revisions)->groupBy('import_id');
-        $initialImport = $teamSeason->initialImport;
 
         $revisingImports = $teamSeason->revisingImports()
             ->latest('started_at')
             ->latest('id')
             ->get();
+        $unsentImports = $revisingImports->whereNull('notified_at');
+
+        $filter = match (true) {
+            $revisingImports->isEmpty() => RevisionHistoryFilter::All,
+            $filter !== null => $filter,
+            $unsentImports->isEmpty() => RevisionHistoryFilter::All,
+            default => RevisionHistoryFilter::Unsent,
+        };
+        $initialImport = $filter === RevisionHistoryFilter::All ? $teamSeason->initialImport : null;
 
         return [
-            'imports' => array_values($revisingImports
+            'filter' => $filter->value,
+            'unsentCount' => $unsentImports->count(),
+            'allCount' => $revisingImports->count(),
+            'imports' => array_values(($filter === RevisionHistoryFilter::Unsent ? $unsentImports : $revisingImports)
                 ->map(fn (Import $import): array => $this->revisingImport($import, $revisionsByImport->get($import->id, new Collection), $fixtures))
                 ->all()),
             'initialImport' => $initialImport === null ? null : $this->initialImport($initialImport, $fixtures),
@@ -67,7 +79,7 @@ final readonly class RevisionHistoryPresenter
     }
 
     /**
-     * Describe an import that recorded revisions by the fixtures it revised, and whether the team has been told about it.
+     * Describe an import that recorded revisions by how many it recorded and the fixtures it revised, and whether the team has been told about it.
      *
      * @param  Collection<int, Revision>  $revisions
      * @param  Collection<int, Fixture>  $fixtures  keyed by ID
@@ -79,7 +91,8 @@ final readonly class RevisionHistoryPresenter
 
         return [
             'id' => $import->id,
-            'startedAt' => $this->startedAt($import),
+            ...$this->startedOnAndAt($import),
+            'revisionsLabel' => trans_choice('imports.history.revisions', $revisions->count()),
             'notified' => $this->notified($import),
             'fixtures' => array_values(array_map(
                 fn (array $fixture): array => [
@@ -119,7 +132,7 @@ final readonly class RevisionHistoryPresenter
 
         return [
             'id' => $import->id,
-            'startedAt' => $this->startedAt($import),
+            ...$this->startedOnAndAt($import),
             'summary' => trans_choice('imports.changes.initial_import', $count, ['count' => $count]),
             'fixtures' => array_values($this->inOrderAfter($import, $initialFixtures)->all()),
         ];
@@ -152,11 +165,15 @@ final readonly class RevisionHistoryPresenter
     }
 
     /**
-     * Name the import by when it started, the way the Importy page does, such as "6. 10. 2026 08:00".
+     * Tell when the import started apart as its date and time, the way the Importy page does, such as "6. 10. 2026" and "08:00".
+     *
+     * @return array{startedOn: string, startedAt: string}
      */
-    private function startedAt(Import $import): string
+    private function startedOnAndAt(Import $import): array
     {
-        return __('imports.history.started_at', $this->dateAndTime($import->started_at));
+        ['date' => $date, 'time' => $time] = $this->dateAndTime($import->started_at);
+
+        return ['startedOn' => $date, 'startedAt' => $time];
     }
 
     /**

@@ -138,19 +138,27 @@ export type RevisedFixture = AddedFixture & {
 
 export type RevisingImport = {
     id: number;
+    startedOn: string;
     startedAt: string;
+    revisionsLabel: string;
     notified: string | null;
     fixtures: RevisedFixture[];
 };
 
 export type InitialImport = {
     id: number;
+    startedOn: string;
     startedAt: string;
     summary: string;
     fixtures: AddedFixture[];
 };
 
+export type RevisionHistoryFilter = 'unsent' | 'all';
+
 export type RevisionHistory = {
+    filter: RevisionHistoryFilter;
+    unsentCount: number;
+    allCount: number;
     imports: RevisingImport[];
     initialImport: InitialImport | null;
 };

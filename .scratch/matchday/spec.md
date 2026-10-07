@@ -103,16 +103,16 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 
 ### Administrator — changes
 
-68. As the administrator, I want a list of the imports that produced revisions, newest first, so that I can see what changed and when.
-69. As the administrator, I want each import to show its revised fixtures (date, "Home – Away") with each revision as "Čas: ~~TBD~~ → 9:00", so that I can read the change at a glance.
+68. As the administrator, I want one bordered list of the imports that produced revisions, newest first, in the row layout of the fixture list, each starting with a muted header row (start date and time, a violet revision count badge such as "3 změny"), plus tabs "K odeslání" (imports not yet sent to the team) and "Vše" with their counts that narrow the list on the server, opening on "K odeslání" when there is something to send and on "Vše" otherwise, so that I can see what changed and when, and what is left to send.
+69. As the administrator, I want each import to show one row per revised fixture (day, "Home – Away" with our team bold, and its revisions side by side such as "Čas: ~~TBD~~ → 9:00", wrapped below in smaller text on a phone), tinted violet until the team has been told, so that I can read the change at a glance and see what still has to go to the team.
 70. As the administrator, I want fixtures that appeared after the initial import listed as new fixtures, so that additions such as play-off games get announced.
-71. As the administrator, I want the initial import shown last as one collapsed entry ("24 zápasů přidáno do rozpisu") that can be expanded, so that it doesn't flood the list and isn't announced.
-72. As the administrator, I want each import with revisions to show either a "Poslat do WhatsAppu" button or "Odesláno týmu {when}", so that I know whether the team has been told.
+71. As the administrator, I want the initial import shown on "Vše" as the last, collapsed header row ("20. 9. 2026 10:00 · 24 zápasů přidáno do rozpisu · První import, týmu se neoznamuje") that expands into its fixtures (day, sides), so that it doesn't flood the list and isn't announced.
+72. As the administrator, I want each import's header row to end with either a "Poslat do WhatsAppu" button or an "Odesláno týmu {when}" badge (shortened to "Poslat" and "Odesláno" on a phone), so that I know whether the team has been told.
 73. As the administrator, I want a "Souhrn změn pro WhatsApp" dialog with editable text, so that I can tweak the message before sending.
 74. As the administrator, I want a "Kopírovat text" button, so that I can paste the summary elsewhere.
 75. As the administrator, I want "Otevřít WhatsApp" to open WhatsApp with the (edited) message prefilled, so that I only pick the group and press send.
 76. As the administrator, I want "Označit jako odesláno" to appear after I opened WhatsApp, and marking it to remove the import from the sidebar count, so that the count reflects what is left to send.
-77. As the administrator, I want "Rozpis se od importu nezměnil" when there are no revisions, so that an empty page is explained.
+77. As the administrator, I want "Rozpis se od importu nezměnil" when there are no revisions, and "Vše je odesláno" on "K odeslání" when the team knows about every change, so that an empty page is explained.
 
 ### Administrator — imports
 

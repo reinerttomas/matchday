@@ -85,7 +85,10 @@ export function ChangeSummaryDialog({ importId }: { importId: number }) {
             <DialogTrigger asChild>
                 <Button size="sm" data-test="send-change-summary">
                     <Send />
-                    Poslat do WhatsAppu
+                    <span className="sm:hidden">Poslat</span>
+                    <span className="hidden sm:inline">
+                        Poslat do WhatsAppu
+                    </span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-xl">

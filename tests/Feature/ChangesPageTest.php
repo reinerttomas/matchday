@@ -67,7 +67,9 @@ test('describes an import by its start time in Prague and each revised fixture b
 
     expect($imports)->toBe([[
         'id' => $import->id,
-        'startedAt' => '5. 10. 2026 08:00',
+        'startedOn' => '5. 10. 2026',
+        'startedAt' => '08:00',
+        'revisionsLabel' => '1 změna',
         'notified' => null,
         'fixtures' => [[
             'id' => $fixture->id,
@@ -151,11 +153,12 @@ test('shows the initial import as the number of fixtures it added and those fixt
     $earlier = Fixture::factory()->for($teamSeason)->create(['date' => '2026-10-11']);
     Revision::factory()->for(Import::factory()->for($teamSeason)->state(['started_at' => '2026-10-03 06:00:00']))->fixtureAdded()->create();
 
-    $initialImportProps = $this->get('/changes')->inertiaProps('revisionHistory.initialImport');
+    $initialImportProps = $this->get('/changes?filter=all')->inertiaProps('revisionHistory.initialImport');
 
     expect($initialImportProps)->toMatchArray([
         'id' => $initialImport->id,
-        'startedAt' => '1. 10. 2026 08:00',
+        'startedOn' => '1. 10. 2026',
+        'startedAt' => '08:00',
         'summary' => '24 zápasů přidáno do rozpisu',
     ]);
     expect($initialImportProps['fixtures'])->toHaveCount(2)
@@ -184,6 +187,96 @@ test('counts the fixtures the initial import added in Czech plural forms', funct
     [24, '24 zápasů přidáno do rozpisu'],
 ]);
 
+test('counts an import\'s revisions in Czech plural forms', function (int $revisions, string $label) {
+    Revision::factory()->count($revisions)->for(Import::factory()->for(initiallyImportedTeamSeason()))->create();
+
+    $this->get('/changes')->assertInertia(fn (Assert $page) => $page
+        ->where('revisionHistory.imports.0.revisionsLabel', $label)
+        ->etc());
+})->with([
+    [1, '1 změna'],
+    [3, '3 změny'],
+    [5, '5 změn'],
+]);
+
+/**
+ * Imports of the team season that recorded revisions, an older one already sent to the team and a newer one waiting to be sent.
+ *
+ * @return array{sent: Import, unsent: Import}
+ */
+function sentAndUnsentImports(TeamSeason $teamSeason): array
+{
+    $imports = [
+        'sent' => Import::factory()->for($teamSeason)->notified()->create(['started_at' => '2026-10-04 06:00:00']),
+        'unsent' => Import::factory()->for($teamSeason)->create(['started_at' => '2026-10-05 06:00:00']),
+    ];
+    Revision::factory()->for($imports['sent'])->create();
+    Revision::factory()->for($imports['unsent'])->create();
+
+    return $imports;
+}
+
+test('narrows the imports to the ones to send or lists every one with the initial import last, counting both tabs', function (string $filter, array $kinds, bool $hasInitialImport) {
+    $teamSeason = initiallyImportedTeamSeason();
+    $imports = sentAndUnsentImports($teamSeason);
+
+    $response = $this->get("/changes?filter={$filter}");
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('revisionHistory.filter', $filter)
+        ->where('revisionHistory.unsentCount', 1)
+        ->where('revisionHistory.allCount', 2)
+        ->etc());
+    expect(array_column($response->inertiaProps('revisionHistory.imports'), 'id'))
+        ->toBe(array_map(fn (string $kind): int => $imports[$kind]->id, $kinds))
+        ->and($response->inertiaProps('revisionHistory.initialImport.id'))->toBe($hasInitialImport ? $teamSeason->initialImport->id : null);
+})->with([
+    'to send' => ['unsent', ['unsent'], false],
+    'all' => ['all', ['unsent', 'sent'], true],
+]);
+
+test('opens on the imports to send when there is something to send, also for an unknown filter', function (string $query) {
+    sentAndUnsentImports(initiallyImportedTeamSeason());
+
+    $this->get("/changes{$query}")->assertInertia(fn (Assert $page) => $page
+        ->where('revisionHistory.filter', 'unsent')
+        ->has('revisionHistory.imports', 1)
+        ->where('revisionHistory.initialImport', null)
+        ->etc());
+})->with([
+    'no filter' => [''],
+    'unknown value' => ['?filter=unknown'],
+    'list of values' => ['?filter[]=all'],
+]);
+
+test('opens on every import when everything has been sent, also for an unknown filter', function (string $query) {
+    $teamSeason = initiallyImportedTeamSeason();
+    Revision::factory()->for(Import::factory()->for($teamSeason)->notified())->create();
+
+    $this->get("/changes{$query}")->assertInertia(fn (Assert $page) => $page
+        ->where('revisionHistory.filter', 'all')
+        ->where('revisionHistory.unsentCount', 0)
+        ->where('revisionHistory.allCount', 1)
+        ->has('revisionHistory.imports', 1)
+        ->where('revisionHistory.initialImport.id', $teamSeason->initialImport->id)
+        ->etc());
+})->with([
+    'no filter' => [''],
+    'unknown value' => ['?filter=unknown'],
+]);
+
+test('lists nothing to send once every import has been sent', function () {
+    Revision::factory()->for(Import::factory()->for(initiallyImportedTeamSeason())->notified())->create();
+
+    $this->get('/changes?filter=unsent')->assertInertia(fn (Assert $page) => $page
+        ->where('revisionHistory.filter', 'unsent')
+        ->where('revisionHistory.unsentCount', 0)
+        ->where('revisionHistory.allCount', 1)
+        ->where('revisionHistory.imports', [])
+        ->where('revisionHistory.initialImport', null)
+        ->etc());
+});
+
 test('tells when the team was sent an import\'s change summary', function () {
     $teamSeason = initiallyImportedTeamSeason();
     $sent = Import::factory()->for($teamSeason)->create(['started_at' => '2026-10-05 06:00:00', 'notified_at' => '2026-10-05 06:15:00']);
@@ -191,7 +284,7 @@ test('tells when the team was sent an import\'s change summary', function () {
     Revision::factory()->for($sent)->create();
     Revision::factory()->for($unsent)->create();
 
-    $imports = $this->get('/changes')->inertiaProps('revisionHistory.imports');
+    $imports = $this->get('/changes?filter=all')->inertiaProps('revisionHistory.imports');
 
     expect(array_column($imports, 'notified', 'id'))->toBe([
         $sent->id => 'Odesláno týmu 5. 10. 2026 v 08:15',
@@ -233,23 +326,30 @@ test('shares no unsent change summaries when every import was sent or the season
     'no team seasons' => [false],
 ]);
 
-test('lists no imports when the fixture list has not changed since the initial import', function () {
+test('lists no imports when the fixture list has not changed since the initial import, whichever filter is asked for', function (string $query) {
     initiallyImportedTeamSeason();
 
-    $this->get('/changes')->assertInertia(fn (Assert $page) => $page
+    $this->get("/changes{$query}")->assertInertia(fn (Assert $page) => $page
+        ->where('revisionHistory.filter', 'all')
         ->where('revisionHistory.imports', [])
         ->where('revisionHistory.initialImport.summary', '24 zápasů přidáno do rozpisu')
         ->etc());
-});
+})->with([
+    'no filter' => [''],
+    'to send' => ['?filter=unsent'],
+]);
 
-test('shows no initial import while the team season has never been imported', function () {
+test('shows no initial import while the team season has never been imported, whichever filter is asked for', function (string $query) {
     $teamSeason = TeamSeason::factory()->for(Season::factory()->current())->notImported()->create();
     Import::factory()->for($teamSeason)->error()->create();
 
-    $this->get('/changes')->assertInertia(fn (Assert $page) => $page
-        ->where('revisionHistory', ['imports' => [], 'initialImport' => null])
+    $this->get("/changes{$query}")->assertInertia(fn (Assert $page) => $page
+        ->where('revisionHistory', ['filter' => 'all', 'unsentCount' => 0, 'allCount' => 0, 'imports' => [], 'initialImport' => null])
         ->etc());
-});
+})->with([
+    'no filter' => [''],
+    'to send' => ['?filter=unsent'],
+]);
 
 test('loads revisions without a query per import or fixture', function () {
     $teamSeason = initiallyImportedTeamSeason();

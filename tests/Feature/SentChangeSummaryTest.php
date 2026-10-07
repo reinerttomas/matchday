@@ -49,10 +49,21 @@ test('marks an import\'s change summary as sent and returns to the page with one
     $response->assertRedirect('/changes')
         ->assertInertiaFlash('toast.message', 'Souhrn změn je označený jako odeslaný.');
     expect($import->fresh()->notified_at->toDateTimeString())->toBe('2026-10-06 12:00:00');
-    $this->get('/changes')->assertInertia(fn (Assert $page) => $page
+    $this->get('/changes?filter=all')->assertInertia(fn (Assert $page) => $page
         ->where('unsentChangeSummaryCount', 1)
         ->where('revisionHistory.imports.0.notified', 'Odesláno týmu 6. 10. 2026 v 14:00')
         ->etc());
+});
+
+test('returns to the imports to send without the one just marked as sent', function () {
+    $teamSeason = teamSeasonToMarkSummariesOf();
+    $import = importToAnnounce($teamSeason);
+    $otherImport = Import::factory()->for($teamSeason)->create(['started_at' => '2026-10-04 06:00:00']);
+    Revision::factory()->for($otherImport)->create();
+
+    $this->from('/changes?filter=unsent')->post("/changes/{$import->id}/sent")->assertRedirect('/changes?filter=unsent');
+
+    expect(array_column($this->get('/changes?filter=unsent')->inertiaProps('revisionHistory.imports'), 'id'))->toBe([$otherImport->id]);
 });
 
 test('keeps when the team was told about an import already marked as sent', function () {
