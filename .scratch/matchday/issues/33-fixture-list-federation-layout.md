@@ -4,20 +4,20 @@
 
 **Blocked by:** —
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Fixtures are one chronological list, no longer grouped by month; the month headings and their translation go away.
-- [ ] On a wide screen each row shows, in this order: day and date ("NE 4. 10."); the round ("4. kolo", empty when the round is unknown); the home team right-aligned; in the middle the score of a finished fixture (emphasized), otherwise the time or a TBD badge; the away team; the venue ("–" when unknown); and the badges. Our team is bold on whichever side it plays.
-- [ ] The score shows only in the middle column; the result badge ("Výhra", "Prohra", "Remíza") stays among the badges without repeating the score.
-- [ ] A cancelled fixture has both team names struck through.
-- [ ] A fixture revised in the last 7 days keeps its "Změněno" badge, gets a subtly highlighted row, and lists its revisions as old → new values under the row, on every screen size. The tooltip goes away.
-- [ ] On a phone each row stacks: "NE 4. 10. · 4. kolo" on top, then home | score or time | away on one line, then the venue, the badges and the revisions.
-- [ ] Next to the existing Nadcházející / Celá sezona tabs, an outline button "Otevřít na ceskyflorbal.cz" with an external-link icon opens the team season's fixture list address (`team_seasons.source_url`) in a new tab.
-- [ ] The presenter returns a flat `fixtures` list instead of `months`, each fixture with `round`, `isHome`, `homeTeam` and `awayTeam` in place of `matchup`, and the fixture list carries `sourceUrl`. Everything else (period, counts, badges, revisions, freshness, failure warning, empty states, Synchronizovat) behaves as today.
-- [ ] Spec user stories 59, 61 and 67 (`.scratch/matchday/spec.md`) are updated to the new layout.
-- [ ] UI is built from shadcn components (Badge, Button, Tabs, …); the layout is a CSS grid of rows rather than a Table, so the mobile and wide layouts are one markup.
-- [ ] Feature tests cover the new props: flat chronological order, round (known and unknown), home and away sides with our team, `sourceUrl`, and that month grouping is gone. Existing badge, revision-window, warning and empty-state tests keep passing, adjusted to the flat list.
-- [ ] `composer ci:check` passes.
+- [x] Fixtures are one chronological list, no longer grouped by month; the month headings and their translation go away.
+- [x] On a wide screen each row shows, in this order: day and date ("NE 4. 10."); the round ("4. kolo", empty when the round is unknown); the home team right-aligned; in the middle the score of a finished fixture (emphasized), otherwise the time or a TBD badge; the away team; the venue ("–" when unknown); and the badges. Our team is bold on whichever side it plays.
+- [x] The score shows only in the middle column; the result badge ("Výhra", "Prohra", "Remíza") stays among the badges without repeating the score.
+- [x] A cancelled fixture has both team names struck through.
+- [x] A fixture revised in the last 7 days keeps its "Změněno" badge, gets a subtly highlighted row, and lists its revisions as old → new values under the row, on every screen size. The tooltip goes away.
+- [x] On a phone each row stacks: "NE 4. 10. · 4. kolo" on top, then home | score or time | away on one line, then the venue, the badges and the revisions.
+- [x] Next to the existing Nadcházející / Celá sezona tabs, an outline button "Otevřít na ceskyflorbal.cz" with an external-link icon opens the team season's fixture list address (`team_seasons.source_url`) in a new tab.
+- [x] The presenter returns a flat `fixtures` list instead of `months`, each fixture with `round`, `isHome`, `homeTeam` and `awayTeam` in place of `matchup`, and the fixture list carries `sourceUrl`. Everything else (period, counts, badges, revisions, freshness, failure warning, empty states, Synchronizovat) behaves as today.
+- [x] Spec user stories 59, 61 and 67 (`.scratch/matchday/spec.md`) are updated to the new layout.
+- [x] UI is built from shadcn components (Badge, Button, Tabs, …); the layout is a CSS grid of rows rather than a Table, so the mobile and wide layouts are one markup.
+- [x] Feature tests cover the new props: flat chronological order, round (known and unknown), home and away sides with our team, `sourceUrl`, and that month grouping is gone. Existing badge, revision-window, warning and empty-state tests keep passing, adjusted to the flat list.
+- [x] `composer ci:check` passes.
 
 ## Notes
 

@@ -75,19 +75,16 @@ export type FixtureBadge = {
 export type FixtureListItem = {
     id: number;
     day: string;
+    round: string | null;
     time: string | null;
-    matchup: MatchupPart[];
+    isHome: boolean;
+    homeTeam: string;
+    awayTeam: string;
     venue: string | null;
     status: FixtureStatus;
     badges: FixtureBadge[];
     score: string | null;
     revisions: string[];
-};
-
-export type FixtureListMonth = {
-    month: string;
-    heading: string;
-    fixtures: FixtureListItem[];
 };
 
 export type ImportFailure = {
@@ -96,13 +93,14 @@ export type ImportFailure = {
 };
 
 export type FixtureList = {
+    sourceUrl: string;
     period: FixtureListPeriod;
     upcomingCount: number;
     seasonCount: number;
     isImported: boolean;
     lastImportFinished: string | null;
     lastImportFailure: ImportFailure | null;
-    months: FixtureListMonth[];
+    fixtures: FixtureListItem[];
 };
 
 export type RevisionPartKind =

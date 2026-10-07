@@ -34,15 +34,13 @@ function importedTeamSeason(): TeamSeason
 }
 
 /**
- * Get the fixtures the page lists, in their order across the month groups.
+ * Get the fixtures the page lists, in their order.
  *
  * @return list<array<string, mixed>>
  */
 function listedFixtures(string $url = '/fixtures'): array
 {
-    $months = test()->get($url)->inertiaProps('fixtureList.months');
-
-    return array_merge(...array_column($months, 'fixtures'));
+    return test()->get($url)->inertiaProps('fixtureList.fixtures');
 }
 
 test('lists only the upcoming fixtures of the selected team season by default, counting both views', function () {
@@ -82,36 +80,43 @@ test('lists the whole season in date and time order, with a TBD time last on its
     expect(array_column(listedFixtures('/fixtures?period=season'), 'id'))->toBe([$past->id, $morning->id, $evening->id, $tbd->id]);
 });
 
-test('groups fixtures by month under headings with the year', function () {
+test('lists fixtures of different months as one list, without month headings', function () {
     $teamSeason = importedTeamSeason();
-    Fixture::factory()->for($teamSeason)->finished()->create(['date' => '2026-09-27']);
-    Fixture::factory()->for($teamSeason)->create(['date' => '2026-10-11']);
-    Fixture::factory()->for($teamSeason)->create(['date' => '2026-10-25']);
-    Fixture::factory()->for($teamSeason)->create(['date' => '2027-01-10']);
+    $september = Fixture::factory()->for($teamSeason)->finished()->create(['date' => '2026-09-27']);
+    $october = Fixture::factory()->for($teamSeason)->create(['date' => '2026-10-11']);
+    $january = Fixture::factory()->for($teamSeason)->create(['date' => '2027-01-10']);
 
-    $months = $this->get('/fixtures?period=season')->inertiaProps('fixtureList.months');
+    $response = $this->get('/fixtures?period=season');
 
-    expect(array_map(fn (array $month): array => [$month['month'], $month['heading'], count($month['fixtures'])], $months))->toBe([
-        ['2026-09', 'Září 2026', 1],
-        ['2026-10', 'Říjen 2026', 2],
-        ['2027-01', 'Leden 2027', 1],
-    ]);
+    $response->assertInertia(fn (Assert $page) => $page
+        ->missing('fixtureList.months')
+        ->etc());
+    expect(array_column($response->inertiaProps('fixtureList.fixtures'), 'id'))->toBe([$september->id, $october->id, $january->id]);
+});
+
+test('links the team season\'s fixture list on ceskyflorbal.cz', function () {
+    $teamSeason = importedTeamSeason();
+
+    $response = $this->get('/fixtures');
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('fixtureList.sourceUrl', $teamSeason->source_url)
+        ->etc());
 });
 
 test('describes an ordinary scheduled home fixture without a badge', function () {
     $fixture = Fixture::factory()->for(importedTeamSeason())->home()
         ->for(Venue::factory()->state(['name' => 'Sportovní hala Kutná Hora']))
-        ->create(['date' => '2026-10-04', 'time' => '09:00:00', 'opponent_name' => 'Las Plantas']);
+        ->create(['date' => '2026-10-04', 'time' => '09:00:00', 'opponent_name' => 'Las Plantas', 'round' => 4]);
 
     expect(listedFixtures()[0])->toBe([
         'id' => $fixture->id,
         'day' => 'NE 4. 10.',
+        'round' => '4. kolo',
         'time' => '9:00',
-        'matchup' => [
-            ['text' => 'FBC Kutná Hora B', 'isOurTeam' => true],
-            ['text' => ' – ', 'isOurTeam' => false],
-            ['text' => 'Las Plantas', 'isOurTeam' => false],
-        ],
+        'isHome' => true,
+        'homeTeam' => 'FBC Kutná Hora B',
+        'awayTeam' => 'Las Plantas',
         'venue' => 'Sportovní hala Kutná Hora',
         'status' => 'scheduled',
         'badges' => [],
@@ -120,15 +125,27 @@ test('describes an ordinary scheduled home fixture without a badge', function ()
     ]);
 });
 
-test('names our team second in an away fixture', function () {
+test('names our team as the away side of an away fixture', function () {
     Fixture::factory()->for(importedTeamSeason())->away()->create(['opponent_name' => 'Las Plantas']);
 
-    expect(listedFixtures()[0]['matchup'])->toBe([
-        ['text' => 'Las Plantas', 'isOurTeam' => false],
-        ['text' => ' – ', 'isOurTeam' => false],
-        ['text' => 'FBC Kutná Hora B', 'isOurTeam' => true],
+    expect(listedFixtures()[0])->toMatchArray([
+        'isHome' => false,
+        'homeTeam' => 'Las Plantas',
+        'awayTeam' => 'FBC Kutná Hora B',
     ]);
 });
+
+test('names the round as the federation does, or leaves it empty while unknown', function (?int $round, bool $isRescheduled, ?string $roundLabel) {
+    Fixture::factory()->for(importedTeamSeason())
+        ->when($isRescheduled, fn ($factory) => $factory->rescheduled())
+        ->create(['round' => $round]);
+
+    expect(listedFixtures()[0]['round'])->toBe($roundLabel);
+})->with([
+    'known round' => [12, false, '12. kolo'],
+    'rescheduled fixture' => [4, true, '4. kolo'],
+    'unknown round' => [null, false, null],
+]);
 
 test('leaves the time of a TBD fixture empty', function () {
     Fixture::factory()->for(importedTeamSeason())->tbdTime()->create();
@@ -313,7 +330,7 @@ test('treats a team season without a successful import as never imported, still 
         ->where('fixtureList.lastImportFailure.status', 'error')
         ->where('fixtureList.upcomingCount', 0)
         ->where('fixtureList.seasonCount', 0)
-        ->where('fixtureList.months', [])
+        ->where('fixtureList.fixtures', [])
         ->etc());
 });
 

@@ -38,7 +38,6 @@ return [
     ],
 
     'list' => [
-        'month' => ':month :year',
         'badges' => [
             'rescheduled' => 'Dohrávka',
             'win' => 'Výhra',

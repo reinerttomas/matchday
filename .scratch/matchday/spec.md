@@ -91,15 +91,15 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 56. As the administrator, I want "Naposledy staženo před …" under the heading, or "Stahuji rozpis…" while an import runs, so that I know how fresh the data is.
 57. As the administrator, I want a "Synchronizovat" button that starts a manual import, is disabled while one runs, and refreshes the page by itself when it finishes, so that I don't reload by hand.
 58. As the administrator, I want to switch between upcoming fixtures and the whole season and see the count, so that I can focus on what's next.
-59. As the administrator, I want fixtures grouped by month with day and date ("NE 4. 10."), time or a TBD badge, "Home – Away" with our team in bold, and the venue, so that the list reads like the source.
+59. As the administrator, I want one chronological row per fixture in the column order of the federation's fixture list — day and date ("NE 4. 10."), round ("4. kolo"), home team, the score of a finished fixture or else the time or a TBD badge, away team, venue — with our team in bold, and a button that opens the team season's fixture list on ceskyflorbal.cz in a new tab, so that I can read the two pages side by side line by line.
 60. As the administrator, I want a cancelled fixture struck through, so that it stands out.
-61. As the administrator, I want a "Změněno" badge on fixtures revised in the last 7 days whose tooltip shows old → new values, so that I can see recent changes in context.
+61. As the administrator, I want a "Změněno" badge and a subtly highlighted row on fixtures revised in the last 7 days, with their old → new values listed under the row, so that I can see recent changes in context.
 62. As the administrator, I want "Dohrávka", "Odloženo" and "Zrušeno" badges, so that special fixtures stand out.
 63. As the administrator, I want finished fixtures to show "Výhra", "Prohra" or "Remíza" with the score, from our team's point of view, so that results are clear.
 64. As the administrator, I want ordinary scheduled fixtures to have no badge, so that badges carry meaning.
 65. As the administrator, I want a warning above the fixture list when the last import failed or was aborted, with the reason, a note that data didn't change and a link to Importy, so that I notice problems.
 66. As the administrator, I want an empty state that invites me to start an import when the team season has never been imported, so that I know what to do.
-67. As the administrator, I want a list layout instead of a table on a phone, so that the fixture list is readable there.
+67. As the administrator, I want each fixture row to stack on a phone ("NE 4. 10. · 4. kolo", then home | score or time | away, then the venue, badges and revisions), so that the fixture list is readable there.
 
 ### Administrator — changes
 

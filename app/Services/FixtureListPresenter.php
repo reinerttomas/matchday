@@ -13,17 +13,12 @@ use App\Models\TeamSeason;
 use Carbon\CarbonImmutable;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 /**
- * @phpstan-import-type MatchupPart from FixtureFormatter
- *
  * @phpstan-type BadgeProps array{kind: string, label: string}
- * @phpstan-type FixtureProps array{id: int, day: string, time: string|null, matchup: list<MatchupPart>, venue: string|null, status: string, badges: list<BadgeProps>, score: string|null, revisions: list<string>}
- * @phpstan-type MonthProps array{month: string, heading: string, fixtures: list<FixtureProps>}
+ * @phpstan-type FixtureProps array{id: int, day: string, round: string|null, time: string|null, isHome: bool, homeTeam: string, awayTeam: string, venue: string|null, status: string, badges: list<BadgeProps>, score: string|null, revisions: list<string>}
  * @phpstan-type ImportFailureProps array{status: string, reason: string|null}
- * @phpstan-type FixtureListProps array{period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFinished: string|null, lastImportFailure: ImportFailureProps|null, months: list<MonthProps>}
+ * @phpstan-type FixtureListProps array{sourceUrl: string, period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFinished: string|null, lastImportFailure: ImportFailureProps|null, fixtures: list<FixtureProps>}
  */
 final readonly class FixtureListPresenter
 {
@@ -74,15 +69,15 @@ final readonly class FixtureListPresenter
             ->first();
 
         return [
+            'sourceUrl' => $teamSeason->source_url,
             'period' => $showsWholeSeason ? 'season' : 'upcoming',
             'upcomingCount' => $upcomingFixtures->count(),
             'seasonCount' => $fixtures->count(),
             'isImported' => $lastSuccessfulImport !== null,
             'lastImportFinished' => $this->lastImportFinished($lastSuccessfulImport),
             'lastImportFailure' => $this->lastImportFailure($teamSeason),
-            'months' => array_values(($showsWholeSeason ? $fixtures : $upcomingFixtures)
-                ->groupBy(fn (Fixture $fixture): string => $fixture->date->format('Y-m'))
-                ->map(fn (Collection $monthFixtures): array => $this->month($monthFixtures))
+            'fixtures' => array_values(($showsWholeSeason ? $fixtures : $upcomingFixtures)
+                ->map(fn (Fixture $fixture): array => $this->fixture($fixture))
                 ->all()),
         ];
     }
@@ -122,23 +117,6 @@ final readonly class FixtureListPresenter
     }
 
     /**
-     * Describe one month of the fixture list under its heading, such as "Říjen 2026".
-     *
-     * @param  Collection<int, Fixture>  $fixtures
-     * @return MonthProps
-     */
-    private function month(Collection $fixtures): array
-    {
-        $date = $fixtures->firstOrFail()->date;
-
-        return [
-            'month' => $date->format('Y-m'),
-            'heading' => __('fixtures.list.month', ['month' => Str::ucfirst($date->isoFormat('MMMM')), 'year' => $date->year]),
-            'fixtures' => array_values($fixtures->map(fn (Fixture $fixture): array => $this->fixture($fixture))->all()),
-        ];
-    }
-
-    /**
      * Describe one fixture as a row of the fixture list.
      *
      * @return FixtureProps
@@ -148,8 +126,12 @@ final readonly class FixtureListPresenter
         return [
             'id' => $fixture->id,
             'day' => $this->fixtureFormatter->day($fixture->date),
+            // The federation's list names a rescheduled fixture's round plainly too; the "Dohrávka" badge marks it instead.
+            'round' => $fixture->round === null ? null : $this->fixtureFormatter->round($fixture->round),
             'time' => $fixture->time === null ? null : $this->fixtureFormatter->time($fixture->time),
-            'matchup' => $this->fixtureFormatter->matchup($fixture),
+            'isHome' => $fixture->is_home,
+            'homeTeam' => $fixture->homeTeamName(),
+            'awayTeam' => $fixture->awayTeamName(),
             'venue' => $fixture->venue?->name,
             'status' => $fixture->status->value,
             'badges' => $this->badges($fixture),

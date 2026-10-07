@@ -31,6 +31,14 @@ final readonly class FixtureFormatter
     }
 
     /**
+     * Name a round the way the federation's fixture list does, such as "4. kolo".
+     */
+    public function round(int $round): string
+    {
+        return __('fixtures.rounds.default', ['round' => $round]);
+    }
+
+    /**
      * Format a date in full, such as "4. 10. 2026".
      */
     public function date(CarbonInterface $date): string

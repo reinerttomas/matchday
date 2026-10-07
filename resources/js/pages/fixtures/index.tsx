@@ -4,16 +4,14 @@ import {
     AlertTriangle,
     CalendarOff,
     DownloadCloud,
-    MapPin,
+    ExternalLink,
 } from 'lucide-react';
-import { Fragment } from 'react';
 import Heading from '@/components/heading';
-import { Matchup } from '@/components/matchup';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
 import { SynchronizeButton } from '@/components/synchronize-button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
     Empty,
     EmptyContent,
@@ -22,20 +20,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { useImportPolling } from '@/hooks/use-import-polling';
 import { index } from '@/routes/fixtures';
 import { index as imports } from '@/routes/imports';
@@ -43,7 +28,6 @@ import type {
     FixtureBadge,
     FixtureList,
     FixtureListItem,
-    FixtureListMonth,
     FixtureListPeriod,
     ImportFailure,
 } from '@/types';
@@ -176,15 +160,28 @@ function ImportedFixtureList({ fixtureList }: { fixtureList: FixtureList }) {
             onValueChange={switchTo}
             className="gap-4"
         >
-            <PeriodTabs fixtureList={fixtureList} />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <PeriodTabs fixtureList={fixtureList} />
+                <Button variant="outline" asChild>
+                    <a
+                        href={fixtureList.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Otevřít na ceskyflorbal.cz
+                        <ExternalLink />
+                    </a>
+                </Button>
+            </div>
             <TabsContent value={fixtureList.period}>
-                {fixtureList.months.length === 0 ? (
+                {fixtureList.fixtures.length === 0 ? (
                     <NoFixtures period={fixtureList.period} />
                 ) : (
-                    <>
-                        <FixtureTable months={fixtureList.months} />
-                        <FixtureCards months={fixtureList.months} />
-                    </>
+                    <ul className="divide-y rounded-lg border">
+                        {fixtureList.fixtures.map((fixture) => (
+                            <FixtureRow key={fixture.id} fixture={fixture} />
+                        ))}
+                    </ul>
                 )}
             </TabsContent>
         </Tabs>
@@ -232,106 +229,63 @@ function NoFixtures({ period }: { period: FixtureListPeriod }) {
     );
 }
 
-function FixtureTable({ months }: { months: FixtureListMonth[] }) {
-    return (
-        <div className="hidden rounded-lg border lg:block">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Den</TableHead>
-                        <TableHead>Čas</TableHead>
-                        <TableHead>Zápas</TableHead>
-                        <TableHead>Hala</TableHead>
-                        <TableHead>Stav</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {months.map((month) => (
-                        <Fragment key={month.month}>
-                            <TableRow className="bg-muted/50 hover:bg-muted/50">
-                                <TableHead
-                                    colSpan={5}
-                                    scope="colgroup"
-                                    className="font-semibold"
-                                >
-                                    {month.heading}
-                                </TableHead>
-                            </TableRow>
-                            {month.fixtures.map((fixture) => (
-                                <TableRow key={fixture.id}>
-                                    <TableCell className="font-medium tabular-nums">
-                                        {fixture.day}
-                                    </TableCell>
-                                    <TableCell>
-                                        <FixtureTime time={fixture.time} />
-                                    </TableCell>
-                                    <TableCell className="whitespace-normal">
-                                        <FixtureMatchup fixture={fixture} />
-                                    </TableCell>
-                                    <TableCell className="whitespace-normal text-muted-foreground">
-                                        {fixture.venue ?? '–'}
-                                    </TableCell>
-                                    <TableCell>
-                                        <FixtureState fixture={fixture} />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </Fragment>
-                    ))}
-                </TableBody>
-            </Table>
-        </div>
-    );
-}
+/**
+ * One fixture in the column order of the federation's fixture list (date · round · home · score or time · away · venue), so the two pages read side by side line by line; a phone stacks the same cells.
+ */
+function FixtureRow({ fixture }: { fixture: FixtureListItem }) {
+    const isRevised = fixture.revisions.length > 0;
 
-function FixtureCards({ months }: { months: FixtureListMonth[] }) {
     return (
-        <div className="flex flex-col gap-6 lg:hidden">
-            {months.map((month) => (
-                <section
-                    key={month.month}
-                    aria-labelledby={`month-${month.month}`}
-                >
-                    <h3
-                        id={`month-${month.month}`}
-                        className="mb-2 font-semibold"
-                    >
-                        {month.heading}
-                    </h3>
-                    <Card className="gap-0 py-0">
-                        <ul className="divide-y">
-                            {month.fixtures.map((fixture) => (
-                                <FixtureCardItem
-                                    key={fixture.id}
-                                    fixture={fixture}
-                                />
-                            ))}
-                        </ul>
-                    </Card>
-                </section>
-            ))}
-        </div>
-    );
-}
-
-function FixtureCardItem({ fixture }: { fixture: FixtureListItem }) {
-    return (
-        <li className="flex flex-col gap-1.5 px-3 py-3">
-            <div className="flex items-center gap-2 text-sm font-medium tabular-nums">
-                <span>{fixture.day}</span>
-                <FixtureTime time={fixture.time} />
-            </div>
-            <FixtureMatchup fixture={fixture} />
-            {fixture.venue !== null && (
-                <span className="inline-flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="size-3.5 shrink-0" aria-hidden />
-                    <span className="break-words">{fixture.venue}</span>
-                </span>
+        <li
+            className={cn(
+                'grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 px-3 py-2.5 text-sm',
+                'xl:grid-cols-[6rem_4.5rem_minmax(0,1fr)_4.5rem_minmax(0,1fr)_minmax(0,1fr)_10rem]',
+                isRevised && 'bg-violet-50/60 dark:bg-violet-950/30',
             )}
-            <FixtureState fixture={fixture} />
-            {/* Tooltips don't open on a tap, so a phone lists the revisions in place. */}
-            {fixture.revisions.length > 0 && (
-                <ul className="space-y-0.5 text-xs break-words text-muted-foreground">
+        >
+            {/* The day and round share the top line on a phone and become their own columns on a wide screen. */}
+            <div className="col-span-3 flex gap-1.5 text-muted-foreground xl:contents">
+                <span className="font-medium text-foreground tabular-nums">
+                    {fixture.day}
+                </span>
+                {fixture.round !== null && (
+                    <span aria-hidden className="xl:hidden">
+                        ·
+                    </span>
+                )}
+                <span>{fixture.round}</span>
+            </div>
+            <FixtureTeam
+                name={fixture.homeTeam}
+                isOurTeam={fixture.isHome}
+                isCancelled={fixture.status === 'cancelled'}
+                className="text-right"
+            />
+            {/* Tall enough for the score badge, so rows keep one height whether or not they show badges. */}
+            <div className="flex min-h-7 items-center justify-center">
+                <FixtureScoreOrTime fixture={fixture} />
+            </div>
+            <FixtureTeam
+                name={fixture.awayTeam}
+                isOurTeam={!fixture.isHome}
+                isCancelled={fixture.status === 'cancelled'}
+            />
+            {/* On a phone an unknown venue would be a line holding only the dash. */}
+            <div
+                className={cn(
+                    'col-span-3 break-words text-muted-foreground xl:col-span-1',
+                    fixture.venue === null && 'hidden xl:block',
+                )}
+            >
+                {fixture.venue ?? '–'}
+            </div>
+            <div className="col-span-3 flex flex-wrap items-center gap-1.5 empty:hidden xl:col-span-1 xl:empty:block">
+                {fixture.badges.map((badge) => (
+                    <FixtureBadgeLabel key={badge.kind} badge={badge} />
+                ))}
+            </div>
+            {isRevised && (
+                <ul className="col-span-full space-y-0.5 text-xs break-words text-violet-700 dark:text-violet-300">
                     {fixture.revisions.map((revision, position) => (
                         <li key={position}>{revision}</li>
                     ))}
@@ -341,51 +295,48 @@ function FixtureCardItem({ fixture }: { fixture: FixtureListItem }) {
     );
 }
 
-function FixtureTime({ time }: { time: string | null }) {
-    if (time === null) {
+function FixtureTeam({
+    name,
+    isOurTeam,
+    isCancelled,
+    className,
+}: {
+    name: string;
+    isOurTeam: boolean;
+    isCancelled: boolean;
+    className?: string;
+}) {
+    return (
+        <span
+            className={cn(
+                'break-words',
+                isOurTeam && 'font-semibold',
+                isCancelled && 'text-muted-foreground line-through',
+                className,
+            )}
+        >
+            {name}
+        </span>
+    );
+}
+
+function FixtureScoreOrTime({ fixture }: { fixture: FixtureListItem }) {
+    if (fixture.score !== null) {
+        return (
+            <Badge
+                variant="secondary"
+                className="text-sm font-semibold tabular-nums"
+            >
+                {fixture.score}
+            </Badge>
+        );
+    }
+
+    if (fixture.time === null) {
         return <Badge variant="outline">TBD</Badge>;
     }
 
-    return <span className="tabular-nums">{time}</span>;
-}
-
-function FixtureMatchup({ fixture }: { fixture: FixtureListItem }) {
-    return (
-        <Matchup
-            parts={fixture.matchup}
-            className={cn(
-                fixture.status === 'cancelled' &&
-                    'text-muted-foreground line-through',
-            )}
-        />
-    );
-}
-
-function FixtureState({ fixture }: { fixture: FixtureListItem }) {
-    if (fixture.badges.length === 0 && fixture.score === null) {
-        return null;
-    }
-
-    return (
-        <div className="flex flex-wrap items-center gap-1.5">
-            {fixture.badges.map((badge) =>
-                badge.kind === 'revised' ? (
-                    <RevisedBadge
-                        key={badge.kind}
-                        badge={badge}
-                        revisions={fixture.revisions}
-                    />
-                ) : (
-                    <FixtureBadgeLabel key={badge.kind} badge={badge} />
-                ),
-            )}
-            {fixture.score !== null && (
-                <span className="font-semibold tabular-nums">
-                    {fixture.score}
-                </span>
-            )}
-        </div>
-    );
+    return <span className="tabular-nums">{fixture.time}</span>;
 }
 
 const badgeClassNames: Partial<Record<FixtureBadge['kind'], string>> = {
@@ -412,34 +363,5 @@ function FixtureBadgeLabel({ badge }: { badge: FixtureBadge }) {
         <Badge variant="outline" className={badgeClassNames[badge.kind]}>
             {badge.label}
         </Badge>
-    );
-}
-
-function RevisedBadge({
-    badge,
-    revisions,
-}: {
-    badge: FixtureBadge;
-    revisions: string[];
-}) {
-    return (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <Badge
-                    variant="outline"
-                    tabIndex={0}
-                    className={cn('cursor-help', badgeClassNames.revised)}
-                >
-                    {badge.label}
-                </Badge>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-sm">
-                <ul className="space-y-0.5">
-                    {revisions.map((revision, position) => (
-                        <li key={position}>{revision}</li>
-                    ))}
-                </ul>
-            </TooltipContent>
-        </Tooltip>
     );
 }
