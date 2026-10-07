@@ -53,13 +53,19 @@ final readonly class AdminSelection
      */
     public function teamSeason(): ?TeamSeason
     {
+        return $this->selectedTeamSeasonIn($this->teamSeasons());
+    }
+
+    /**
+     * Get the selected season's team seasons, alphabetically by name, or none when there is no season.
+     *
+     * @return Collection<int, TeamSeason>
+     */
+    public function teamSeasons(): Collection
+    {
         $season = $this->season();
 
-        if ($season === null) {
-            return null;
-        }
-
-        return $this->selectedTeamSeasonIn($this->teamSeasonsOf($season));
+        return $season === null ? new Collection : $this->teamSeasonsOf($season);
     }
 
     /**
@@ -79,7 +85,7 @@ final readonly class AdminSelection
     public function present(): array
     {
         $season = $this->season();
-        $teamSeasons = $season === null ? new Collection : $this->teamSeasonsOf($season);
+        $teamSeasons = $this->teamSeasons();
         $teamSeason = $this->selectedTeamSeasonIn($teamSeasons);
 
         return [

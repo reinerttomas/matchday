@@ -33,6 +33,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, Fixture> $fixtures
  * @property-read Collection<int, Import> $imports
  * @property-read Import|null $initialImport
+ * @property-read Import|null $lastImport
  */
 #[Fillable(['team_id', 'season_id', 'external_id', 'source_url', 'name', 'competition_name', 'auto_import_enabled'])]
 final class TeamSeason extends Model
@@ -90,6 +91,19 @@ final class TeamSeason extends Model
         return $this->imports()->one()->ofMany(
             ['started_at' => 'min', 'id' => 'min'],
             fn (Builder $query): Builder => $query->where('status', ImportStatus::Ok),
+        );
+    }
+
+    /**
+     * Get the team season's latest import that has ended, whether ok, error or aborted; a running import has no outcome to show yet.
+     *
+     * @return HasOne<Import, $this>
+     */
+    public function lastImport(): HasOne
+    {
+        return $this->imports()->one()->ofMany(
+            ['started_at' => 'max', 'id' => 'max'],
+            fn (Builder $query): Builder => $query->whereNot('status', ImportStatus::Running),
         );
     }
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PublicTeamPageController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\SentChangeSummaryController;
+use App\Http\Controllers\TeamSeasonController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -36,6 +37,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('changes/{import}/sent', [SentChangeSummaryController::class, 'store'])->name('changes.sent.store');
     Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
     Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
+    Route::get('teams', [TeamSeasonController::class, 'index'])->name('teams.index');
+    Route::patch('teams/{teamSeason}', [TeamSeasonController::class, 'update'])->name('teams.update');
 });
 
 require __DIR__.'/settings.php';

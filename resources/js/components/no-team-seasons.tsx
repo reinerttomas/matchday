@@ -1,4 +1,4 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,6 +8,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
+import { index as teams } from '@/routes/teams';
 
 /**
  * Shown by the team pages while there is no season or the selected season has no team seasons, pointing the administrator to Sezony or Týmy.
@@ -29,10 +30,14 @@ export function NoTeamSeasons() {
                 </EmptyTitle>
             </EmptyHeader>
             <EmptyContent>
-                {/* Sezony and Týmy have no pages yet; the button links to them once their routes exist. */}
-                <Button disabled>
-                    {season === null ? 'Přejít na Sezony' : 'Přejít na Týmy'}
-                </Button>
+                {season === null ? (
+                    // Sezony has no page yet; the button links to it once its route exists.
+                    <Button disabled>Přejít na Sezony</Button>
+                ) : (
+                    <Button asChild>
+                        <Link href={teams()}>Přejít na Týmy</Link>
+                    </Button>
+                )}
             </EmptyContent>
         </Empty>
     );

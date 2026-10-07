@@ -109,11 +109,7 @@ final readonly class FixtureListPresenter
     private function lastImportFailure(TeamSeason $teamSeason): ?array
     {
         // A running import hasn't ended yet, so the warning about the previous one stays until it does.
-        $lastImport = $teamSeason->imports()
-            ->whereNot('status', ImportStatus::Running)
-            ->latest('started_at')
-            ->latest('id')
-            ->first();
+        $lastImport = $teamSeason->lastImport;
 
         if ($lastImport === null || ! in_array($lastImport->status, [ImportStatus::Error, ImportStatus::Aborted], true)) {
             return null;

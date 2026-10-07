@@ -16,7 +16,7 @@ final readonly class CalendarLinks
      */
     public function for(Team $team): array
     {
-        $address = route('calendar', $team);
+        $address = $this->address($team);
         $webcal = Str::replaceMatches('/^https?:\/\//', 'webcal://', $address);
 
         return [
@@ -26,5 +26,13 @@ final readonly class CalendarLinks
             'webcal' => $webcal,
             'outlook' => 'https://outlook.live.com/calendar/0/addfromweb?'.http_build_query(['url' => $address, 'name' => $team->calendarName()], encoding_type: PHP_QUERY_RFC3986),
         ];
+    }
+
+    /**
+     * Get the team's permanent calendar address, which stays the same across seasons.
+     */
+    public function address(Team $team): string
+    {
+        return route('calendar', $team);
     }
 }

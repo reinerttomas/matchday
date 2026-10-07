@@ -4,16 +4,16 @@
 
 **Blocked by:** 18 — Admin shell and the Importy page
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `/teams` lists the selected season's team seasons with name, competition, slug, last import time (with a badge only when it didn't end ok) and an automatic import toggle.
-- [ ] A team season not imported yet shows its slug as the name and no competition.
-- [ ] Toggling automatic import updates `auto_import_enabled` without leaving the page; scheduled imports skip a disabled team season while its calendar keeps working.
-- [ ] Team actions: copy the calendar address, open the public page, open the fixture list on ceskyflorbal.cz.
-- [ ] On a phone the Competition and Slug columns are hidden and the last import is shown under the team name.
-- [ ] UI is built from shadcn components (Table, Switch, DropdownMenu, Badge, …).
-- [ ] Feature tests cover: the list props for the selected season only, the last-import badge (none after ok, shown after error and aborted), the toggle action with validation through a form request, and login required.
-- [ ] `composer ci:check` passes.
+- [x] `/teams` lists the selected season's team seasons with name, competition, slug, last import time (with a badge only when it didn't end ok) and an automatic import toggle.
+- [x] A team season not imported yet shows its slug as the name and no competition.
+- [x] Toggling automatic import updates `auto_import_enabled` without leaving the page; scheduled imports skip a disabled team season while its calendar keeps working.
+- [x] Team actions: copy the calendar address, open the public page, open the fixture list on ceskyflorbal.cz.
+- [x] On a phone the Competition and Slug columns are hidden and the last import is shown under the team name.
+- [x] UI is built from shadcn components (Table, Switch, DropdownMenu, Badge, …).
+- [x] Feature tests cover: the list props for the selected season only, the last-import badge (none after ok, shown after error and aborted), the toggle action with validation through a form request, and login required.
+- [x] `composer ci:check` passes.
 
 ## Notes
 

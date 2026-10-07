@@ -145,3 +145,24 @@ export type RevisionHistory = {
     imports: RevisingImport[];
     initialImport: InitialImport | null;
 };
+
+export type TeamSeasonImportFailure = ImportFailure & {
+    statusLabel: string;
+};
+
+export type TeamSeasonLastImport = {
+    startedAt: string;
+    failure: TeamSeasonImportFailure | null;
+};
+
+export type TeamSeasonListItem = {
+    id: number;
+    name: string;
+    competition: string | null;
+    slug: string;
+    autoImportEnabled: boolean;
+    lastImport: TeamSeasonLastImport | null;
+    calendarUrl: string;
+    publicPageUrl: string;
+    sourceUrl: string;
+};

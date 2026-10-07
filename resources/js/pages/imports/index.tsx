@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { DownloadCloud } from 'lucide-react';
 import Heading from '@/components/heading';
+import { ImportStatusBadge } from '@/components/import-status-badge';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
 import { SynchronizeButton } from '@/components/synchronize-button';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,6 @@ import {
     PaginationItem,
     PaginationLink,
 } from '@/components/ui/pagination';
-import { Spinner } from '@/components/ui/spinner';
 import {
     Table,
     TableBody,
@@ -128,7 +128,10 @@ function ImportTable({ imports }: { imports: ImportHistoryItem[] }) {
                                 </div>
                             </TableCell>
                             <TableCell className="align-top whitespace-normal">
-                                <ImportStatusBadge item={item} />
+                                <ImportStatusBadge
+                                    status={item.status}
+                                    label={item.statusLabel}
+                                />
                                 {item.reason !== null && (
                                     <p className="mt-1 max-w-xs text-xs break-words text-muted-foreground">
                                         {item.reason}
@@ -158,38 +161,6 @@ function ImportTable({ imports }: { imports: ImportHistoryItem[] }) {
             </Table>
         </div>
     );
-}
-
-function ImportStatusBadge({ item }: { item: ImportHistoryItem }) {
-    switch (item.status) {
-        case 'ok':
-            return (
-                <Badge
-                    variant="outline"
-                    className="border-emerald-600/30 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-950 dark:text-emerald-300"
-                >
-                    {item.statusLabel}
-                </Badge>
-            );
-        case 'error':
-            return <Badge variant="destructive">{item.statusLabel}</Badge>;
-        case 'aborted':
-            return (
-                <Badge
-                    variant="outline"
-                    className="border-amber-600/30 bg-amber-50 text-amber-800 dark:border-amber-400/30 dark:bg-amber-950 dark:text-amber-300"
-                >
-                    {item.statusLabel}
-                </Badge>
-            );
-        case 'running':
-            return (
-                <Badge variant="secondary">
-                    <Spinner className="size-3" />
-                    {item.statusLabel}
-                </Badge>
-            );
-    }
 }
 
 function ImportPagination({
