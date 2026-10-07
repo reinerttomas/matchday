@@ -15,9 +15,9 @@ test('users can log in from the welcome page', function () {
         ->fill('password', 'password')
         ->assertSeeIn('@login-button', 'Login')
         ->click('@login-button')
-        // The dashboard redirects to the first admin page.
-        ->assertPathIs('/imports')
-        ->assertSee('Importy')
+        // The dashboard redirects to the fixture list.
+        ->assertPathIs('/fixtures')
+        ->assertSee('Rozpis zápasů')
         ->assertNoJavaScriptErrors();
 
     $this->assertAuthenticatedAs($user);

@@ -9,10 +9,10 @@ test('guests are redirected to the login page', function () {
     $response->assertRedirect(route('login'));
 });
 
-test('authenticated users are redirected from the dashboard to the imports', function () {
+test('authenticated users are redirected from the dashboard to the fixture list', function () {
     $user = User::factory()->create();
     $this->actingAs($user);
 
     $response = $this->get(route('dashboard'));
-    $response->assertRedirect('/imports');
+    $response->assertRedirect('/fixtures');
 });

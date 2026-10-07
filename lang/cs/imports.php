@@ -18,7 +18,7 @@ return [
 
     'change_summary' => [
         'header' => '📅 Změny v rozpisu :team_season',
-        'bullet' => '• :weekday :date :home – :away: :revisions',
+        'bullet' => '• :day :home – :away: :revisions',
         'calendar' => 'Kalendář: :url',
 
         'added' => 'nový zápas v rozpisu, :details',

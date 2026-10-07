@@ -20,6 +20,11 @@ final readonly class ChangeSummaryWriter
     private const string ADDED = 'added';
 
     /**
+     * Create a new instance.
+     */
+    public function __construct(private FixtureFormatter $fixtureFormatter) {}
+
+    /**
      * Write the change summary of an import: one bullet per revised fixture, then a link to the team's public page; or return null when none of its revisions is worth telling the team.
      *
      * A bullet shows each fixture as it was right after the import, so the summary of an old import reads the same after later imports revised its fixtures again. Only the names and which side is home, which no revision records, come from the fixture as it is stored now.
@@ -117,8 +122,7 @@ final readonly class ChangeSummaryWriter
             'time' => $values[RevisionField::Time->value] ?? '',
             'fixtureId' => $fixture->id,
             'line' => __('imports.change_summary.bullet', [
-                'weekday' => mb_strtoupper($date->isoFormat('dd')),
-                'date' => $date->format('j. n.'),
+                'day' => $this->fixtureFormatter->day($date),
                 'home' => $fixture->homeTeamName(),
                 'away' => $fixture->awayTeamName(),
                 'revisions' => implode('; ', $descriptions),
@@ -137,7 +141,7 @@ final readonly class ChangeSummaryWriter
         $time = $values[RevisionField::Time->value];
 
         $details = $status === FixtureStatus::Scheduled
-            ? [$time === null ? __('imports.change_summary.time.tbd') : $this->formatTime($time), $values[RevisionField::Venue->value]]
+            ? [$time === null ? __('imports.change_summary.time.tbd') : $this->fixtureFormatter->time($time), $values[RevisionField::Venue->value]]
             : [$this->describeStatusChange($status, null, $values)];
 
         return __('imports.change_summary.added', ['details' => implode(', ', array_filter($details))]);
@@ -160,7 +164,7 @@ final readonly class ChangeSummaryWriter
      */
     private function describeStatusChange(FixtureStatus $status, ?string $statusBefore, array $values): string
     {
-        $score = $this->formatScore($values[RevisionField::HomeScore->value], $values[RevisionField::AwayScore->value]);
+        $score = $this->fixtureFormatter->score($values[RevisionField::HomeScore->value], $values[RevisionField::AwayScore->value]);
 
         return match (true) {
             $status === FixtureStatus::Scheduled && $statusBefore === FixtureStatus::Cancelled->value => __('imports.change_summary.statuses.reappeared'),
@@ -186,9 +190,9 @@ final readonly class ChangeSummaryWriter
 
         $homeScoreAfter = $values[RevisionField::HomeScore->value];
         $awayScoreAfter = $values[RevisionField::AwayScore->value];
-        $scoreAfter = $this->formatScore($homeScoreAfter, $awayScoreAfter);
+        $scoreAfter = $this->fixtureFormatter->score($homeScoreAfter, $awayScoreAfter);
         // A side whose score didn't change has no revision, so its score before is its score after.
-        $scoreBefore = $this->formatScore(
+        $scoreBefore = $this->fixtureFormatter->score(
             $homeScore === null ? $homeScoreAfter : $homeScore->old_value,
             $awayScore === null ? $awayScoreAfter : $awayScore->old_value,
         );
@@ -214,8 +218,8 @@ final readonly class ChangeSummaryWriter
         }
 
         return __('imports.change_summary.date', [
-            'date' => CarbonImmutable::parse((string) $date->new_value)->format('j. n. Y'),
-            'date_before' => CarbonImmutable::parse((string) $date->old_value)->format('j. n. Y'),
+            'date' => $this->fixtureFormatter->date(CarbonImmutable::parse((string) $date->new_value)),
+            'date_before' => $this->fixtureFormatter->date(CarbonImmutable::parse((string) $date->old_value)),
         ]);
     }
 
@@ -229,11 +233,11 @@ final readonly class ChangeSummaryWriter
         }
 
         return match (true) {
-            $time->new_value === null => __('imports.change_summary.time.back_to_tbd', ['time_before' => $this->formatTime((string) $time->old_value)]),
-            $time->old_value === null => __('imports.change_summary.time.set', ['time' => $this->formatTime($time->new_value)]),
+            $time->new_value === null => __('imports.change_summary.time.back_to_tbd', ['time_before' => $this->fixtureFormatter->time((string) $time->old_value)]),
+            $time->old_value === null => __('imports.change_summary.time.set', ['time' => $this->fixtureFormatter->time($time->new_value)]),
             default => __('imports.change_summary.time.changed', [
-                'time' => $this->formatTime($time->new_value),
-                'time_before' => $this->formatTime($time->old_value),
+                'time' => $this->fixtureFormatter->time($time->new_value),
+                'time_before' => $this->fixtureFormatter->time($time->old_value),
             ]),
         };
     }
@@ -270,21 +274,5 @@ final readonly class ChangeSummaryWriter
         }
 
         return __('imports.change_summary.rescheduled');
-    }
-
-    /**
-     * Format a home:away score, or return null unless both sides have one.
-     */
-    private function formatScore(?string $homeScore, ?string $awayScore): ?string
-    {
-        return $homeScore === null || $awayScore === null ? null : "{$homeScore}:{$awayScore}";
-    }
-
-    /**
-     * Format an "HH:MM" time the Czech way, without a leading zero: "9:00".
-     */
-    private function formatTime(string $time): string
-    {
-        return (int) mb_substr($time, 0, 2).':'.mb_substr($time, 3, 2);
     }
 }

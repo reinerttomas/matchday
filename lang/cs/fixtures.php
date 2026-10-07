@@ -11,6 +11,10 @@ return [
         'cancelled' => 'Zrušeno',
     ],
 
+    'day' => ':weekday :date',
+    'matchup' => ':home – :away',
+    'score' => ':home_score::away_score',
+
     'rounds' => [
         'default' => ':round. kolo',
         'rescheduled' => 'dohrávka :round. kola',
@@ -31,8 +35,17 @@ return [
     'team_page' => [
         'match_day' => ':weekday :date',
         'match_day_with_year' => ':weekday :date :year',
-        'matchup' => ':home – :away',
-        'score' => ':home_score::away_score',
+    ],
+
+    'list' => [
+        'month' => ':month :year',
+        'badges' => [
+            'rescheduled' => 'Dohrávka',
+            'win' => 'Výhra',
+            'loss' => 'Prohra',
+            'draw' => 'Remíza',
+            'revised' => 'Změněno',
+        ],
     ],
 
 ];

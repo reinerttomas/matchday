@@ -13,4 +13,12 @@ enum RevisionField: string
     case IsRescheduled = 'is_rescheduled';
     case HomeScore = 'home_score';
     case AwayScore = 'away_score';
+
+    /**
+     * Name the revised field the way the admin pages show it, such as "Čas".
+     */
+    public function label(): string
+    {
+        return __("revisions.fields.{$this->value}");
+    }
 }

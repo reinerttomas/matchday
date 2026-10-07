@@ -135,13 +135,13 @@ test('shows a fixture with its start time, round and our team marked in home –
         'opponent_name' => 'Tatran Střešovice C',
         'round' => 3,
         'date' => '2026-10-04',
-        'time' => '15:00:00',
+        'time' => '09:00:00',
     ]);
 
     $fixture = $this->get('/t/kutna-hora-b')->inertiaProps('teamSeason.matchDays.0.fixtures.0');
 
     expect($fixture)->toMatchArray([
-        'time' => '15:00',
+        'time' => '9:00',
         'matchup' => $matchup,
         'round' => '3. kolo',
         'status' => 'scheduled',

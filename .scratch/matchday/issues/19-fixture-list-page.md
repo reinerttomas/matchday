@@ -4,23 +4,23 @@
 
 **Blocked by:** 18 — Admin shell and the Importy page
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `/fixtures` shows the selected team season's fixtures, and the dashboard now redirects here.
-- [ ] A switch between upcoming fixtures (today or later in the federation's timezone) and the whole season, each showing its count. Upcoming is the default.
-- [ ] Fixtures are grouped by month. Each shows the day and date ("NE 4. 10."), the time or a TBD badge, "Home – Away" with our team in bold, and the venue.
-- [ ] A cancelled fixture is struck through.
-- [ ] "Dohrávka", "Odloženo" and "Zrušeno" badges mark rescheduled, postponed and cancelled fixtures.
-- [ ] A finished fixture shows "Výhra", "Prohra" or "Remíza" from our team's point of view, with the score.
-- [ ] An ordinary scheduled fixture has no badge.
-- [ ] A fixture revised in the last 7 days has a "Změněno" badge whose tooltip lists its revisions as old → new values, formatted for display (dates, TBD, venue names, status labels).
-- [ ] When the last import ended as error or aborted, a warning above the list shows the reason, says the data didn't change, and links to Importy.
-- [ ] When the team season has never been imported, an empty state invites the administrator to start an import (the button itself comes in ticket 20).
-- [ ] On a phone the fixtures are a list instead of a table.
-- [ ] Domain texts the server formats (day and date, month headings, badge labels, revision values) come from `lang/cs/`, reusing what the public page and change summary already format where it fits.
-- [ ] UI is built from shadcn components (Table, Badge, Tooltip, Alert, Tabs or ToggleGroup, Empty, …).
-- [ ] Feature tests with factories and `travelTo()` cover the props: upcoming vs. whole season and the counts, month grouping, each badge, win/loss/draw from both home and away, the 7-day "Změněno" window at its edges, the tooltip values, the warning after error and after aborted (and none after ok), and the never-imported empty state. No N+1 for revisions.
-- [ ] `composer ci:check` passes.
+- [x] `/fixtures` shows the selected team season's fixtures, and the dashboard now redirects here.
+- [x] A switch between upcoming fixtures (today or later in the federation's timezone) and the whole season, each showing its count. Upcoming is the default.
+- [x] Fixtures are grouped by month. Each shows the day and date ("NE 4. 10."), the time or a TBD badge, "Home – Away" with our team in bold, and the venue.
+- [x] A cancelled fixture is struck through.
+- [x] "Dohrávka", "Odloženo" and "Zrušeno" badges mark rescheduled, postponed and cancelled fixtures.
+- [x] A finished fixture shows "Výhra", "Prohra" or "Remíza" from our team's point of view, with the score.
+- [x] An ordinary scheduled fixture has no badge.
+- [x] A fixture revised in the last 7 days has a "Změněno" badge whose tooltip lists its revisions as old → new values, formatted for display (dates, TBD, venue names, status labels).
+- [x] When the last import ended as error or aborted, a warning above the list shows the reason, says the data didn't change, and links to Importy.
+- [x] When the team season has never been imported, an empty state invites the administrator to start an import (the button itself comes in ticket 20).
+- [x] On a phone the fixtures are a list instead of a table.
+- [x] Domain texts the server formats (day and date, month headings, badge labels, revision values) come from `lang/cs/`, reusing what the public page and change summary already format where it fits.
+- [x] UI is built from shadcn components (Table, Badge, Tooltip, Alert, Tabs or ToggleGroup, Empty, …).
+- [x] Feature tests with factories and `travelTo()` cover the props: upcoming vs. whole season and the counts, month grouping, each badge, win/loss/draw from both home and away, the 7-day "Změněno" window at its edges, the tooltip values, the warning after error and after aborted (and none after ok), and the never-imported empty state. No N+1 for revisions.
+- [x] `composer ci:check` passes.
 
 ## Notes
 

@@ -14,7 +14,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
- * @phpstan-type MatchupPart array{text: string, isOurTeam: bool}
+ * @phpstan-import-type MatchupPart from FixtureFormatter
+ *
  * @phpstan-type FixtureProps array{id: int, time: string|null, matchup: list<MatchupPart>, round: string|null, status: string, statusLabel: string|null, score: string|null, venue: string|null}
  * @phpstan-type MatchDayProps array{date: string, heading: string, venue: string|null, fixtures: list<FixtureProps>}
  */
@@ -26,6 +27,7 @@ final readonly class TeamPagePresenter
     public function __construct(
         #[Config('services.ceskyflorbal.timezone')]
         private string $timezone,
+        private FixtureFormatter $fixtureFormatter,
     ) {}
 
     /**
@@ -94,8 +96,8 @@ final readonly class TeamPagePresenter
     {
         return [
             'id' => $fixture->id,
-            'time' => $fixture->time === null ? null : mb_substr($fixture->time, 0, 5),
-            'matchup' => $this->matchup($fixture),
+            'time' => $fixture->time === null ? null : $this->fixtureFormatter->time($fixture->time),
+            'matchup' => $this->fixtureFormatter->matchup($fixture),
             'round' => $fixture->roundLabel(),
             'status' => $fixture->status->value,
             'statusLabel' => $this->statusLabel($fixture),
@@ -121,27 +123,11 @@ final readonly class TeamPagePresenter
      */
     private function score(Fixture $fixture): ?string
     {
-        if ($fixture->status !== FixtureStatus::Finished || $fixture->home_score === null || $fixture->away_score === null) {
+        if ($fixture->status !== FixtureStatus::Finished) {
             return null;
         }
 
-        return __('fixtures.team_page.score', ['home_score' => $fixture->home_score, 'away_score' => $fixture->away_score]);
-    }
-
-    /**
-     * Name the fixture's sides in "Home – Away" order as parts, so the page can set our team apart while the wording stays in the translation file.
-     *
-     * @return list<MatchupPart>
-     */
-    private function matchup(Fixture $fixture): array
-    {
-        $parts = preg_split('/(:home\b|:away\b)/', __('fixtures.team_page.matchup'), flags: PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) ?: [];
-
-        return array_map(fn (string $part): array => match ($part) {
-            ':home' => ['text' => $fixture->homeTeamName(), 'isOurTeam' => $fixture->is_home],
-            ':away' => ['text' => $fixture->awayTeamName(), 'isOurTeam' => ! $fixture->is_home],
-            default => ['text' => $part, 'isOurTeam' => false],
-        }, $parts);
+        return $this->fixtureFormatter->score($fixture->home_score, $fixture->away_score);
     }
 
     /**
