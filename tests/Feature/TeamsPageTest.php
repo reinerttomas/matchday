@@ -145,6 +145,35 @@ test('finds the last imports without a query per team season', function () {
     expect(count(DB::getQueryLog()))->toBe($queriesForOneTeamSeason);
 });
 
+test('offers the teams not in the selected season yet for carrying over, named after their latest team season', function () {
+    $season = seasonOnTeamsPage();
+    $previousSeason = Season::factory()->create(['name' => '2025/26']);
+    $olderSeason = Season::factory()->create(['name' => '2024/25']);
+    $renamed = Team::factory()->create(['slug' => 'kutna-hora-b']);
+    TeamSeason::factory()->for($renamed)->for($olderSeason)->create(['name' => 'Florbal Kutná Hora B']);
+    TeamSeason::factory()->for($renamed)->for($previousSeason)->create(['name' => 'FBC Kutná Hora B']);
+    $notImported = Team::factory()->create(['slug' => 'kutna-hora-a']);
+    TeamSeason::factory()->for($notImported)->for($previousSeason)->notImported()->create();
+    $alreadyInSeason = Team::factory()->create(['slug' => 'kutna-hora-c']);
+    TeamSeason::factory()->for($alreadyInSeason)->for($previousSeason)->create();
+    TeamSeason::factory()->for($alreadyInSeason)->for($season)->create();
+
+    $this->get('/teams')->assertInertia(fn (Assert $page) => $page
+        ->where('carryOverTeams', [
+            ['id' => $renamed->id, 'name' => 'FBC Kutná Hora B 2025/26', 'slug' => 'kutna-hora-b'],
+            ['id' => $notImported->id, 'name' => 'kutna-hora-a 2025/26', 'slug' => 'kutna-hora-a'],
+        ])
+        ->etc());
+});
+
+test('gives the address a new team\'s calendar gets from its slug', function () {
+    seasonOnTeamsPage();
+
+    $this->get('https://matchday.cz/teams')->assertInertia(fn (Assert $page) => $page
+        ->where('calendarUrlTemplate', 'https://matchday.cz/calendar/:slug.ics')
+        ->etc());
+});
+
 test('shows an empty list while the selected season has no team seasons', function () {
     seasonOnTeamsPage();
 
@@ -156,6 +185,7 @@ test('shows an empty list while the selected season has no team seasons', functi
 test('shows no list while there is no season', function () {
     $this->get('/teams')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->where('teamSeasons', null)
+        ->where('carryOverTeams', [])
         ->where('adminSelection.season', null)
         ->etc());
 });

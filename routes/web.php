@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
     Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
     Route::get('teams', [TeamSeasonController::class, 'index'])->name('teams.index');
+    Route::post('teams', [TeamSeasonController::class, 'store'])->name('teams.store');
     Route::patch('teams/{teamSeason}', [TeamSeasonController::class, 'update'])->name('teams.update');
     Route::get('seasons', [SeasonController::class, 'index'])->name('seasons.index');
     Route::post('seasons', [SeasonController::class, 'store'])->name('seasons.store');

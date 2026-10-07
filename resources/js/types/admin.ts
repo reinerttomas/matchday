@@ -173,3 +173,9 @@ export type SeasonListItem = {
     isCurrent: boolean;
     teamSeasonsCount: number;
 };
+
+export type CarryOverTeam = {
+    id: number;
+    name: string;
+    slug: string;
+};

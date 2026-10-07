@@ -1,17 +1,30 @@
-import { Head, router, usePage } from '@inertiajs/react';
-import { Copy, ExternalLink, Globe, MoreHorizontal, Users } from 'lucide-react';
+import { Form, Head, router, usePage } from '@inertiajs/react';
+import {
+    Copy,
+    ExternalLink,
+    Globe,
+    MoreHorizontal,
+    Plus,
+    TriangleAlert,
+    Users,
+} from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import Heading from '@/components/heading';
 import { ImportStatusBadge } from '@/components/import-status-badge';
+import InputError from '@/components/input-error';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
     DropdownMenu,
@@ -26,6 +39,15 @@ import {
     EmptyTitle,
 } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import {
     Table,
@@ -35,20 +57,31 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useClipboard } from '@/hooks/use-clipboard';
-import { index, update } from '@/routes/teams';
-import type { TeamSeasonLastImport, TeamSeasonListItem } from '@/types';
+import { index, store, update } from '@/routes/teams';
+import type {
+    CarryOverTeam,
+    TeamSeasonLastImport,
+    TeamSeasonListItem,
+} from '@/types';
 
 type Props = {
     teamSeasons: TeamSeasonListItem[] | null;
+    carryOverTeams: CarryOverTeam[];
+    calendarUrlTemplate: string;
 };
 
-export default function Teams({ teamSeasons }: Props) {
+export default function Teams({
+    teamSeasons,
+    carryOverTeams,
+    calendarUrlTemplate,
+}: Props) {
     const { adminSelection } = usePage().props;
     const season = adminSelection?.season ?? null;
 
@@ -56,7 +89,7 @@ export default function Teams({ teamSeasons }: Props) {
         <>
             <Head title="Týmy" />
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <Heading
                         title="Týmy"
                         description={
@@ -65,6 +98,13 @@ export default function Teams({ teamSeasons }: Props) {
                                 : `Týmy sezony ${season.name}. Automatický import stahuje rozpis každé 4 hodiny.`
                         }
                     />
+                    {season !== null && (
+                        <AddTeamDialog
+                            seasonName={season.name}
+                            carryOverTeams={carryOverTeams}
+                            calendarUrlTemplate={calendarUrlTemplate}
+                        />
+                    )}
                 </div>
                 {teamSeasons === null || season === null ? (
                     <NoTeamSeasons />
@@ -99,6 +139,244 @@ function NoTeamsInSeason({ seasonName }: { seasonName: string }) {
                 </EmptyTitle>
             </EmptyHeader>
         </Empty>
+    );
+}
+
+function AddTeamDialog({
+    seasonName,
+    carryOverTeams,
+    calendarUrlTemplate,
+}: {
+    seasonName: string;
+    carryOverTeams: CarryOverTeam[];
+    calendarUrlTemplate: string;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button className="self-start" data-test="add-team">
+                    <Plus />
+                    Přidat tým
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Přidat tým do sezony {seasonName}</DialogTitle>
+                    <DialogDescription>
+                        Hned po přidání se stáhne rozpis zápasů týmu. Název týmu
+                        a soutěž se doplní z ceskyflorbal.cz.
+                    </DialogDescription>
+                </DialogHeader>
+                <Tabs defaultValue="new">
+                    <TabsList className="w-full">
+                        <TabsTrigger value="new" data-test="add-new-team">
+                            Nový tým
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="carry-over"
+                            disabled={carryOverTeams.length === 0}
+                            data-test="carry-over-team"
+                        >
+                            Existující tým
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="new">
+                        <NewTeamForm
+                            calendarUrlTemplate={calendarUrlTemplate}
+                            onSuccess={() => setIsOpen(false)}
+                        />
+                    </TabsContent>
+                    <TabsContent value="carry-over">
+                        <CarryOverTeamForm
+                            seasonName={seasonName}
+                            carryOverTeams={carryOverTeams}
+                            onSuccess={() => setIsOpen(false)}
+                        />
+                    </TabsContent>
+                </Tabs>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+function NewTeamForm({
+    calendarUrlTemplate,
+    onSuccess,
+}: {
+    calendarUrlTemplate: string;
+    onSuccess: () => void;
+}) {
+    const [slug, setSlug] = useState('');
+
+    return (
+        <Form
+            {...store.form()}
+            options={{ preserveScroll: true }}
+            onSuccess={onSuccess}
+            className="grid gap-4 pt-2"
+        >
+            {({ processing, errors }) => (
+                <>
+                    <SourceUrlField
+                        id="new-team-source-url"
+                        error={errors.source_url}
+                        autoFocus
+                    />
+                    <div className="grid gap-2">
+                        <Label htmlFor="new-team-slug">Slug</Label>
+                        <Input
+                            id="new-team-slug"
+                            name="slug"
+                            required
+                            autoComplete="off"
+                            placeholder="kutna-hora-b"
+                            value={slug}
+                            onChange={(event) => setSlug(event.target.value)}
+                            aria-invalid={errors.slug !== undefined}
+                            aria-describedby="new-team-calendar-url"
+                        />
+                        <InputError message={errors.slug} />
+                        <p
+                            id="new-team-calendar-url"
+                            className="text-sm text-muted-foreground"
+                        >
+                            Adresa kalendáře:{' '}
+                            <span
+                                className="font-mono text-xs break-all text-foreground"
+                                data-test="calendar-url-preview"
+                            >
+                                {calendarUrlTemplate.replace(
+                                    ':slug',
+                                    slug === '' ? 'slug' : slug,
+                                )}
+                            </span>
+                        </p>
+                    </div>
+                    <Alert>
+                        <TriangleAlert />
+                        <AlertTitle>Slug později nepůjde změnit</AlertTitle>
+                        <AlertDescription>
+                            Je součástí adresy kalendáře, kterou si hráči
+                            přidají do svých kalendářů. Zůstává týmu i v dalších
+                            sezonách.
+                        </AlertDescription>
+                    </Alert>
+                    <AddTeamFooter processing={processing} />
+                </>
+            )}
+        </Form>
+    );
+}
+
+function CarryOverTeamForm({
+    seasonName,
+    carryOverTeams,
+    onSuccess,
+}: {
+    seasonName: string;
+    carryOverTeams: CarryOverTeam[];
+    onSuccess: () => void;
+}) {
+    return (
+        <Form
+            {...store.form()}
+            options={{ preserveScroll: true }}
+            onSuccess={onSuccess}
+            className="grid gap-4 pt-2"
+        >
+            {({ processing, errors }) => (
+                <>
+                    <div className="grid gap-2">
+                        <Label htmlFor="carry-over-team-id">Tým</Label>
+                        <Select name="team_id" required>
+                            <SelectTrigger
+                                id="carry-over-team-id"
+                                className="w-full"
+                                aria-invalid={errors.team_id !== undefined}
+                                data-test="carry-over-team-select"
+                            >
+                                <SelectValue placeholder="Vyberte tým" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {carryOverTeams.map((team) => (
+                                    <SelectItem
+                                        key={team.id}
+                                        value={String(team.id)}
+                                    >
+                                        {team.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <InputError message={errors.team_id} />
+                    </div>
+                    <SourceUrlField
+                        id="carry-over-team-source-url"
+                        error={errors.source_url}
+                        description={`Svaz dává týmu každou sezonu nový rozpis. Zadejte adresu rozpisu pro sezonu ${seasonName}.`}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                        Slug i adresa kalendáře zůstanou stejné, takže hráči
+                        nemusí kalendář přidávat znovu.
+                    </p>
+                    <AddTeamFooter processing={processing} />
+                </>
+            )}
+        </Form>
+    );
+}
+
+function SourceUrlField({
+    id,
+    error,
+    description = 'Otevřete rozpis zápasů týmu na ceskyflorbal.cz a zkopírujte adresu stránky.',
+    autoFocus = false,
+}: {
+    id: string;
+    error: string | undefined;
+    description?: string;
+    autoFocus?: boolean;
+}) {
+    return (
+        <div className="grid gap-2">
+            <Label htmlFor={id}>Adresa rozpisu zápasů</Label>
+            <Input
+                id={id}
+                name="source_url"
+                required
+                autoFocus={autoFocus}
+                autoComplete="off"
+                inputMode="url"
+                placeholder="https://www.ceskyflorbal.cz/team/detail/matches/45019"
+                aria-invalid={error !== undefined}
+                aria-describedby={`${id}-description`}
+            />
+            <p
+                id={`${id}-description`}
+                className="text-sm text-muted-foreground"
+            >
+                {description}
+            </p>
+            <InputError message={error} />
+        </div>
+    );
+}
+
+function AddTeamFooter({ processing }: { processing: boolean }) {
+    return (
+        <DialogFooter>
+            <DialogClose asChild>
+                <Button type="button" variant="outline">
+                    Zrušit
+                </Button>
+            </DialogClose>
+            <Button type="submit" disabled={processing} data-test="store-team">
+                {processing && <Spinner />}
+                Přidat tým
+            </Button>
+        </DialogFooter>
     );
 }
 
