@@ -1,7 +1,7 @@
-import * as SelectPrimitive from "@radix-ui/react-select"
+import * as React from "react"
 import { cn } from "cn"
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
-import * as React from "react"
+import { Select as SelectPrimitive } from "radix-ui"
 
 function Select({
   ...props

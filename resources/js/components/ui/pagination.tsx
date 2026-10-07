@@ -1,11 +1,11 @@
-import { Slot } from "@radix-ui/react-slot"
-import { cn } from "cn"
 import * as React from "react"
+import { cn } from "cn"
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MoreHorizontalIcon,
 } from "lucide-react"
+import { Slot } from "radix-ui"
 
 import { buttonVariants, type Button } from "@/components/ui/button"
 
@@ -51,7 +51,7 @@ function PaginationLink({
   asChild = false,
   ...props
 }: PaginationLinkProps) {
-  const Comp = asChild ? Slot : "a"
+  const Comp = asChild ? Slot.Root : "a"
 
   return (
     <Comp
