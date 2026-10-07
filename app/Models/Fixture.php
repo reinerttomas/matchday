@@ -137,6 +137,31 @@ final class Fixture extends Model
     }
 
     /**
+     * Read the fixture's revisable values as they were right after the import: the stored values, except that a field a later import revised takes the old value of the earliest such revision.
+     *
+     * It reads the fixture's revisions relation, so callers that do this for many fixtures eager load it.
+     *
+     * @return array<string, string|null> keyed by the revision field
+     */
+    public function revisableValuesAfter(Import $import): array
+    {
+        $values = $this->revisableValues();
+
+        // Newest first, so the earliest later revision of a field is applied last.
+        $laterRevisions = $this->revisions
+            ->filter(fn (Revision $revision): bool => $revision->import_id > $import->id)
+            ->sortBy([['import_id', 'desc'], ['id', 'desc']]);
+
+        foreach ($laterRevisions as $revision) {
+            if ($revision->field !== null) {
+                $values[$revision->field->value] = $revision->old_value;
+            }
+        }
+
+        return $values;
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

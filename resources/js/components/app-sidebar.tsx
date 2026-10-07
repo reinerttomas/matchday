@@ -23,17 +23,12 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard, publicTeamPage } from '@/routes';
+import { index as changes } from '@/routes/changes';
 import { index as fixtures } from '@/routes/fixtures';
 import { index as imports } from '@/routes/imports';
 import type { NavItem, SidebarNavItem } from '@/types';
 
 // Pages without a route yet stay disabled (href null) until their tickets add them.
-const teamNavItems: SidebarNavItem[] = [
-    { title: 'Rozpis zápasů', href: fixtures(), icon: CalendarDays },
-    { title: 'Změny', href: null, icon: History },
-    { title: 'Importy', href: imports(), icon: DownloadCloud },
-];
-
 const settingsNavItems: SidebarNavItem[] = [
     { title: 'Týmy', href: null, icon: Users },
     { title: 'Haly', href: null, icon: MapPin },
@@ -41,8 +36,19 @@ const settingsNavItems: SidebarNavItem[] = [
 ];
 
 export function AppSidebar() {
-    const { adminSelection } = usePage().props;
+    const { adminSelection, unsentChangeSummaryCount } = usePage().props;
     const teamSeason = adminSelection?.teamSeason ?? null;
+
+    const teamNavItems: SidebarNavItem[] = [
+        { title: 'Rozpis zápasů', href: fixtures(), icon: CalendarDays },
+        {
+            title: 'Změny',
+            href: changes(),
+            icon: History,
+            badge: unsentChangeSummaryCount,
+        },
+        { title: 'Importy', href: imports(), icon: DownloadCloud },
+    ];
 
     const footerNavItems: NavItem[] =
         teamSeason === null

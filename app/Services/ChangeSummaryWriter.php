@@ -32,14 +32,13 @@ final readonly class ChangeSummaryWriter
     public function write(Import $import): ?string
     {
         $teamSeason = $import->teamSeason;
-        $revisions = $import->revisions()->with(['fixture.venue', 'fixture.teamSeason.team'])->get();
-        $valuesAfterImport = $this->valuesAfterImport($import, $revisions->pluck('fixture'));
+        $revisions = $import->revisions()->with(['fixture.venue', 'fixture.teamSeason.team', 'fixture.revisions'])->get();
 
         $bullets = $revisions
             ->groupBy('fixture_id')
-            ->map(fn (Collection $fixtureRevisions, int $fixtureId): ?array => $this->bullet(
+            ->map(fn (Collection $fixtureRevisions): ?array => $this->bullet(
                 $fixtureRevisions->firstOrFail()->fixture,
-                $valuesAfterImport[$fixtureId],
+                $fixtureRevisions->firstOrFail()->fixture->revisableValuesAfter($import),
                 $fixtureRevisions->keyBy(fn (Revision $revision): string => $revision->field->value ?? self::ADDED),
             ))
             ->filter()
@@ -65,32 +64,6 @@ final readonly class ChangeSummaryWriter
     public function whatsAppUrl(string $summary): string
     {
         return 'https://wa.me/?text='.rawurlencode($summary);
-    }
-
-    /**
-     * Rebuild the revisable values each fixture had right after the import: the stored values, except that a field a later import revised takes the old value of the earliest such revision.
-     *
-     * @param  Collection<int, Fixture>  $fixtures
-     * @return array<int, array<string, string|null>> keyed by the fixture ID, then by the revision field
-     */
-    private function valuesAfterImport(Import $import, Collection $fixtures): array
-    {
-        $values = $fixtures->mapWithKeys(fn (Fixture $fixture): array => [$fixture->id => $fixture->revisableValues()])->all();
-
-        // Newest first, so the earliest later revision of a field is applied last.
-        $laterRevisions = Revision::query()
-            ->whereIn('fixture_id', array_keys($values))
-            ->where('import_id', '>', $import->id)
-            ->whereNotNull('field')
-            ->orderByDesc('import_id')
-            ->orderByDesc('id')
-            ->get();
-
-        foreach ($laterRevisions as $revision) {
-            $values[$revision->fixture_id][$revision->field->value] = $revision->old_value;
-        }
-
-        return $values;
     }
 
     /**

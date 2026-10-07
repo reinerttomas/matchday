@@ -101,6 +101,11 @@ return [
         'last_finished' => 'Naposledy staženo :ago',
     ],
 
+    'changes' => [
+        'notified' => 'Odesláno týmu :date v :time',
+        'initial_import' => '{1} :count zápas přidán do rozpisu|[2,4] :count zápasy přidány do rozpisu|[0,*] :count zápasů přidáno do rozpisu',
+    ],
+
     'manual_import' => [
         'queued' => 'Stahování rozpisu bylo spuštěno.',
     ],

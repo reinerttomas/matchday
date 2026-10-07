@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Fragment } from 'react';
 import Heading from '@/components/heading';
+import { Matchup } from '@/components/matchup';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
 import { SynchronizeButton } from '@/components/synchronize-button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -265,7 +266,7 @@ function FixtureTable({ months }: { months: FixtureListMonth[] }) {
                                         <FixtureTime time={fixture.time} />
                                     </TableCell>
                                     <TableCell className="whitespace-normal">
-                                        <Matchup fixture={fixture} />
+                                        <FixtureMatchup fixture={fixture} />
                                     </TableCell>
                                     <TableCell className="whitespace-normal text-muted-foreground">
                                         {fixture.venue ?? '–'}
@@ -320,7 +321,7 @@ function FixtureCardItem({ fixture }: { fixture: FixtureListItem }) {
                 <span>{fixture.day}</span>
                 <FixtureTime time={fixture.time} />
             </div>
-            <Matchup fixture={fixture} />
+            <FixtureMatchup fixture={fixture} />
             {fixture.venue !== null && (
                 <span className="inline-flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
                     <MapPin className="size-3.5 shrink-0" aria-hidden />
@@ -348,25 +349,15 @@ function FixtureTime({ time }: { time: string | null }) {
     return <span className="tabular-nums">{time}</span>;
 }
 
-function Matchup({ fixture }: { fixture: FixtureListItem }) {
+function FixtureMatchup({ fixture }: { fixture: FixtureListItem }) {
     return (
-        <p
+        <Matchup
+            parts={fixture.matchup}
             className={cn(
-                'break-words',
                 fixture.status === 'cancelled' &&
                     'text-muted-foreground line-through',
             )}
-        >
-            {fixture.matchup.map((part, position) =>
-                part.isOurTeam ? (
-                    <strong key={position} className="font-semibold">
-                        {part.text}
-                    </strong>
-                ) : (
-                    <span key={position}>{part.text}</span>
-                ),
-            )}
-        </p>
+        />
     );
 }
 

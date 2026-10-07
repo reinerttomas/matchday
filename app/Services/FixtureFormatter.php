@@ -15,6 +15,7 @@ use Carbon\CarbonInterface;
  * Formats fixtures and their revisions the same way wherever the app shows them: the public team page, the admin pages and the change summary.
  *
  * @phpstan-type MatchupPart array{text: string, isOurTeam: bool}
+ * @phpstan-type RevisionPart array{text: string, kind: 'text'|'field'|'old_value'|'new_value'|'added'}
  */
 final readonly class FixtureFormatter
 {
@@ -78,15 +79,28 @@ final readonly class FixtureFormatter
      */
     public function revision(Revision $revision): string
     {
+        return implode('', array_column($this->revisionParts($revision), 'text'));
+    }
+
+    /**
+     * Describe a revision as parts, so a page can strike through the old value while the wording stays in the translation file.
+     *
+     * @return list<RevisionPart>
+     */
+    public function revisionParts(Revision $revision): array
+    {
         if ($revision->field === null) {
-            return __('revisions.fixture_added');
+            return [['text' => __('revisions.fixture_added'), 'kind' => 'added']];
         }
 
-        return __('revisions.field_change', [
-            'field' => $revision->field->label(),
-            'old_value' => $this->revisionValue($revision->field, $revision->old_value),
-            'new_value' => $this->revisionValue($revision->field, $revision->new_value),
-        ]);
+        $values = [
+            ':field' => ['text' => $revision->field->label(), 'kind' => 'field'],
+            ':old_value' => ['text' => $this->revisionValue($revision->field, $revision->old_value), 'kind' => 'old_value'],
+            ':new_value' => ['text' => $this->revisionValue($revision->field, $revision->new_value), 'kind' => 'new_value'],
+        ];
+        $parts = preg_split('/(:field\b|:old_value\b|:new_value\b)/', __('revisions.field_change'), flags: PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) ?: [];
+
+        return array_map(fn (string $part): array => $values[$part] ?? ['text' => $part, 'kind' => 'text'], $parts);
     }
 
     /**

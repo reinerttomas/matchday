@@ -18,4 +18,6 @@ export type NavItem = {
  */
 export type SidebarNavItem = Omit<NavItem, 'href'> & {
     href: NavItem['href'] | null;
+    /** A count shown next to the link; zero shows nothing. */
+    badge?: number | null;
 };

@@ -13,6 +13,7 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             adminSelection: AdminSelection | null;
+            unsentChangeSummaryCount: number | null;
             sidebarOpen: boolean;
             [key: string]: unknown;
         };

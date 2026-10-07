@@ -104,3 +104,44 @@ export type FixtureList = {
     lastImportFailure: ImportFailure | null;
     months: FixtureListMonth[];
 };
+
+export type RevisionPartKind =
+    | 'text'
+    | 'field'
+    | 'old_value'
+    | 'new_value'
+    | 'added';
+
+export type RevisionPart = {
+    text: string;
+    kind: RevisionPartKind;
+};
+
+export type AddedFixture = {
+    id: number;
+    day: string;
+    matchup: MatchupPart[];
+};
+
+export type RevisedFixture = AddedFixture & {
+    revisions: RevisionPart[][];
+};
+
+export type RevisingImport = {
+    id: number;
+    startedAt: string;
+    notified: string | null;
+    fixtures: RevisedFixture[];
+};
+
+export type InitialImport = {
+    id: number;
+    startedAt: string;
+    summary: string;
+    fixtures: AddedFixture[];
+};
+
+export type RevisionHistory = {
+    imports: RevisingImport[];
+    initialImport: InitialImport | null;
+};

@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ImportStatus;
 use Database\Factories\TeamSeasonFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Carbon;
 
 /**
@@ -28,6 +32,7 @@ use Illuminate\Support\Carbon;
  * @property-read Season $season
  * @property-read Collection<int, Fixture> $fixtures
  * @property-read Collection<int, Import> $imports
+ * @property-read Import|null $initialImport
  */
 #[Fillable(['team_id', 'season_id', 'external_id', 'source_url', 'name', 'competition_name', 'auto_import_enabled'])]
 final class TeamSeason extends Model
@@ -73,6 +78,41 @@ final class TeamSeason extends Model
     public function imports(): HasMany
     {
         return $this->hasMany(Import::class);
+    }
+
+    /**
+     * Get the team season's initial import: its first successful one, whose additions are never announced to the team.
+     *
+     * @return HasOne<Import, $this>
+     */
+    public function initialImport(): HasOne
+    {
+        return $this->imports()->one()->ofMany(
+            ['started_at' => 'min', 'id' => 'min'],
+            fn (Builder $query): Builder => $query->where('status', ImportStatus::Ok),
+        );
+    }
+
+    /**
+     * Get the team season's imports that recorded revisions to announce to the team: every one with revisions except the initial import.
+     *
+     * The initial import is left out by requiring an earlier successful import rather than by its ID, so the relation also holds when eager loaded.
+     *
+     * @return HasMany<Import, $this>
+     */
+    public function revisingImports(): HasMany
+    {
+        return $this->imports()
+            ->whereHas('revisions')
+            ->whereExists(fn (QueryBuilder $earlierImports): QueryBuilder => $earlierImports
+                ->from('imports', 'earlier_imports')
+                ->whereColumn('earlier_imports.team_season_id', 'imports.team_season_id')
+                ->where('earlier_imports.status', ImportStatus::Ok)
+                ->where(fn (QueryBuilder $earlier): QueryBuilder => $earlier
+                    ->whereColumn('earlier_imports.started_at', '<', 'imports.started_at')
+                    ->orWhere(fn (QueryBuilder $sameStart): QueryBuilder => $sameStart
+                        ->whereColumn('earlier_imports.started_at', 'imports.started_at')
+                        ->whereColumn('earlier_imports.id', '<', 'imports.id'))));
     }
 
     /**

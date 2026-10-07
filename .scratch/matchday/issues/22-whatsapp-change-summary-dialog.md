@@ -21,3 +21,5 @@
 
 - Spec: "Change summary", user stories 72–76; the browser test is listed in "Testing Decisions".
 - Reuse the existing change summary writer and its WhatsApp link; don't generate the text on the client.
+- An import whose only revision is `is_rescheduled` 1 → 0 is listed on Změny and counted as unsent (ticket 21 follows the spec's definition), but `ChangeSummaryWriter::write()` returns null for it, so there is no text to send. Decide how the dialog handles it, e.g. no text and only "Označit jako odesláno".
+- Ticket 21 renders "Poslat do WhatsAppu" disabled in `resources/js/pages/changes/index.tsx`; wire it here. The imports to announce are `TeamSeason::revisingImports()`, which marking should reuse for its "has revisions and isn't the initial import" check.

@@ -9,6 +9,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\FixtureController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PublicTeamPageController;
+use App\Http\Controllers\RevisionController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('admin-selection', AdminSelectionController::class)->name('admin-selection.update');
 
     Route::get('fixtures', [FixtureController::class, 'index'])->name('fixtures.index');
+    Route::get('changes', [RevisionController::class, 'index'])->name('changes.index');
     Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
     Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
 });
