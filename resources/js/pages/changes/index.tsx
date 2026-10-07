@@ -1,6 +1,7 @@
 import { Head } from '@inertiajs/react';
-import { CheckCheck, ChevronDown, History, Send } from 'lucide-react';
+import { CheckCheck, ChevronDown, History } from 'lucide-react';
 import { useState } from 'react';
+import { ChangeSummaryDialog } from '@/components/change-summary-dialog';
 import Heading from '@/components/heading';
 import { Matchup } from '@/components/matchup';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
@@ -128,11 +129,7 @@ function RevisingImportCard({
                         {revisingImport.notified}
                     </Badge>
                 ) : (
-                    // Ticket 22 opens the change summary dialog from here; until then the button stays disabled.
-                    <Button size="sm" disabled>
-                        <Send />
-                        Poslat do WhatsAppu
-                    </Button>
+                    <ChangeSummaryDialog importId={revisingImport.id} />
                 )}
             </CardHeader>
             <CardContent>

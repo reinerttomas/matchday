@@ -6,10 +6,12 @@ use App\Http\Controllers\AdminSelectionController;
 use App\Http\Controllers\Auth\GoogleCallbackController;
 use App\Http\Controllers\Auth\GoogleRedirectController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ChangeSummaryController;
 use App\Http\Controllers\FixtureController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PublicTeamPageController;
 use App\Http\Controllers\RevisionController;
+use App\Http\Controllers\SentChangeSummaryController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -30,6 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('fixtures', [FixtureController::class, 'index'])->name('fixtures.index');
     Route::get('changes', [RevisionController::class, 'index'])->name('changes.index');
+    Route::get('changes/{import}/summary', [ChangeSummaryController::class, 'show'])->name('changes.summary.show');
+    Route::post('changes/{import}/sent', [SentChangeSummaryController::class, 'store'])->name('changes.sent.store');
     Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
     Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
 });

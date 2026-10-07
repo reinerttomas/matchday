@@ -4,18 +4,18 @@
 
 **Blocked by:** 21 — Změny: the imports that changed the fixture list
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] "Poslat do WhatsAppu" opens a "Souhrn změn pro WhatsApp" dialog with the import's change summary in an editable text field.
-- [ ] "Kopírovat text" copies the current (edited) text.
-- [ ] "Otevřít WhatsApp" opens `https://wa.me/?text=…` with the current (edited) text, URL-encoded, in a new tab.
-- [ ] "Označit jako odesláno" appears only after WhatsApp was opened. Marking sets the import's `notified_at`, closes the dialog, shows "Odesláno týmu {kdy}" and lowers the sidebar count.
-- [ ] Edits to the text aren't persisted.
-- [ ] Marking requires login, only works for an import with revisions that isn't the initial import, and marking an already sent import doesn't change its `notified_at`.
-- [ ] UI is built from shadcn components (Dialog, Textarea, Button, …).
-- [ ] Feature tests cover the summary text in the props (or the endpoint that serves it) and the mark-as-sent action with its failure modes.
-- [ ] A browser test covers: edit the text → "Otevřít WhatsApp" carries the edited text in the wa.me link → "Označit jako odesláno" appears → after marking the dialog closes and the sidebar count drops.
-- [ ] `composer ci:check` passes.
+- [x] "Poslat do WhatsAppu" opens a "Souhrn změn pro WhatsApp" dialog with the import's change summary in an editable text field.
+- [x] "Kopírovat text" copies the current (edited) text.
+- [x] "Otevřít WhatsApp" opens `https://wa.me/?text=…` with the current (edited) text, URL-encoded, in a new tab.
+- [x] "Označit jako odesláno" appears only after WhatsApp was opened. Marking sets the import's `notified_at`, closes the dialog, shows "Odesláno týmu {kdy}" and lowers the sidebar count.
+- [x] Edits to the text aren't persisted.
+- [x] Marking requires login, only works for an import with revisions that isn't the initial import, and marking an already sent import doesn't change its `notified_at`.
+- [x] UI is built from shadcn components (Dialog, Textarea, Button, …).
+- [x] Feature tests cover the summary text in the props (or the endpoint that serves it) and the mark-as-sent action with its failure modes.
+- [x] A browser test covers: edit the text → "Otevřít WhatsApp" carries the edited text in the wa.me link → "Označit jako odesláno" appears → after marking the dialog closes and the sidebar count drops.
+- [x] `composer ci:check` passes.
 
 ## Notes
 

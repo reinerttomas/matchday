@@ -104,6 +104,7 @@ return [
     'changes' => [
         'notified' => 'Odesláno týmu :date v :time',
         'initial_import' => '{1} :count zápas přidán do rozpisu|[2,4] :count zápasy přidány do rozpisu|[0,*] :count zápasů přidáno do rozpisu',
+        'marked_as_sent' => 'Souhrn změn je označený jako odeslaný.',
     ],
 
     'manual_import' => [
