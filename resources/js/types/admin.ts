@@ -100,6 +100,7 @@ export type FixtureList = {
     upcomingCount: number;
     seasonCount: number;
     isImported: boolean;
+    lastImportFinished: string | null;
     lastImportFailure: ImportFailure | null;
     months: FixtureListMonth[];
 };

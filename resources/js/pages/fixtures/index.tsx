@@ -8,9 +8,9 @@ import {
 import { Fragment } from 'react';
 import Heading from '@/components/heading';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
+import { SynchronizeButton } from '@/components/synchronize-button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
     Empty,
@@ -34,6 +34,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useImportPolling } from '@/hooks/use-import-polling';
 import { cn } from '@/lib/utils';
 import { index } from '@/routes/fixtures';
 import { index as imports } from '@/routes/imports';
@@ -48,17 +49,26 @@ import type {
 
 type Props = {
     fixtureList: FixtureList | null;
+    isImportRunning: boolean;
 };
 
-export default function Fixtures({ fixtureList }: Props) {
+export default function Fixtures({ fixtureList, isImportRunning }: Props) {
+    useImportPolling(isImportRunning);
+
     return (
         <>
             <Head title="Rozpis zápasů" />
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <Heading
-                    title="Rozpis zápasů"
-                    description="Rozpis tak, jak je uložený v aplikaci, pro srovnání s ceskyflorbal.cz."
-                />
+                <div className="flex items-start justify-between gap-4">
+                    <Heading
+                        title="Rozpis zápasů"
+                        description={freshness(fixtureList, isImportRunning)}
+                    />
+                    {/* A never imported fixture list offers the button in its empty state instead. */}
+                    {fixtureList?.isImported && (
+                        <SynchronizeButton isImportRunning={isImportRunning} />
+                    )}
+                </div>
                 {fixtureList === null ? (
                     <NoTeamSeasons />
                 ) : (
@@ -71,12 +81,26 @@ export default function Fixtures({ fixtureList }: Props) {
                         {fixtureList.isImported ? (
                             <ImportedFixtureList fixtureList={fixtureList} />
                         ) : (
-                            <NeverImported />
+                            <NeverImported isImportRunning={isImportRunning} />
                         )}
                     </>
                 )}
             </div>
         </>
+    );
+}
+
+function freshness(
+    fixtureList: FixtureList | null,
+    isImportRunning: boolean,
+): string {
+    if (fixtureList !== null && isImportRunning) {
+        return 'Stahuji rozpis…';
+    }
+
+    return (
+        fixtureList?.lastImportFinished ??
+        'Rozpis tak, jak je uložený v aplikaci, pro srovnání s ceskyflorbal.cz.'
     );
 }
 
@@ -116,7 +140,7 @@ function ImportFailureAlert({ failure }: { failure: ImportFailure }) {
     );
 }
 
-function NeverImported() {
+function NeverImported({ isImportRunning }: { isImportRunning: boolean }) {
     return (
         <Empty className="border">
             <EmptyHeader>
@@ -129,11 +153,7 @@ function NeverImported() {
                 </EmptyDescription>
             </EmptyHeader>
             <EmptyContent>
-                {/* The manual import comes with ticket 20; until then the button stays disabled. */}
-                <Button disabled>
-                    <DownloadCloud />
-                    Synchronizovat
-                </Button>
+                <SynchronizeButton isImportRunning={isImportRunning} />
             </EmptyContent>
         </Empty>
     );

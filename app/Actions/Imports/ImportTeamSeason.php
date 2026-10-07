@@ -26,11 +26,6 @@ use UnexpectedValueException;
 final readonly class ImportTeamSeason
 {
     /**
-     * A running import older than this is taken for one whose worker or process was killed, as it is well past the queued import's 300 second timeout. A scheduled import only comes near it when nearly every request runs into the client's 30 second timeout.
-     */
-    private const int DEAD_RUNNING_IMPORT_MINUTES = 15;
-
-    /**
      * Create a new instance.
      */
     public function __construct(
@@ -76,14 +71,12 @@ final readonly class ImportTeamSeason
     private function start(TeamSeason $teamSeason, ImportTrigger $trigger): ?Import
     {
         $import = Cache::lock("imports:team-season:{$teamSeason->id}", 10)->get(function () use ($teamSeason, $trigger): ?Import {
-            $runningImports = $teamSeason->imports()->where('status', ImportStatus::Running)->get();
-            $deadAfter = now()->subMinutes(self::DEAD_RUNNING_IMPORT_MINUTES);
-
-            if ($runningImports->contains(fn (Import $runningImport): bool => $runningImport->started_at->isAfter($deadAfter))) {
+            if ($teamSeason->imports()->alive()->exists()) {
                 return null;
             }
 
-            foreach ($runningImports as $deadImport) {
+            // No running import is alive by now, so every one left is dead.
+            foreach ($teamSeason->imports()->where('status', ImportStatus::Running)->get() as $deadImport) {
                 $this->endDeadImport($deadImport);
             }
 

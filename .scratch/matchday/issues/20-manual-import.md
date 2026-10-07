@@ -4,18 +4,18 @@
 
 **Blocked by:** 18 — Admin shell and the Importy page; 19 — Rozpis zápasů: the stored fixture list
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] A "Synchronizovat" button on Rozpis zápasů and on Importy dispatches the queued import job for the selected team season with trigger manual, and returns right away.
-- [ ] The never-imported empty state on Rozpis zápasů offers the same action.
-- [ ] A manual import works for a team season outside the current season.
-- [ ] Under the Rozpis zápasů heading: "Naposledy staženo před …" (relative to the last finished import), or "Stahuji rozpis…" while an import of the team season runs.
-- [ ] The button is disabled while an import of the team season runs.
-- [ ] While an import runs, the page polls and stops polling once it has finished, showing the new data and import without a manual reload.
-- [ ] Pressing the button while an import is already running doesn't start a second one (the import module already skips it); the action doesn't fail.
-- [ ] UI is built from shadcn components (Button, Spinner, …).
-- [ ] Feature tests cover: the action dispatches the job for the selected team season (`Queue::fake()`), it requires login, the running/not-running props that drive the button and the heading, and "Naposledy staženo" with `travelTo()`.
-- [ ] `composer ci:check` passes.
+- [x] A "Synchronizovat" button on Rozpis zápasů and on Importy dispatches the queued import job for the selected team season with trigger manual, and returns right away.
+- [x] The never-imported empty state on Rozpis zápasů offers the same action.
+- [x] A manual import works for a team season outside the current season.
+- [x] Under the Rozpis zápasů heading: "Naposledy staženo před …" (relative to the last finished import), or "Stahuji rozpis…" while an import of the team season runs.
+- [x] The button is disabled while an import of the team season runs.
+- [x] While an import runs, the page polls and stops polling once it has finished, showing the new data and import without a manual reload.
+- [x] Pressing the button while an import is already running doesn't start a second one (the import module already skips it); the action doesn't fail.
+- [x] UI is built from shadcn components (Button, Spinner, …).
+- [x] Feature tests cover: the action dispatches the job for the selected team season (`Queue::fake()`), it requires login, the running/not-running props that drive the button and the heading, and "Naposledy staženo" with `travelTo()`.
+- [x] `composer ci:check` passes.
 
 ## Notes
 

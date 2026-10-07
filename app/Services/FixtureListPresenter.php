@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Enums\FixtureStatus;
 use App\Enums\ImportStatus;
 use App\Models\Fixture;
+use App\Models\Import;
 use App\Models\Revision;
 use App\Models\TeamSeason;
 use Carbon\CarbonImmutable;
@@ -22,7 +23,7 @@ use Illuminate\Support\Str;
  * @phpstan-type FixtureProps array{id: int, day: string, time: string|null, matchup: list<MatchupPart>, venue: string|null, status: string, badges: list<BadgeProps>, score: string|null, revisions: list<string>}
  * @phpstan-type MonthProps array{month: string, heading: string, fixtures: list<FixtureProps>}
  * @phpstan-type ImportFailureProps array{status: string, reason: string|null}
- * @phpstan-type FixtureListProps array{period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFailure: ImportFailureProps|null, months: list<MonthProps>}
+ * @phpstan-type FixtureListProps array{period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFinished: string|null, lastImportFailure: ImportFailureProps|null, months: list<MonthProps>}
  */
 final readonly class FixtureListPresenter
 {
@@ -66,18 +67,38 @@ final readonly class FixtureListPresenter
             ->get();
 
         $upcomingFixtures = $fixtures->filter(fn (Fixture $fixture): bool => $fixture->date->toDateString() >= $today);
+        $lastSuccessfulImport = $teamSeason->imports()
+            ->where('status', ImportStatus::Ok)
+            ->latest('started_at')
+            ->latest('id')
+            ->first();
 
         return [
             'period' => $showsWholeSeason ? 'season' : 'upcoming',
             'upcomingCount' => $upcomingFixtures->count(),
             'seasonCount' => $fixtures->count(),
-            'isImported' => $teamSeason->imports()->where('status', ImportStatus::Ok)->exists(),
+            'isImported' => $lastSuccessfulImport !== null,
+            'lastImportFinished' => $this->lastImportFinished($lastSuccessfulImport),
             'lastImportFailure' => $this->lastImportFailure($teamSeason),
             'months' => array_values(($showsWholeSeason ? $fixtures : $upcomingFixtures)
                 ->groupBy(fn (Fixture $fixture): string => $fixture->date->format('Y-m'))
                 ->map(fn (Collection $monthFixtures): array => $this->month($monthFixtures))
                 ->all()),
         ];
+    }
+
+    /**
+     * Tell how long ago the last successful import finished, such as "Naposledy staženo před 5 minutami", so the administrator knows how fresh the stored fixture list is.
+     *
+     * A failed import downloaded nothing, so it doesn't count; the failure alert reports it instead.
+     */
+    private function lastImportFinished(?Import $lastSuccessfulImport): ?string
+    {
+        if ($lastSuccessfulImport?->finished_at === null) {
+            return null;
+        }
+
+        return __('imports.fixture_list.last_finished', ['ago' => $lastSuccessfulImport->finished_at->diffForHumans()]);
     }
 
     /**

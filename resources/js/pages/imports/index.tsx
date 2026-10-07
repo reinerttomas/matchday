@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { DownloadCloud } from 'lucide-react';
 import Heading from '@/components/heading';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
+import { SynchronizeButton } from '@/components/synchronize-button';
 import { Badge } from '@/components/ui/badge';
 import {
     Empty,
@@ -27,22 +28,31 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useImportPolling } from '@/hooks/use-import-polling';
 import { index } from '@/routes/imports';
 import type { ImportHistoryItem, Paginated } from '@/types';
 
 type Props = {
     imports: Paginated<ImportHistoryItem> | null;
+    isImportRunning: boolean;
 };
 
-export default function Imports({ imports }: Props) {
+export default function Imports({ imports, isImportRunning }: Props) {
+    useImportPolling(isImportRunning);
+
     return (
         <>
             <Head title="Importy" />
             <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                <Heading
-                    title="Importy"
-                    description="Rozpis se stahuje z ceskyflorbal.cz každé 4 hodiny."
-                />
+                <div className="flex items-start justify-between gap-4">
+                    <Heading
+                        title="Importy"
+                        description="Rozpis se stahuje z ceskyflorbal.cz každé 4 hodiny."
+                    />
+                    {imports !== null && (
+                        <SynchronizeButton isImportRunning={isImportRunning} />
+                    )}
+                </div>
                 {imports === null ? (
                     <NoTeamSeasons />
                 ) : imports.data.length === 0 ? (
@@ -76,7 +86,8 @@ function NoImports() {
                 </EmptyMedia>
                 <EmptyTitle>Zatím žádné importy</EmptyTitle>
                 <EmptyDescription>
-                    První import proběhne při nejbližším stahování rozpisu.
+                    První import proběhne při nejbližším stahování rozpisu, nebo
+                    ho spusťte tlačítkem Synchronizovat.
                 </EmptyDescription>
             </EmptyHeader>
         </Empty>

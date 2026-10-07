@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('fixtures', [FixtureController::class, 'index'])->name('fixtures.index');
     Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
+    Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
 });
 
 require __DIR__.'/settings.php';

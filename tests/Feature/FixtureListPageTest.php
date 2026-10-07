@@ -316,6 +316,53 @@ test('treats a team season without a successful import as never imported, still 
         ->etc());
 });
 
+test('reports whether an import of the team season is running', function (?string $importState, ?string $startedAt, bool $isRunning) {
+    $teamSeason = importedTeamSeason();
+    if ($importState !== null) {
+        Import::factory()->for($teamSeason)->{$importState}()->create(['started_at' => $startedAt]);
+    }
+    Import::factory()->running()->create(['started_at' => '2026-10-04 09:58:00']);
+
+    $this->get('/fixtures')->assertInertia(fn (Assert $page) => $page
+        ->where('isImportRunning', $isRunning)
+        ->etc());
+})->with([
+    'no running import' => [null, null, false],
+    'a running import' => ['running', '2026-10-04 09:58:00', true],
+    'a running import started just under 15 minutes ago' => ['running', '2026-10-04 09:45:01', true],
+    'a running import older than 15 minutes, taken for dead' => ['running', '2026-10-04 09:44:59', false],
+    'a finished manual import' => ['manual', '2026-10-04 09:58:00', false],
+]);
+
+test('tells how long ago the last successful import finished', function () {
+    $teamSeason = importedTeamSeason();
+    Import::factory()->for($teamSeason)->create(['started_at' => '2026-10-04 09:54:00', 'finished_at' => '2026-10-04 09:55:00']);
+    Import::factory()->for($teamSeason)->error()->create(['started_at' => '2026-10-04 09:57:00', 'finished_at' => '2026-10-04 09:58:00']);
+    Import::factory()->for($teamSeason)->running()->create(['started_at' => '2026-10-04 09:59:00']);
+
+    $this->get('/fixtures')->assertInertia(fn (Assert $page) => $page
+        ->where('fixtureList.lastImportFinished', 'Naposledy staženo před 5 minutami')
+        ->etc());
+
+    travelTo('2026-10-04 13:00:00');
+
+    $this->get('/fixtures')->assertInertia(fn (Assert $page) => $page
+        ->where('fixtureList.lastImportFinished', 'Naposledy staženo před 3 hodinami')
+        ->etc());
+});
+
+test('tells nothing about the last import while the team season has never been imported', function () {
+    $teamSeason = TeamSeason::factory()->for(Season::factory()->current())->notImported()->create();
+    Import::factory()->for($teamSeason)->error()->create(['started_at' => '2026-10-04 09:54:00', 'finished_at' => '2026-10-04 09:55:00']);
+    Import::factory()->for($teamSeason)->running()->create(['started_at' => '2026-10-04 09:59:00']);
+
+    $this->get('/fixtures')->assertInertia(fn (Assert $page) => $page
+        ->where('fixtureList.isImported', false)
+        ->where('fixtureList.lastImportFinished', null)
+        ->where('isImportRunning', true)
+        ->etc());
+});
+
 test('shows no fixture list while the selected season has no team seasons', function () {
     Season::factory()->current()->create();
 
@@ -324,6 +371,7 @@ test('shows no fixture list while the selected season has no team seasons', func
     $response->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('fixtures/index')
         ->where('fixtureList', null)
+        ->where('isImportRunning', false)
         ->etc());
 });
 

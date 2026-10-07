@@ -97,6 +97,14 @@ return [
         ],
     ],
 
+    'fixture_list' => [
+        'last_finished' => 'Naposledy staženo :ago',
+    ],
+
+    'manual_import' => [
+        'queued' => 'Stahování rozpisu bylo spuštěno.',
+    ],
+
     'team_page' => [
         'last_import' => ':date v :time',
     ],

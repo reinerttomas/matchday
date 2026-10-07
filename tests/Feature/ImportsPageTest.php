@@ -143,11 +143,27 @@ test('counts revisions without a query per import', function () {
     expect(count(DB::getQueryLog()))->toBe($queriesForOneImport);
 });
 
+test('reports whether an import of the team season is running', function (bool $hasRunningImport) {
+    $teamSeason = selectedTeamSeason();
+    Import::factory()->for($teamSeason)->create();
+    if ($hasRunningImport) {
+        Import::factory()->for($teamSeason)->running()->create(['started_at' => now()->subMinute()]);
+    }
+
+    $this->get('/imports')->assertInertia(fn (Assert $page) => $page
+        ->where('isImportRunning', $hasRunningImport)
+        ->etc());
+})->with([
+    'running' => [true],
+    'not running' => [false],
+]);
+
 test('shows no imports while the selected season has no team seasons', function () {
     Season::factory()->current()->create(['name' => '2026/27']);
 
     $this->get('/imports')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->where('imports', null)
+        ->where('isImportRunning', false)
         ->where('adminSelection.season.name', '2026/27')
         ->where('adminSelection.teamSeason', null)
         ->where('adminSelection.teamSeasons', [])

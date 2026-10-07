@@ -7,6 +7,7 @@ namespace App\Jobs;
 use App\Actions\Imports\ImportTeamSeason;
 use App\Enums\ImportTrigger;
 use App\Models\TeamSeason;
+use App\Services\ImportProgress;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Attributes\Timeout;
@@ -31,8 +32,12 @@ final class ImportFixtureList implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(ImportTeamSeason $importTeamSeason): void
+    public function handle(ImportTeamSeason $importTeamSeason, ImportProgress $importProgress): void
     {
-        $importTeamSeason->handle($this->teamSeason, ImportTrigger::Manual);
+        try {
+            $importTeamSeason->handle($this->teamSeason, ImportTrigger::Manual);
+        } finally {
+            $importProgress->forgetQueued($this->teamSeason);
+        }
     }
 }
