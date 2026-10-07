@@ -1,4 +1,5 @@
 import { Head } from '@inertiajs/react';
+import { cn } from 'cn';
 import { CalendarClock, CalendarOff, MapPin } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -13,7 +14,6 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
-import { cn } from '@/lib/utils';
 import type {
     CalendarLinks,
     MatchDay,

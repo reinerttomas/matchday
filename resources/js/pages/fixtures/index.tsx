@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { cn } from 'cn';
 import {
     AlertTriangle,
     CalendarOff,
@@ -36,7 +37,6 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useImportPolling } from '@/hooks/use-import-polling';
-import { cn } from '@/lib/utils';
 import { index } from '@/routes/fixtures';
 import { index as imports } from '@/routes/imports';
 import type {

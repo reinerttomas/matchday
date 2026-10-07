@@ -71,7 +71,7 @@ export default defineConfig({
             'tests/Fixtures/**',
         ],
         sortTailwindcss: {
-            functions: ['clsx', 'cn', 'cva'],
+            functions: ['cn', 'cva'],
             stylesheet: 'resources/css/app.css',
         },
     },

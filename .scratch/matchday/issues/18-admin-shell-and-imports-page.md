@@ -28,3 +28,4 @@
 - Decided with the user: the shell lands together with Importy, the simplest real page, so the switcher is verified on a working page. The selection lives in the session and is changed by a POST action. A season without team seasons shows an empty state linking to Týmy rather than redirecting.
 - Domain texts formatted on the server come from `lang/cs/`; static UI copy is written in Czech in TSX (decided in ticket 16).
 - The user wants UI built from shadcn components as much as possible. The `@radix-ui/*` packages a shadcn component brings in are approved. The shadcn CLI switches the project to pnpm and adds the umbrella `radix-ui` and `cn` packages: revert that, stay on npm, install the single `@radix-ui/react-*` package and rewrite the generated imports to it and to `cn` from `@/lib/utils`.
+    - Superseded by ticket 27: the project now runs on pnpm and imports `cn` from the `cn` package. Ticket 28 covers the umbrella `radix-ui` package.
