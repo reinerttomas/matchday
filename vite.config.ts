@@ -69,6 +69,9 @@ export default defineConfig({
         htmlWhitespaceSensitivity: 'css',
         ignorePatterns: [
             '.github/**',
+            // release-please rewrites these in its own format on every release.
+            '.release-please-manifest.json',
+            'CHANGELOG.md',
             'composer.json',
             'resources/js/components/ui/*',
             'resources/views/mail/*',

@@ -70,6 +70,18 @@ Browser tests need Playwright: `pnpm exec playwright install chromium`.
 
 Commit messages follow [Conventional Commits](https://www.conventionalcommits.org) (`feat: …`, `fix: …`). Run `composer ci:check` before every commit.
 
+## Releasing
+
+[release-please](https://github.com/googleapis/release-please) keeps one open Release PR that bumps the version and adds the new `CHANGELOG.md` entries. Each push to `main` updates it: `feat` bumps the minor version, `fix` and `perf` the patch, and before 1.0 a breaking change bumps the minor too. Commits of the other types stay out of the changelog.
+
+To release, merge the Release PR. That tags `vX.Y.Z` and publishes a GitHub Release with the same notes.
+
+To force a version, add a `Release-As: x.y.z` footer to a commit on `main`:
+
+```bash
+git commit --allow-empty -m "chore: release 1.0.0" -m "Release-As: 1.0.0"
+```
+
 ## Deployment
 
 `Dockerfile` builds a production image (serversideup/php with FrankenPHP). `compose.yml` runs it as these services:
