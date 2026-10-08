@@ -4,14 +4,14 @@
 
 **Blocked by:** —
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `laravel/nightwatch` is installed as a production dependency (`composer require laravel/nightwatch`).
-- [ ] `.env.example` lists `NIGHTWATCH_TOKEN=` and `NIGHTWATCH_ENABLED=false`, so a fresh local setup doesn't try to reach an agent. Sample rates stay at the package defaults; no `config/nightwatch.php` is published unless something needs it.
-- [ ] Requests to `/up` are never sampled. The route stays registered through `health: '/up'` in `bootstrap/app.php`; a listener for `Illuminate\Foundation\Events\DiagnosingHealth` (dispatched only by the health route) calls `Nightwatch::dontSample()`.
-- [ ] Tests keep Nightwatch off (`NIGHTWATCH_ENABLED=false` is already in `phpunit.xml`; CI has no token).
-- [ ] A feature test covers that a request to `/up` is not sampled and that another route still is (e.g. via `Nightwatch::sampling()`; if Nightwatch has to be enabled for that test, it must not need a running agent).
-- [ ] `composer ci:check` passes.
+- [x] `laravel/nightwatch` is installed as a production dependency (`composer require laravel/nightwatch`).
+- [x] `.env.example` lists `NIGHTWATCH_TOKEN=` and `NIGHTWATCH_ENABLED=false`, so a fresh local setup doesn't try to reach an agent. Sample rates stay at the package defaults; no `config/nightwatch.php` is published unless something needs it.
+- [x] Requests to `/up` are never sampled. The route stays registered through `health: '/up'` in `bootstrap/app.php`; a listener for `Illuminate\Foundation\Events\DiagnosingHealth` (dispatched only by the health route) calls `Nightwatch::dontSample()`.
+- [x] Tests keep Nightwatch off (`NIGHTWATCH_ENABLED=false` is already in `phpunit.xml`; CI has no token).
+- [x] A feature test covers that a request to `/up` is not sampled and that another route still is (e.g. via `Nightwatch::sampling()`; if Nightwatch has to be enabled for that test, it must not need a running agent).
+- [x] `composer ci:check` passes.
 
 ## Notes
 
