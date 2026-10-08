@@ -1,7 +1,7 @@
 ############################################
-# Base: PHP 8.4 on Debian with FrankenPHP
+# Base: PHP 8.5 on Debian with FrankenPHP
 ############################################
-FROM serversideup/php:8.4-frankenphp AS base
+FROM serversideup/php:8.5-frankenphp AS base
 
 USER root
 
