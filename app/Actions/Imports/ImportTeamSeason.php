@@ -6,11 +6,11 @@ namespace App\Actions\Imports;
 
 use App\Enums\ImportStatus;
 use App\Enums\ImportTrigger;
+use App\Mail\ImportFailed;
 use App\Models\Import;
 use App\Models\TeamSeason;
 use App\Models\User;
 use App\Notifications\FixtureListRevised;
-use App\Notifications\ImportFailed;
 use App\Services\Ceskyflorbal\CeskyflorbalClient;
 use App\Services\Ceskyflorbal\FixtureListPageData;
 use App\Services\Ceskyflorbal\MatchDetailPageData;
@@ -20,6 +20,7 @@ use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 use UnexpectedValueException;
 
@@ -224,7 +225,12 @@ final readonly class ImportTeamSeason
             'error' => $reason,
         ]);
 
-        User::query()->get()->each(fn (User $user) => $user->notify(new ImportFailed($import)));
+        $users = User::query()->get();
+
+        // A mail without recipients would be rejected by the mail provider.
+        if ($users->isNotEmpty()) {
+            Mail::to($users)->send(new ImportFailed($import));
+        }
 
         return $import;
     }

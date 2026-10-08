@@ -7,6 +7,7 @@ use App\Models\Import;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use Tests\Support\Ceskyflorbal;
 
@@ -51,5 +52,6 @@ test('ends a running import older than 15 minutes as error without emailing and 
             'team_season_id' => $teamSeason->id,
         ])
         ->once();
+    Mail::assertNothingOutgoing();
     Notification::assertNothingSent();
 });

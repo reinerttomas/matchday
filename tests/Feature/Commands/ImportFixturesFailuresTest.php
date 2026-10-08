@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 use App\Enums\ImportStatus;
 use App\Enums\RevisionField;
+use App\Mail\ImportFailed;
 use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Revision;
 use App\Models\TeamSeason;
 use App\Models\User;
 use App\Models\Venue;
-use App\Notifications\ImportFailed;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
 use Tests\Support\Ceskyflorbal;
 
 use function Pest\Laravel\artisan;
@@ -64,17 +64,15 @@ function latestImport(): Import
 }
 
 /**
- * Assert that every user, and nobody else, was emailed about the import.
+ * Assert that one mail about the import, addressed to every user, is all that was emailed.
  */
 function assertAdministratorsEmailedAbout(Import $import): void
 {
-    $users = User::query()->get();
+    $userEmails = User::query()->pluck('email')->sort()->values()->all();
 
-    foreach ($users as $user) {
-        Notification::assertSentTo($user, ImportFailed::class, fn (ImportFailed $notification): bool => $notification->import->is($import));
-    }
-
-    Notification::assertCount($users->count());
+    Mail::assertQueued(ImportFailed::class, fn (ImportFailed $mail): bool => $mail->import->is($import)
+        && collect($mail->to)->pluck('address')->sort()->values()->all() === $userEmails);
+    Mail::assertOutgoingCount(1);
 }
 
 test('ends the import as error without changing data when ceskyflorbal.cz blocks the download', function () {
@@ -95,6 +93,16 @@ test('ends the import as error without changing data when ceskyflorbal.cz blocks
         ->fixtures_found->toBeNull();
     expect(importableData())->toBe($dataBefore);
     assertAdministratorsEmailedAbout(latestImport());
+});
+
+test('emails nobody about a failed import when there are no users', function () {
+    $teamSeason = importedKutnaHoraTeamSeason();
+    Ceskyflorbal::fake(Http::response('Forbidden', 403));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
+
+    expect(latestImport()->status)->toBe(ImportStatus::Error);
+    Mail::assertNothingOutgoing();
 });
 
 test('describes in Czech why ceskyflorbal.cz refused the fixture list', function (int $status, string $reason) {
@@ -192,7 +200,7 @@ test('applies a page with half of the fixtures of the last ok import', function 
     expect(latestImport())
         ->status->toBe(ImportStatus::Ok)
         ->fixtures_found->toBe(12);
-    Notification::assertSentTimes(ImportFailed::class, 0);
+    Mail::assertNotQueued(ImportFailed::class);
 });
 
 test('aborts the first import of a team season whose page shows no fixtures', function () {
@@ -258,7 +266,7 @@ test('applies a fixture with its venue unchanged and logs it when its match deta
             && $context['team_season_id'] === $teamSeason->id
             && $context['external_id'] === 1306754)
         ->once();
-    Notification::assertSentTimes(ImportFailed::class, 0);
+    Mail::assertNotQueued(ImportFailed::class);
 })->with([
     'blocked' => fn () => Http::response('Forbidden', 403),
     'unreachable' => fn () => Http::failedConnection(),

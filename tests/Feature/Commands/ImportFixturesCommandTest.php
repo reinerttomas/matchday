@@ -6,16 +6,16 @@ use App\Enums\FixtureStatus;
 use App\Enums\ImportStatus;
 use App\Enums\ImportTrigger;
 use App\Enums\RevisionField;
+use App\Mail\ImportFailed;
 use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Revision;
 use App\Models\User;
 use App\Models\Venue;
-use App\Notifications\ImportFailed;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use Tests\Support\Ceskyflorbal;
@@ -335,7 +335,7 @@ test('keeps the fixtures unchanged and ends the import as error when recording a
         ->error->toBe('Neočekávaná chyba při importu')
         ->finished_at->not->toBeNull()
         ->fixtures_found->toBeNull();
-    Notification::assertSentTo($user, ImportFailed::class, fn (ImportFailed $notification): bool => $notification->import->is($import));
+    Mail::assertQueued(ImportFailed::class, fn (ImportFailed $mail): bool => $mail->hasTo($user->email) && $mail->import->is($import));
 });
 
 test('stores the venue of a new fixture with its address from the match detail page', function () {
