@@ -1,0 +1,86 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+.github
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+auth.json
+/storage/*.key
+
+# Editors and OS files
+.idea
+.vscode
+.fleet
+.zed
+.editorconfig
+*.swp
+.DS_Store
+
+# AI and agent config
+.agents
+.ai
+.amp
+.claude
+.codex
+.cursor
+.junie
+.mcp.json
+AGENTS.md
+CLAUDE.md
+boost.json
+
+# Dependencies, installed in their own build stages
+/node_modules
+/vendor
+
+# Build output, rebuilt in the frontend stage
+/public/build
+/public/hot
+/public/storage
+/public/fonts-manifest.dev.json
+/bootstrap/ssr
+/resources/js/actions
+/resources/js/routes
+/resources/js/wayfinder
+
+# Local Laravel caches list dev packages such as Boost
+/bootstrap/cache/*.php
+
+# Local runtime data
+/database/database.sqlite*
+/storage/logs/*
+!/storage/logs/.gitignore
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+/storage/inertia-devtools
+/storage/pail
+
+# Tests and tooling config
+/tests
+phpunit.xml
+.phpunit.cache
+.phpunit.result.cache
+phpstan.neon
+pint.json
+components.json
+
+# Docker files
+Dockerfile
+compose.yml
+.dockerignore
+
+# Docs and tickets
+/docs
+/.scratch
+CONTEXT.md
+README.md
+
+# Locally downloaded FrankenPHP binary and Caddy data
+/frankenphp
+**/caddy

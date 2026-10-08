@@ -7,6 +7,8 @@
 /public/storage
 /storage/*.key
 /storage/pail
+**/caddy
+/frankenphp
 /tests/Browser/Screenshots
 /resources/js/actions
 /resources/js/routes

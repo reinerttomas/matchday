@@ -28,6 +28,10 @@ export default defineConfig({
             formVariants: true,
         }),
     ]),
+    // The production image runs the SSR bundle without node_modules, so it bundles its dependencies.
+    ssr: {
+        noExternal: true,
+    },
     server: {
         watch: {
             ignored: [
