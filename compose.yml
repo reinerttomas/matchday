@@ -9,7 +9,7 @@ x-app-environment: &app-environment
     NIGHTWATCH_INGEST_URI: nightwatch-agent:2407
 
 x-app: &app
-    image: matchday:${IMAGE_TAG:-latest}
+    image: matchday:${IMAGE_TAG:?IMAGE_TAG must be set in .env}
     restart: unless-stopped
     env_file:
         - .env
