@@ -19,8 +19,6 @@ use App\Http\Controllers\TeamSeasonController;
 use App\Http\Controllers\VenueController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
-
 Route::get('calendar/{team:slug}.ics', CalendarController::class)->name('calendar');
 
 Route::get('t/{team:slug}', PublicTeamPageController::class)->name('public-team-page');
@@ -31,6 +29,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::redirect('/', '/fixtures')->name('home');
     Route::redirect('dashboard', '/fixtures')->name('dashboard');
 
     Route::post('admin-selection', AdminSelectionController::class)->name('admin-selection.update');

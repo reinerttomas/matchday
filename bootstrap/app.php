@@ -22,6 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
+        $middleware->redirectGuestsTo(fn (): string => route('login'));
+        $middleware->redirectUsersTo(fn (): string => route('fixtures.index'));
+
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,

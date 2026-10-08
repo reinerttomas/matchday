@@ -12,6 +12,14 @@ test('login screen can be rendered', function () {
     $response->assertOk();
 });
 
+test('authenticated users are redirected from the login screen to the fixture list', function () {
+    $this->actingAs(User::factory()->create());
+
+    $response = $this->get(route('login'));
+
+    $response->assertRedirect(route('fixtures.index'));
+});
+
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
 

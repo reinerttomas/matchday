@@ -11,7 +11,7 @@ test('health check requests are not sampled', function () {
 });
 
 test('other requests are still sampled', function () {
-    $this->get(route('home'))->assertOk();
+    $this->get(route('home'))->assertRedirect(route('login'));
 
     expect(Nightwatch::sampling())->toBeTrue();
 });

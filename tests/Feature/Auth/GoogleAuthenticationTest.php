@@ -104,5 +104,5 @@ test('authenticated users cannot start google sign in', function () {
 
     $response = $this->actingAs($user)->get(route('auth.google.redirect'));
 
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('fixtures.index'));
 });
