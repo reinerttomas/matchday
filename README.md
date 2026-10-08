@@ -82,9 +82,13 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 | `ssr`              | Inertia SSR server                                                           |
 | `nightwatch-agent` | Laravel Nightwatch agent                                                     |
 
-```bash
-cp .env.example .env   # set APP_KEY, APP_URL, GOOGLE_*, NIGHTWATCH_TOKEN
-docker compose up -d --build
-```
+The app runs on a VPS with [Dokploy](https://dokploy.com) as a Docker Compose app:
 
-All services share one SQLite file in WAL mode on the `sqlite` volume. Octane binds to `127.0.0.1:8080` by default (`APP_BIND`, `APP_PORT`). Put a reverse proxy that terminates TLS in front of it, because the app trusts the proxy's `X-Forwarded-*` headers.
+1. Create a Compose app from this repository with `compose.yml` as the compose file.
+2. Paste [`.env.dokploy`](.env.dokploy) into the **Environment** tab and fill in the `…` values. Dokploy writes it to `.env` next to `compose.yml`.
+3. Add a domain for the `app` service on port `8080` with HTTPS.
+4. Deploy.
+
+The app's configuration comes only from that `.env`. `compose.yml` sets only what follows from its own services and volumes: the SQLite path and WAL journal mode (all services share one SQLite file on the `sqlite` volume), the addresses of the `ssr` and `nightwatch-agent` services and which service runs migrations on start.
+
+`compose.yml` publishes no host port. Dokploy's Traefik terminates TLS and reaches Octane over the Docker network. Keep it that way: the app trusts the `X-Forwarded-*` headers of every caller, so a published port would let anyone fake the client IP or host.
