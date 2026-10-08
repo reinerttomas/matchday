@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/reinerttomas/matchday/compare/v0.1.0...v0.2.0) (2026-10-08)
+
+
+### Features
+
+* replace the welcome page with a redirect to login or the fixture list ([3144f60](https://github.com/reinerttomas/matchday/commit/3144f605107646d7f77a11641b86dd6c5657881b))
+
 ## 0.1.0 (2026-10-08)
 
 
