@@ -22,6 +22,7 @@
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "^0.1.14",
         "nunomaduro/essentials": "^1.2",
+        "resend/resend-php": "^1.16",
         "spatie/icalendar-generator": "^3.3"
     },
     "require-dev": {
