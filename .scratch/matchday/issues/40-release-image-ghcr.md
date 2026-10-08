@@ -4,16 +4,16 @@
 
 **Blocked by:** 39
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `tests.yml` can also be called as a reusable workflow (`workflow_call`) and keeps running on push and pull requests as before.
-- [ ] The `release` workflow has an image job that runs only when a release was created and only after the reused CI checks pass.
-- [ ] The image job uses `docker/setup-buildx-action`, `docker/login-action` (GHCR with `GITHUB_TOKEN`), `docker/metadata-action` and `docker/build-push-action`, all pinned to commit SHAs with the version in a comment. The job requests only `contents: read` and `packages: write`.
-- [ ] The image is built for `linux/amd64` from the `deploy` target with `VITE_APP_NAME=Matchday` and tagged `X.Y.Z` (without the `v`), `sha-<short sha>` and `latest`. It carries the OCI labels from `docker/metadata-action`, including the source repository so GHCR links the package to the repo.
-- [ ] Layers are cached between runs (`type=gha`).
-- [ ] The image job exposes the pushed version tag as an output for the deploy job (ticket 41).
-- [ ] The job summary names the pushed image and its tags.
-- [ ] `composer ci:check` passes.
+- [x] `tests.yml` can also be called as a reusable workflow (`workflow_call`) and keeps running on push and pull requests as before.
+- [x] The `release` workflow has an image job that runs only when a release was created and only after the reused CI checks pass.
+- [x] The image job uses `docker/setup-buildx-action`, `docker/login-action` (GHCR with `GITHUB_TOKEN`), `docker/metadata-action` and `docker/build-push-action`, all pinned to commit SHAs with the version in a comment. The job requests only `contents: read` and `packages: write`.
+- [x] The image is built for `linux/amd64` from the `deploy` target with `VITE_APP_NAME=Matchday` and tagged `X.Y.Z` (without the `v`), `sha-<short sha>` and `latest`. It carries the OCI labels from `docker/metadata-action`, including the source repository so GHCR links the package to the repo.
+- [x] Layers are cached between runs (`type=gha`).
+- [x] The image job exposes the pushed version tag as an output for the deploy job (ticket 41).
+- [x] The job summary names the pushed image and its tags.
+- [x] `composer ci:check` passes.
 
 ## Notes
 
