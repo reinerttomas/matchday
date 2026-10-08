@@ -41,20 +41,20 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 
 ### Player — public team page
 
-18. As a player, I want a public team page, opened from a shared link or QR code, that I can use comfortably on my phone, so that subscribing takes a minute.
-19. As a player on an Apple device, I want the "iPhone / Mac" button first, so that the most relevant option is the obvious one.
-20. As a player on a non-Apple device, I want the "Google Kalendář" button first, so that the most relevant option is the obvious one.
-21. As a player on a wide screen, I want a QR code linking to the page, so that I can open it on my phone.
-22. As a player, I want step-by-step instructions in tabs (Google, Android, iPhone, Outlook), so that I can follow the steps for my device.
-23. As a player, I want to be told that changes show up within a few hours and are also announced in the WhatsApp group, so that I know what to expect.
-24. As a player, I want upcoming fixtures grouped by match day, with the date as the heading ("Neděle 4. října", plus the year when it isn't this year), so that I can scan the schedule quickly.
-25. As a player, I want the venue shown once in a match day's heading when all its fixtures share it, and on each fixture otherwise, so that the list stays compact.
+18. As a player, I want a public team page, opened from a shared link, that I can use comfortably on my phone, with a club-style hero (competition and season, then the team name large) and, on a wide screen, the schedule on the left and a compact subscribe card ("Zápasy do kalendáře") in a right column that stays in view while scrolling, while a phone shows the subscribe card first, so that subscribing takes a minute.
+19. As a player on an Apple device, I want the "iPhone / Mac" button first and emphasized, above the outline "Google Kalendář" and "Outlook" buttons, so that the most relevant option is the obvious one.
+20. As a player on a non-Apple device, I want the "Google Kalendář" button first and emphasized, above the outline "iPhone / Mac" and "Outlook" buttons, so that the most relevant option is the obvious one.
+21. As a player, I want a "Kopírovat adresu" button under the subscribe buttons that confirms with "Adresa zkopírována", so that I can paste the address into my calendar app.
+22. As a player, I want a "Nefunguje to?" dialog with step-by-step instructions in tabs (Google, Android, iPhone, Outlook, the tab for my device preselected) and the calendar address with a copy button, opening by itself when the clipboard is blocked, so that I can add the calendar by hand when a button doesn't work.
+23. As a player, I want to be told that the calendar updates itself and moved fixtures move in it, and in the "Nefunguje to?" dialog that changes show up within a few hours and are also announced in the WhatsApp group, so that I know what to expect.
+24. As a player, I want upcoming fixtures ("Rozpis zápasů") as one card per match day with a date tile (weekday abbreviation "NE", the day number large, month abbreviation "lis") and one line per fixture with its time, or the score of a finished fixture, or "TBD", and the next match day's card highlighted (a blue date tile, a blue border and a badge with the relative day: "Dnes", "Zítra", "Za 3 dny", "Za 10 dní"), so that I can scan the schedule quickly and see at once when the team plays next.
+25. As a player, I want the venue shown once at the top of a match day's card when all its fixtures share it, and on each fixture otherwise, so that the list stays compact.
 26. As a player, I want our team in bold in "Home – Away", so that I can spot our side at once.
 27. As a player, I want a rescheduled fixture labelled "dohrávka X. kola" on the page, so that it matches the calendar.
-28. As a player, I want the first four match days shown and a "Zobrazit celou sezonu" button for the rest, so that the page stays short.
+28. As a player, I want the cards of the first four match days shown and a "Zobrazit celou sezonu" button for the rest, so that the page stays short.
 29. As a player, I want the footer to show the data source, the time of the last update and what TBD means, so that I can trust the information.
 30. As a player, I want a "Sezona skončila" message when no upcoming fixtures remain, so that I know the page isn't broken.
-31. As a player, I want a "Pro sezonu X zatím není rozpis" message when my team isn't in the current season yet, so that I know to wait.
+31. As a player, I want a "Pro sezonu X zatím není rozpis" message under the same hero when my team isn't in the current season yet, so that I know to wait.
 32. As a visitor, I want an unknown slug to return 404, so that dead links are obvious.
 33. As a player, I don't want a calendar-file download offered, so that I don't import a static copy that never updates.
 
@@ -268,7 +268,9 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
 ### Public team page
 
 - The public route `/t/{slug}` renders an Inertia page with the current season's team season data: competition and season, team name, calendar URLs for Google, webcal (Apple) and Outlook, and upcoming fixtures grouped by match day.
-- The button order by device is decided on the client.
+- Layout: a full-width hero with a blue gradient (competition and season in small uppercase letters, the team name large, no counts), then the schedule on the left and the subscribe card in a sticky right column (about 18rem) on a wide screen; a phone shows the subscribe card before the schedule.
+- Each match day comes with its heading ("Neděle 4. října"), its date tile parts (weekday abbreviation, day number, month abbreviation) and its relative day ("Dnes", "Zítra", "Za 3 dny", "Za 10 dní"), all formatted on the server (Carbon's Czech locale and `lang/cs/fixtures.php`) from today's date in Prague, so the page never depends on the browser's clock. The first match day is the next one and is highlighted.
+- The subscribe card has three full-width buttons (iPhone / Mac, Google Kalendář, Outlook), "Kopírovat adresu" and a "Nefunguje to?" dialog with the device tabs and the calendar address. The button order and the preselected tab by device are decided on the client. There is no QR code.
 - The empty states are: "Sezona skončila" (no upcoming fixtures), "Pro sezonu X zatím není rozpis" (no team season in the current season) and 404 (unknown slug).
 
 ### Admin pages
@@ -305,7 +307,7 @@ The admin pages sit behind auth. The starter-kit dashboard redirects to the fixt
     - access control: admin routes require auth, public routes don't, registration is disabled.
 - **Seam 3 – time.** Tests use `travelTo()` for the 7-day window, "upcoming", import duration and year inference.
 - **Browser tests.** These use pest-plugin-browser, following `tests/Browser/Auth/LoginTest.php`, and run only where behaviour lives in the client:
-    - Public page: button order on an emulated iPhone vs. Android/desktop; QR code visible only on a wide screen; "Zobrazit celou sezonu" expanding beyond four match days; the instruction tabs; copying the address; no horizontal scroll and no JavaScript errors on mobile.
+    - Public page: button order on an emulated iPhone vs. Android/desktop; the "Nefunguje to?" dialog with the device's tab preselected; "Zobrazit celou sezonu" expanding beyond four match days; the instruction tabs; copying the address, and the dialog opening when the clipboard is blocked; the subscribe card above the schedule, no horizontal scroll and no JavaScript errors on mobile.
     - WhatsApp dialog: edit the text → "Otevřít WhatsApp" carries the edited text in the wa.me link → "Označit jako odesláno" appears → after marking, the dialog closes and the sidebar count drops.
 - Responsive layouts, dark mode, polling and plain forms are not browser-tested; feature tests cover their server side.
 - New tests must satisfy the existing architecture tests: final, readonly classes outside the framework-extending namespaces, strict types, documented methods and properties, and validation through form requests.
@@ -327,7 +329,6 @@ The admin pages sit behind auth. The starter-kit dashboard redirects to the fixt
 - **Dependencies.** Not yet approved; adding any package needs the owner's approval.
     - spatie/laravel-activitylog is deliberately not used (ADR-0001).
     - Generating ICS by hand vs. adding spatie/icalendar-generator is open.
-    - A QR code library (or generating the code client-side) is open.
 - **Decided while writing this spec, not discussed explicitly.** Revisit if wrong:
     - a dedicated `/seasons` page for creating seasons and marking one current,
     - the Týmy page lists the selected season's team seasons, and carrying a team over replaces the per-team "new season" action,

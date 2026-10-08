@@ -25,7 +25,7 @@ test('reveals the rest of the season beyond the first four match days', function
         ->assertNoJavaScriptErrors();
 });
 
-test('fits a phone screen without horizontal scrolling', function () {
+test('fits a phone screen without horizontal scrolling, with the subscribe card above the schedule', function () {
     $teamSeason = TeamSeason::factory()
         ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
@@ -40,6 +40,8 @@ test('fits a phone screen without horizontal scrolling', function () {
 
     $page->assertSee('FBC Kutná Hora B')
         ->assertSee('Odloženo')
+        ->assertSeeIn('@relative-day', 'Zítra')
+        ->assertScript('document.getElementById("calendar-subscription").getBoundingClientRect().bottom < document.getElementById("schedule").getBoundingClientRect().top')
         ->assertScript('document.documentElement.scrollWidth <= window.innerWidth')
         ->assertNoJavaScriptErrors();
 });
@@ -52,9 +54,11 @@ test('puts the subscribe option and instructions for the player\'s device first'
 
     $page = visit('/t/kutna-hora-b')->on()->{$device}()->withUserAgent($userAgent);
 
-    $page->assertSee('Přidat zápasy do kalendáře')
+    $page->assertSee('Zápasy do kalendáře')
         ->assertScript('Array.from(document.querySelectorAll("[data-test=subscribe-button]")).map((link) => link.textContent).join(" | ")', $buttons)
         ->assertScript('Array.from(document.links).every((link) => ! link.hasAttribute("download") && ! (link.protocol.startsWith("http") && link.pathname.endsWith(".ics")))')
+        ->click('Nefunguje to?')
+        ->assertVisible('@help-dialog')
         ->assertAttribute("@instructions-tab-{$instructionsTab}", 'aria-selected', 'true')
         ->assertNoJavaScriptErrors();
 })->with([
@@ -72,7 +76,8 @@ test('switches the subscribe instructions between devices', function () {
 
     $page = visit('/t/kutna-hora-b');
 
-    $page->click('@instructions-tab-google')
+    $page->click('Nefunguje to?')
+        ->click('@instructions-tab-google')
         ->assertSeeIn('@instructions', 'Z adresy URL')
         ->click('@instructions-tab-android')
         ->assertSeeIn('@instructions', 'Verze pro počítač')
@@ -98,28 +103,26 @@ test('copies the calendar address', function () {
     // Headless Chromium denies clipboard access, so the copied text is captured where it leaves the page.
     $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async (text) => { window.copiedText = text; } })');
 
-    $page->assertDontSee('Zkopírováno')
+    $page->assertDontSee('Adresa zkopírována')
         ->click('@copy-address')
-        ->assertSeeIn('@copy-address', 'Zkopírováno')
-        ->assertScript('document.querySelector("[data-test=copy-status]").textContent', 'Zkopírováno')
-        ->assertScript('window.copiedText', $page->value('@calendar-address'))
+        ->assertSeeIn('@copy-address', 'Adresa zkopírována')
+        ->assertScript('document.querySelector("[data-test=copy-status]").textContent', 'Adresa zkopírována')
         ->assertScript('window.copiedText.endsWith("/calendar/kutna-hora-b.ics")')
+        ->assertMissing('@help-dialog')
         ->assertNoJavaScriptErrors();
 });
 
-test('shows a qr code of the page on a wide screen only', function () {
+test('opens the manual instructions with the address to copy by hand when the clipboard is blocked', function () {
     TeamSeason::factory()
         ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
         ->create();
 
-    visit('/t/kutna-hora-b')->on()->desktop()
-        ->assertSee('Naskenujte kód')
-        ->assertVisible('@qr-code')
-        ->assertNoJavaScriptErrors();
+    $page = visit('/t/kutna-hora-b');
+    $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async () => { throw new Error("Blocked"); } })');
 
-    visit('/t/kutna-hora-b')->on()->mobile()
-        ->assertSee('Přidat zápasy do kalendáře')
-        ->assertMissing('@qr-code')
-        ->assertNoJavaScriptErrors();
+    $page->click('@copy-address')
+        ->assertVisible('@help-dialog')
+        ->assertDontSee('Adresa zkopírována')
+        ->assertScript('document.querySelector("[data-test=calendar-address]").value.endsWith("/calendar/kutna-hora-b.ics")');
 });

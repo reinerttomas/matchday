@@ -1,14 +1,23 @@
-import { Check, Copy } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { Apple, CalendarDays, Check, Copy, Mail } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useRef, useState, useSyncExternalStore } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,6 +30,7 @@ type InstructionsTab = 'google' | 'android' | 'iphone' | 'outlook';
 
 type SubscribeOption = {
     label: string;
+    icon: LucideIcon;
     href: string;
     opensNewTab: boolean;
 };
@@ -104,117 +114,160 @@ function useDevice(): Device {
     );
 }
 
-function useIsHydrated(): boolean {
-    return useSyncExternalStore(
-        subscribeToNothing,
-        () => true,
-        () => false,
-    );
-}
-
-/**
- * Lets a player subscribe to the team's calendar: one-tap buttons ordered for their device, the address to copy,
- * instructions per device and, on a wide screen, a QR code to continue on a phone. It never links to the feed itself,
- * because downloading it would import a copy that never updates.
- */
-export default function CalendarSubscription({
-    calendar,
-    pageUrl,
-}: {
-    calendar: CalendarLinks;
-    pageUrl: string;
-}) {
-    const device = useDevice();
-    // The QR code only serves wide screens, so it is left out of the server-rendered HTML that phones load first.
-    const isHydrated = useIsHydrated();
-
-    const google: SubscribeOption = {
-        label: 'Google Kalendář',
-        href: calendar.google,
-        opensNewTab: true,
-    };
+function subscribeOptions(
+    calendar: CalendarLinks,
+    device: Device,
+): SubscribeOption[] {
     const apple: SubscribeOption = {
         label: 'iPhone / Mac',
+        icon: Apple,
         href: calendar.webcal,
         opensNewTab: false,
     };
+    const google: SubscribeOption = {
+        label: 'Google Kalendář',
+        icon: CalendarDays,
+        href: calendar.google,
+        opensNewTab: true,
+    };
     const outlook: SubscribeOption = {
         label: 'Outlook',
+        icon: Mail,
         href: calendar.outlook,
         opensNewTab: true,
     };
-    const options =
-        device === 'apple'
-            ? [apple, google, outlook]
-            : [google, apple, outlook];
+
+    return device === 'apple'
+        ? [apple, google, outlook]
+        : [google, apple, outlook];
+}
+
+/**
+ * Lets a player subscribe to the team's calendar: one-tap buttons ordered for their device, the address to copy and,
+ * in a dialog, instructions per device for adding it by hand. It never links to the feed itself, because downloading
+ * it would import a copy that never updates.
+ */
+export default function CalendarSubscription({
+    calendar,
+}: {
+    calendar: CalendarLinks;
+}) {
+    const device = useDevice();
+    const [isHelpOpen, setIsHelpOpen] = useState(false);
 
     return (
-        <section aria-labelledby="calendar-subscription">
-            <Card>
-                <div className="flex gap-6 px-6">
-                    <div className="flex min-w-0 flex-1 flex-col gap-4">
-                        <CardHeader className="px-0">
-                            <CardTitle>
-                                <h2 id="calendar-subscription">
-                                    Přidat zápasy do kalendáře
-                                </h2>
-                            </CardTitle>
-                            <CardDescription>
-                                Kalendář se aktualizuje sám. Změny se projeví do
-                                několika hodin (v Google Kalendáři až do jednoho
-                                dne) a oznamujeme je také ve skupině týmu na
-                                WhatsAppu.
-                            </CardDescription>
-                        </CardHeader>
-                        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                            {options.map((option, index) => (
-                                <Button
-                                    key={option.label}
-                                    asChild
-                                    variant={
-                                        index === 0 ? 'default' : 'outline'
-                                    }
-                                >
-                                    <a
-                                        href={option.href}
-                                        data-test="subscribe-button"
-                                        {...(option.opensNewTab && {
-                                            target: '_blank',
-                                            rel: 'noreferrer',
-                                        })}
-                                    >
-                                        {option.label}
-                                    </a>
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-                    {isHydrated && (
-                        <div
-                            data-test="qr-code"
-                            className="hidden w-36 shrink-0 flex-col items-center gap-2 text-center lg:flex"
+        <Card className="gap-4 py-5">
+            <CardHeader className="px-5">
+                <CardTitle>
+                    <h2 id="calendar-subscription">Zápasy do kalendáře</h2>
+                </CardTitle>
+                <CardDescription>
+                    Kalendář se aktualizuje sám, přeložené zápasy se v něm
+                    přesunou.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2 px-5">
+                {subscribeOptions(calendar, device).map((option, index) => (
+                    <Button
+                        key={option.label}
+                        asChild
+                        variant={index === 0 ? 'default' : 'outline'}
+                        className={
+                            index === 0
+                                ? 'justify-start bg-blue-600 text-white hover:bg-blue-700'
+                                : 'justify-start'
+                        }
+                    >
+                        <a
+                            href={option.href}
+                            data-test="subscribe-button"
+                            {...(option.opensNewTab && {
+                                target: '_blank',
+                                rel: 'noreferrer',
+                            })}
                         >
-                            {/* A white frame keeps the code scannable in dark mode. */}
-                            <div className="rounded-md bg-white p-2">
-                                <QRCodeSVG
-                                    value={pageUrl}
-                                    size={112}
-                                    title="QR kód této stránky"
-                                />
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                U počítače? Naskenujte kód a pokračujte v
-                                telefonu.
-                            </p>
-                        </div>
-                    )}
-                </div>
-                <CardContent className="flex flex-col gap-6">
-                    <CalendarAddress address={calendar.address} />
-                    <Instructions device={device} />
-                </CardContent>
-            </Card>
-        </section>
+                            <option.icon aria-hidden />
+                            {option.label}
+                        </a>
+                    </Button>
+                ))}
+            </CardContent>
+            <CardFooter className="flex-col items-start gap-1 border-t px-5 [.border-t]:pt-4">
+                <CopyAddressButton
+                    address={calendar.address}
+                    // Without the clipboard the player copies the address by hand from the dialog.
+                    onCopyFailed={() => setIsHelpOpen(true)}
+                />
+                <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+                    <DialogTrigger asChild>
+                        <Button
+                            variant="link"
+                            size="sm"
+                            className="h-auto min-h-6 px-0 py-1 text-muted-foreground hover:text-foreground has-[>svg]:px-0"
+                        >
+                            Nefunguje to?
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent
+                        className="max-h-[90vh] overflow-y-auto"
+                        data-test="help-dialog"
+                    >
+                        <DialogHeader>
+                            <DialogTitle>Nefunguje to?</DialogTitle>
+                            <DialogDescription>
+                                Kalendář jde přidat i ručně podle adresy. Změny
+                                se projeví do několika hodin (v Google Kalendáři
+                                až do jednoho dne) a oznamujeme je také ve
+                                skupině týmu na WhatsAppu.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <Instructions device={device} />
+                        <CalendarAddress address={calendar.address} />
+                    </DialogContent>
+                </Dialog>
+            </CardFooter>
+        </Card>
+    );
+}
+
+function CopyAddressButton({
+    address,
+    onCopyFailed,
+}: {
+    address: string;
+    onCopyFailed: () => void;
+}) {
+    const [copiedText, copy] = useClipboard();
+    const isCopied = copiedText === address;
+
+    async function copyAddress(): Promise<void> {
+        if (!(await copy(address))) {
+            onCopyFailed();
+        }
+    }
+
+    return (
+        <>
+            <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="h-auto min-h-6 px-0 py-1 text-muted-foreground hover:text-foreground has-[>svg]:px-0"
+                data-test="copy-address"
+                onClick={() => void copyAddress()}
+            >
+                {isCopied ? <Check aria-hidden /> : <Copy aria-hidden />}
+                {isCopied ? 'Adresa zkopírována' : 'Kopírovat adresu'}
+            </Button>
+            <span
+                role="status"
+                aria-live="polite"
+                className="sr-only"
+                data-test="copy-status"
+            >
+                {isCopied ? 'Adresa zkopírována' : ''}
+            </span>
+        </>
     );
 }
 
@@ -246,27 +299,18 @@ function CalendarAddress({ address }: { address: string }) {
                     type="button"
                     variant="outline"
                     className="shrink-0"
-                    data-test="copy-address"
+                    data-test="dialog-copy-address"
                     onClick={() => void copyAddress()}
                 >
                     {isCopied ? <Check aria-hidden /> : <Copy aria-hidden />}
                     {isCopied ? 'Zkopírováno' : 'Kopírovat'}
                 </Button>
             </div>
-            <span
-                role="status"
-                aria-live="polite"
-                className="sr-only"
-                data-test="copy-status"
-            >
-                {isCopied ? 'Zkopírováno' : ''}
-            </span>
         </div>
     );
 }
 
 function Instructions({ device }: { device: Device }) {
-    // Until the player picks a tab, the device decides it, which changes once after hydration.
     const [pickedTab, setPickedTab] = useState<InstructionsTab | null>(null);
 
     return (

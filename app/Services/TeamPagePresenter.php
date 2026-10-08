@@ -9,6 +9,7 @@ use App\Enums\ImportStatus;
 use App\Models\Fixture;
 use App\Models\TeamSeason;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -17,7 +18,8 @@ use Illuminate\Support\Str;
  * @phpstan-import-type MatchupPart from FixtureFormatter
  *
  * @phpstan-type FixtureProps array{id: int, time: string|null, matchup: list<MatchupPart>, round: string|null, status: string, statusLabel: string|null, score: string|null, venue: string|null}
- * @phpstan-type MatchDayProps array{date: string, heading: string, venue: string|null, fixtures: list<FixtureProps>}
+ * @phpstan-type DateTileProps array{weekday: string, day: string, month: string}
+ * @phpstan-type MatchDayProps array{date: string, heading: string, dateTile: DateTileProps, relativeDay: string, venue: string|null, fixtures: list<FixtureProps>}
  */
 final readonly class TeamPagePresenter
 {
@@ -63,7 +65,7 @@ final readonly class TeamPagePresenter
     }
 
     /**
-     * Describe one match day under its date, naming the venue once when all its fixtures share it.
+     * Describe one match day under its date and how far away it is, naming the venue once when all its fixtures share it.
      *
      * @param  Collection<int, Fixture>  $fixtures
      * @return MatchDayProps
@@ -80,11 +82,29 @@ final readonly class TeamPagePresenter
                 'date' => $date->isoFormat('D. MMMM'),
                 'year' => $date->year,
             ]),
+            'dateTile' => [
+                'weekday' => mb_strtoupper($date->isoFormat('dd')),
+                'day' => $date->format('j'),
+                'month' => $date->isoFormat('MMM'),
+            ],
+            'relativeDay' => $this->relativeDay($date, $today),
             'venue' => $hasSharedVenue ? $fixtures->firstOrFail()->venue?->name : null,
             'fixtures' => array_values($fixtures
                 ->map(fn (Fixture $fixture): array => $this->fixture($fixture, showVenue: ! $hasSharedVenue))
                 ->all()),
         ];
+    }
+
+    /**
+     * Tell how far away a match day is, such as "Zítra" or "Za 3 dny".
+     */
+    private function relativeDay(CarbonInterface $date, CarbonImmutable $today): string
+    {
+        // Today is midnight in Prague while the fixture's date is in the app's timezone, so both are compared as plain dates.
+        $days = (int) CarbonImmutable::parse($today->toDateString(), 'UTC')
+            ->diffInDays(CarbonImmutable::parse($date->toDateString(), 'UTC'));
+
+        return trans_choice('fixtures.team_page.relative_day', $days, ['count' => $days]);
     }
 
     /**

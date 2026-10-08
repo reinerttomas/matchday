@@ -35,6 +35,7 @@ return [
     'team_page' => [
         'match_day' => ':weekday :date',
         'match_day_with_year' => ':weekday :date :year',
+        'relative_day' => '{0} Dnes|{1} Zítra|[2,4] Za :count dny|[5,*] Za :count dní',
     ],
 
     'list' => [

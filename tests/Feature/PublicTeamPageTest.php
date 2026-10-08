@@ -57,7 +57,6 @@ test('offers subscribe links derived from the team\'s permanent calendar address
     $response = $this->get('https://matchday.cz/t/kutna-hora-b');
 
     $response->assertInertia(fn (Assert $page) => $page
-        ->where('pageUrl', 'https://matchday.cz/t/kutna-hora-b')
         ->where('calendar', [
             'address' => 'https://matchday.cz/calendar/kutna-hora-b.ics',
             'google' => 'https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fmatchday.cz%2Fcalendar%2Fkutna-hora-b.ics',
@@ -106,6 +105,34 @@ test('groups fixtures by match day under the date, adding the year outside the c
         ->and($matchDays[1])->toMatchArray(['date' => '2027-01-09', 'heading' => 'Sobota 9. ledna 2027'])
         ->and($matchDays[1]['fixtures'])->toHaveCount(1);
 });
+
+test('describes each match day\'s date for its date tile', function () {
+    $teamSeason = kutnaHoraTeamSeason();
+    Fixture::factory()->for($teamSeason)->create(['date' => '2026-11-08']);
+    Fixture::factory()->for($teamSeason)->create(['date' => '2027-01-27']);
+
+    $matchDays = $this->get('/t/kutna-hora-b')->inertiaProps('teamSeason.matchDays');
+
+    expect(array_column($matchDays, 'dateTile'))->toBe([
+        ['weekday' => 'NE', 'day' => '8', 'month' => 'lis'],
+        ['weekday' => 'ST', 'day' => '27', 'month' => 'led'],
+    ]);
+});
+
+test('tells how far away each match day is from today in Prague', function (string $date, string $relativeDay) {
+    Fixture::factory()->for(kutnaHoraTeamSeason())->create(['date' => $date]);
+    // Shortly after midnight on Sunday 4 October in Prague, while it is still 3 October in UTC.
+    travelTo('2026-10-03 22:30:00');
+
+    $matchDay = $this->get('/t/kutna-hora-b')->inertiaProps('teamSeason.matchDays.0');
+
+    expect($matchDay['relativeDay'])->toBe($relativeDay);
+})->with([
+    'today' => ['2026-10-04', 'Dnes'],
+    'tomorrow' => ['2026-10-05', 'Zítra'],
+    'in a few days' => ['2026-10-07', 'Za 3 dny'],
+    'in more days' => ['2026-10-14', 'Za 10 dní'],
+]);
 
 test('shows the venue once in the match day heading when all its fixtures share it', function () {
     $teamSeason = kutnaHoraTeamSeason();

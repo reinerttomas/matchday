@@ -20,9 +20,17 @@ export type TeamPageFixture = {
     venue: string | null;
 };
 
+export type DateTile = {
+    weekday: string;
+    day: string;
+    month: string;
+};
+
 export type MatchDay = {
     date: string;
     heading: string;
+    dateTile: DateTile;
+    relativeDay: string;
     venue: string | null;
     fixtures: TeamPageFixture[];
 };

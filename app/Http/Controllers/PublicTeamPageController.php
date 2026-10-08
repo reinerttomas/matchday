@@ -14,7 +14,7 @@ use Inertia\Response;
 final readonly class PublicTeamPageController
 {
     /**
-     * Show the team's public page with the upcoming fixtures of its team season in the current season and the links to subscribe to its calendar, which players open from a shared link or QR code.
+     * Show the team's public page with the upcoming fixtures of its team season in the current season and the links to subscribe to its calendar, which players open from a shared link.
      */
     public function __invoke(Team $team, TeamPagePresenter $teamPagePresenter, CalendarLinks $calendarLinks): Response
     {
@@ -24,7 +24,6 @@ final readonly class PublicTeamPageController
             'season' => Season::query()->where('is_current', true)->value('name'),
             'teamSeason' => $teamSeason === null ? null : $teamPagePresenter->present($teamSeason),
             'calendar' => $calendarLinks->for($team),
-            'pageUrl' => route('public-team-page', $team),
         ]);
     }
 }
