@@ -1,0 +1,109 @@
+name: deploy
+
+run-name: deploy ${{ inputs.tag }}
+
+on:
+  # Deploying an older version from the Actions tab is the rollback.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Image tag to deploy, e.g. 0.2.0 (without the v)
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        description: Image tag to deploy
+        required: true
+        type: string
+    # The production environment's secrets reach a called workflow only when
+    # the caller passes them.
+    secrets:
+      DOKPLOY_URL:
+        required: true
+      DOKPLOY_API_KEY:
+        required: true
+      DOKPLOY_COMPOSE_ID:
+        required: true
+
+permissions: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+
+    # One group for deploys from both triggers, so two never overlap. A queued
+    # deploy waits for the running one instead of cancelling it.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+
+    permissions:
+      contents: read
+      packages: read
+
+    # An explicit bash shell adds pipefail, so a failed image lookup fails the step.
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      IMAGE: ghcr.io/reinerttomas/matchday
+      TAG: ${{ inputs.tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Log in to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check that the image exists
+        id: image
+        run: |
+          digest=$(docker buildx imagetools inspect "${IMAGE}:${TAG}" --format '{{json .Manifest}}' | jq --raw-output .digest)
+          echo "digest=${digest}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Dokploy
+        id: deploy
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_COMPOSE_ID: ${{ secrets.DOKPLOY_COMPOSE_ID }}
+        run: .infrastructure/dokploy-deploy.sh "$TAG"
+
+      - name: Write job summary
+        if: always()
+        env:
+          IMAGE_OUTCOME: ${{ steps.image.outcome }}
+          DIGEST: ${{ steps.image.outputs.digest }}
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          DEPLOYMENT_ID: ${{ steps.deploy.outputs.deployment_id }}
+          STATUS: ${{ steps.deploy.outputs.status }}
+        run: |
+          {
+            echo "### Deploy \`${IMAGE}:${TAG}\`"
+            echo
+            if [[ $IMAGE_OUTCOME == success ]]; then
+              echo "- Image: \`${DIGEST}\`"
+            elif [[ $IMAGE_OUTCOME == failure ]]; then
+              echo "- Image: not found in GHCR"
+            else
+              echo "- Image: not checked"
+            fi
+            if [[ -n $STATUS ]]; then
+              echo "- Dokploy deployment: **${STATUS}**${DEPLOYMENT_ID:+ (\`${DEPLOYMENT_ID}\`)}"
+            elif [[ $DEPLOY_OUTCOME == skipped ]]; then
+              echo "- Dokploy deployment: not started"
+            else
+              echo "- Dokploy deployment: failed before Dokploy reported a status, see the step log"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

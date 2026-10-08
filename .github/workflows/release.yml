@@ -112,3 +112,22 @@ jobs:
             echo
             echo "Digest: \`${DIGEST}\`"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    needs:
+      - release
+      - image
+    if: needs.release.outputs.release_created == 'true'
+
+    permissions:
+      contents: read
+      packages: read
+
+    uses: ./.github/workflows/deploy.yml
+    with:
+      tag: ${{ needs.image.outputs.version }}
+    # Passed by name rather than inherited, so the deploy gets only these.
+    secrets:
+      DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+      DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+      DOKPLOY_COMPOSE_ID: ${{ secrets.DOKPLOY_COMPOSE_ID }}

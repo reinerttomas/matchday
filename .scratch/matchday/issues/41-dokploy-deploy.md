@@ -4,22 +4,22 @@
 
 **Blocked by:** 40
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `compose.yml` runs every app service on `ghcr.io/reinerttomas/matchday:${IMAGE_TAG}` and no longer has a `build:` section, so Dokploy only pulls. `IMAGE_TAG` is still required.
-- [ ] A script `.infrastructure/dokploy-deploy.sh <tag>` takes `DOKPLOY_URL`, `DOKPLOY_API_KEY` and `DOKPLOY_COMPOSE_ID` from the environment and fails fast when any are missing. It:
+- [x] `compose.yml` runs every app service on `ghcr.io/reinerttomas/matchday:${IMAGE_TAG}` and no longer has a `build:` section, so Dokploy only pulls. `IMAGE_TAG` is still required.
+- [x] A script `.infrastructure/dokploy-deploy.sh <tag>` takes `DOKPLOY_URL`, `DOKPLOY_API_KEY` and `DOKPLOY_COMPOSE_ID` from the environment and fails fast when any are missing. It:
     - reads the compose app's current env (`compose.one`),
     - replaces the `IMAGE_TAG=` line, or appends one if it is missing, and leaves every other line as it was,
     - saves the env (`compose.saveEnvironment`; it replaces the whole string, hence the read first),
     - starts a deploy (`compose.deploy`) titled `Release <tag>`,
     - polls the compose app's deployments (`deployment.allByCompose`) until the new deployment is `done` (exit 0) or `error` (exit non-zero), with a timeout.
-- [ ] The script never prints the env or the API key (the env holds every production secret), runs with `set -euo pipefail` and uses only `curl` and `jq`.
-- [ ] A `deploy` workflow runs on `workflow_dispatch` with a required `tag` input and on `workflow_call`. Before deploying, it checks that the tag exists in GHCR, then runs the script. It uses the `production` GitHub Environment (the Dokploy secrets live there) and a concurrency group, so two deploys never overlap.
-- [ ] The `release` workflow calls `deploy` with the version from the image job. A run with an older version from the Actions tab rolls back.
-- [ ] The job summary names the deployed version and the Dokploy deployment result.
-- [ ] `.env.dokploy` documents that `IMAGE_TAG` is managed by the release workflow.
-- [ ] The README deployment section covers: Dokploy pulling from GHCR (registry credentials in Dokploy, or a public package), the `production` environment and its three secrets, how a release reaches production, and how to roll back from the Actions tab or locally with the script.
-- [ ] `composer ci:check` passes.
+- [x] The script never prints the env or the API key (the env holds every production secret), runs with `set -euo pipefail` and uses only `curl` and `jq`.
+- [x] A `deploy` workflow runs on `workflow_dispatch` with a required `tag` input and on `workflow_call`. Before deploying, it checks that the tag exists in GHCR, then runs the script. It uses the `production` GitHub Environment (the Dokploy secrets live there) and a concurrency group, so two deploys never overlap.
+- [x] The `release` workflow calls `deploy` with the version from the image job. A run with an older version from the Actions tab rolls back.
+- [x] The job summary names the deployed version and the Dokploy deployment result.
+- [x] `.env.dokploy` documents that `IMAGE_TAG` is managed by the release workflow.
+- [x] The README deployment section covers: Dokploy pulling from GHCR (registry credentials in Dokploy, or a public package), the `production` environment and its three secrets, how a release reaches production, and how to roll back from the Actions tab or locally with the script.
+- [x] `composer ci:check` passes.
 
 ## Notes
 

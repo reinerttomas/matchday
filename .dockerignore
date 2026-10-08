@@ -74,6 +74,7 @@ components.json
 Dockerfile
 compose.yml
 .dockerignore
+/.infrastructure
 
 # Docs and tickets
 /docs

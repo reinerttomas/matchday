@@ -74,7 +74,7 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 
 [release-please](https://github.com/googleapis/release-please) keeps one open Release PR that bumps the version and adds the new `CHANGELOG.md` entries. Each push to `main` updates it: `feat` bumps the minor version, `fix` and `perf` the patch, and before 1.0 a breaking change bumps the minor too. Commits of the other types stay out of the changelog.
 
-To release, merge the Release PR. That tags `vX.Y.Z` and publishes a GitHub Release with the same notes.
+To release, merge the Release PR. That tags `vX.Y.Z`, publishes a GitHub Release with the same notes, runs the CI checks, pushes the image to GHCR and deploys it to production (see [Deployment](#deployment)).
 
 To force a version, add a `Release-As: x.y.z` footer to a commit on `main`:
 
@@ -84,7 +84,7 @@ git commit --allow-empty -m "chore: release 1.0.0" -m "Release-As: 1.0.0"
 
 ## Deployment
 
-`Dockerfile` builds a production image (serversideup/php with FrankenPHP). `compose.yml` runs it as these services:
+`Dockerfile` builds a production image (serversideup/php with FrankenPHP). The release workflow pushes it to `ghcr.io/reinerttomas/matchday`, tagged with the version. `compose.yml` builds nothing: it pulls the version that `IMAGE_TAG` names and runs it as these services:
 
 | Service            | Runs                                                                         |
 | ------------------ | ---------------------------------------------------------------------------- |
@@ -96,11 +96,25 @@ git commit --allow-empty -m "chore: release 1.0.0" -m "Release-As: 1.0.0"
 
 The app runs on a VPS with [Dokploy](https://dokploy.com) as a Docker Compose app:
 
-1. Create a Compose app from this repository with `compose.yml` as the compose file.
-2. Paste [`.env.dokploy`](.env.dokploy) into the **Environment** tab and fill in the `…` values. Dokploy writes it to `.env` next to `compose.yml`.
-3. Add a domain for the `app` service on port `8080` with HTTPS.
-4. Deploy.
+1. Create a Compose app from this repository with `compose.yml` as the compose file. Turn off **Auto Deploy**, because the release workflow deploys.
+2. Let Dokploy pull the image: add `ghcr.io` under **Registry** with your GitHub username and a personal access token (classic) with `read:packages`, or make the package public.
+3. Paste [`.env.dokploy`](.env.dokploy) into the **Environment** tab and fill in the `…` values. Dokploy writes it to `.env` next to `compose.yml`.
+4. Add a domain for the `app` service on port `8080` with HTTPS.
+5. On GitHub, create the `production` environment (**Settings → Environments**) and limit its deployment branches to `main`. Add the secrets `DOKPLOY_URL` (the Dokploy base URL), `DOKPLOY_API_KEY` (an API key from your Dokploy profile) and `DOKPLOY_COMPOSE_ID` (the ID in the compose app's URL).
+6. Deploy a released version, see [Deploying and rolling back](#deploying-and-rolling-back).
 
-The app's configuration comes only from that `.env`. `compose.yml` sets only what follows from its own services and volumes: the SQLite path and WAL journal mode (all services share one SQLite file on the `sqlite` volume), the addresses of the `ssr` and `nightwatch-agent` services and which service runs migrations on start.
+The app's configuration comes only from Dokploy's `.env`. `compose.yml` sets only what follows from its own services and volumes: the SQLite path and WAL journal mode (all services share one SQLite file on the `sqlite` volume), the addresses of the `ssr` and `nightwatch-agent` services and which service runs migrations on start.
 
 `compose.yml` publishes no host port. Dokploy's Traefik terminates TLS and reaches Octane over the Docker network. Keep it that way: the app trusts the `X-Forwarded-*` headers of every caller, so a published port would let anyone fake the client IP or host.
+
+### Deploying and rolling back
+
+Merging the Release PR deploys the new version. The release workflow's `deploy` job runs [`.infrastructure/dokploy-deploy.sh`](.infrastructure/dokploy-deploy.sh), which sets `IMAGE_TAG` in the Dokploy environment, starts a deploy and waits for its result, so a failed deploy turns the workflow red. Two deploys never run at once.
+
+To roll back, deploy an older version: **Actions → deploy → Run workflow** with its tag, e.g. `0.1.0`. The workflow first checks that the tag exists in GHCR. A rollback keeps the current `compose.yml` and does not undo migrations. If GitHub Actions is down, run the script locally:
+
+```bash
+export DOKPLOY_URL=https://… DOKPLOY_COMPOSE_ID=…
+read -rs DOKPLOY_API_KEY && export DOKPLOY_API_KEY   # keeps the key out of the shell history
+.infrastructure/dokploy-deploy.sh 0.1.0
+```

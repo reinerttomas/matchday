@@ -8,8 +8,9 @@ x-app-environment: &app-environment
     INERTIA_SSR_URL: http://ssr:13714
     NIGHTWATCH_INGEST_URI: nightwatch-agent:2407
 
+# The release workflow builds and pushes the image, so Dokploy only pulls it.
 x-app: &app
-    image: matchday:${IMAGE_TAG:?IMAGE_TAG must be set in .env}
+    image: ghcr.io/reinerttomas/matchday:${IMAGE_TAG:?IMAGE_TAG must be set in .env}
     restart: unless-stopped
     env_file:
         - .env
@@ -23,12 +24,6 @@ x-app: &app
 services:
     app:
         <<: *app
-        # The other app services run the image this one builds.
-        build:
-            context: .
-            target: deploy
-            args:
-                VITE_APP_NAME: ${APP_NAME:?APP_NAME must be set in .env}
         environment:
             <<: *app-environment
             # Migrations, optimize and storage:link run here on start, before Octane boots.
