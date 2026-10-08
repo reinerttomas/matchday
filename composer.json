@@ -1,11 +1,13 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/react-starter-kit",
+    "name": "reinerttomas/matchday",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Publishes a floorball team's fixture list from ceskyflorbal.cz as a subscribable calendar and tells the team what changed.",
     "keywords": [
-        "laravel",
-        "framework"
+        "floorball",
+        "calendar",
+        "ical",
+        "laravel"
     ],
     "license": "MIT",
     "require": {

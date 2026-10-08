@@ -57,7 +57,7 @@ RUN pnpm install --frozen-lockfile
 # The Wayfinder Vite plugin runs `php artisan wayfinder:generate`, so the build needs vendor and the app code.
 COPY --from=composer /app /app
 
-ARG VITE_APP_NAME=Laravel
+ARG VITE_APP_NAME=Matchday
 
 RUN pnpm run build:ssr
 

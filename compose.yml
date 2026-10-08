@@ -36,7 +36,7 @@ services:
             context: .
             target: deploy
             args:
-                VITE_APP_NAME: ${APP_NAME:-Laravel}
+                VITE_APP_NAME: ${APP_NAME:-Matchday}
         environment:
             <<: *app-environment
             # Migrations, optimize and storage:link run here on start, before Octane boots.
