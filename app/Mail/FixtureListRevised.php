@@ -2,21 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Notifications;
+namespace App\Mail;
 
 use App\Models\Import;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 
-final class FixtureListRevised extends Notification implements ShouldQueue
+final class FixtureListRevised extends Mailable implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SerializesModels;
 
     /**
-     * Create the notification giving an administrator the change summary of an import that recorded revisions, ready to send to the team's WhatsApp group.
+     * Create the mail giving the administrators the change summary of an import that recorded revisions, ready to send to the team's WhatsApp group.
      */
     public function __construct(
         public Import $import,
@@ -25,29 +27,36 @@ final class FixtureListRevised extends Notification implements ShouldQueue
     ) {}
 
     /**
-     * Get the notification's delivery channels.
-     *
-     * @return list<string>
+     * Get the message envelope.
      */
-    public function via(object $notifiable): array
+    public function envelope(): Envelope
     {
-        return ['mail'];
+        return new Envelope(
+            subject: __('imports.notifications.fixture_list_revised.subject', ['team_season' => $this->teamSeasonName()]),
+        );
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the message content definition.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function content(): Content
     {
-        $teamSeason = $this->import->teamSeason->displayNameWithSeason();
-
-        return (new MailMessage)
-            ->subject(__('imports.notifications.fixture_list_revised.subject', ['team_season' => $teamSeason]))
-            ->markdown('mail.fixture-list-revised', [
-                'teamSeason' => $teamSeason,
+        return new Content(
+            markdown: 'mail.fixture-list-revised',
+            with: [
+                'teamSeason' => $this->teamSeasonName(),
                 'summaryLines' => $this->summaryAsLiteralMarkdown(),
                 'whatsAppUrl' => $this->whatsAppUrl,
-            ]);
+            ],
+        );
+    }
+
+    /**
+     * Get the name of the imported team season, with its season.
+     */
+    private function teamSeasonName(): string
+    {
+        return $this->import->teamSeason->displayNameWithSeason();
     }
 
     /**

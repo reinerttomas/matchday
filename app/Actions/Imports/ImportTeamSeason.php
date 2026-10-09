@@ -6,11 +6,11 @@ namespace App\Actions\Imports;
 
 use App\Enums\ImportStatus;
 use App\Enums\ImportTrigger;
+use App\Mail\FixtureListRevised;
 use App\Mail\ImportFailed;
 use App\Models\Import;
 use App\Models\TeamSeason;
 use App\Models\User;
-use App\Notifications\FixtureListRevised;
 use App\Services\Ceskyflorbal\CeskyflorbalClient;
 use App\Services\Ceskyflorbal\FixtureListPageData;
 use App\Services\Ceskyflorbal\MatchDetailPageData;
@@ -18,6 +18,7 @@ use App\Services\ChangeSummaryWriter;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -225,12 +226,7 @@ final readonly class ImportTeamSeason
             'error' => $reason,
         ]);
 
-        $users = User::query()->get();
-
-        // A mail without recipients would be rejected by the mail provider.
-        if ($users->isNotEmpty()) {
-            Mail::to($users)->send(new ImportFailed($import));
-        }
+        $this->emailEveryUser(new ImportFailed($import));
 
         return $import;
     }
@@ -250,7 +246,20 @@ final readonly class ImportTeamSeason
 
         $whatsAppUrl = $this->changeSummaryWriter->whatsAppUrl($summary);
 
-        User::query()->get()->each(fn (User $user) => $user->notify(new FixtureListRevised($import, $summary, $whatsAppUrl)));
+        $this->emailEveryUser(new FixtureListRevised($import, $summary, $whatsAppUrl));
+    }
+
+    /**
+     * Send one mail addressed to every user at once, or nothing when there are no users.
+     */
+    private function emailEveryUser(Mailable $mail): void
+    {
+        $users = User::query()->get();
+
+        // A mail without recipients would be rejected by the mail provider.
+        if ($users->isNotEmpty()) {
+            Mail::to($users)->send($mail);
+        }
     }
 
     /**

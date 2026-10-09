@@ -8,7 +8,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Notification;
 use Tests\Support\Ceskyflorbal;
 
 use function Pest\Laravel\artisan;
@@ -53,5 +52,4 @@ test('ends a running import older than 15 minutes as error without emailing and 
         ])
         ->once();
     Mail::assertNothingOutgoing();
-    Notification::assertNothingSent();
 });

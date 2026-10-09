@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Validator;
 
 arch()->preset()->php();
@@ -40,7 +39,6 @@ arch('avoid mutation')
         'App\Jobs',
         'App\Mail',
         'App\Models',
-        'App\Notifications',
         'App\Providers',
     ]);
 
@@ -54,17 +52,8 @@ arch('avoid inheritance')
         'App\Http\Requests',
         'App\Mail',
         'App\Models',
-        'App\Notifications',
         'App\Providers',
     ]);
-
-/**
- * The Laravel preset requires queued mailables but not queued notifications. Ours email every user, so they are queued to keep sending out of the import.
- */
-arch('notifications are queued')
-    ->expect('App\Notifications')
-    ->classes()
-    ->toImplement(ShouldQueue::class);
 
 arch('annotations')
     ->expect('App')
