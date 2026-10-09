@@ -1,6 +1,6 @@
 import { Apple, CalendarDays, Check, Copy, Mail } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useRef, useState, useSyncExternalStore } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -22,10 +22,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useClipboard } from '@/hooks/use-clipboard';
+import { useDevice } from '@/hooks/use-device';
+import type { Device } from '@/hooks/use-device';
 import { recordTeamPageEvent } from '@/lib/team-page-events';
 import type { CalendarLinks, TeamPageAction } from '@/types';
-
-type Device = 'apple' | 'android' | 'other';
 
 type InstructionsTab = 'google' | 'android' | 'iphone' | 'outlook';
 
@@ -36,13 +36,6 @@ type SubscribeOption = {
     opensNewTab: boolean;
     action: TeamPageAction;
 };
-
-/**
- * iPadOS reports itself as a Mac, so "Macintosh" covers iPads as well as Macs.
- */
-const APPLE_DEVICE = /iPhone|iPad|iPod|Macintosh/;
-
-const ANDROID_DEVICE = /Android/;
 
 const INSTRUCTIONS: { tab: InstructionsTab; label: string; steps: string[] }[] =
     [
@@ -92,29 +85,6 @@ const INSTRUCTIONS_TAB_FOR_DEVICE: Record<Device, InstructionsTab> = {
     android: 'android',
     other: 'google',
 };
-
-function detectDevice(): Device {
-    if (ANDROID_DEVICE.test(navigator.userAgent)) {
-        return 'android';
-    }
-
-    return APPLE_DEVICE.test(navigator.userAgent) ? 'apple' : 'other';
-}
-
-function subscribeToNothing(): () => void {
-    return () => {};
-}
-
-/**
- * The server cannot see the device, so it renders for "other" and the client switches to the real device after hydration.
- */
-function useDevice(): Device {
-    return useSyncExternalStore(
-        subscribeToNothing,
-        detectDevice,
-        () => 'other',
-    );
-}
 
 function subscribeOptions(
     calendar: CalendarLinks,

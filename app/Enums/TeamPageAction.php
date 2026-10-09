@@ -15,4 +15,7 @@ enum TeamPageAction: string
     case Outlook = 'outlook';
     case CopyAddress = 'copy_address';
     case HelpOpen = 'help_open';
+    case EscapeIntent = 'escape_intent';
+    case EscapeSafari = 'escape_safari';
+    case CopyPageLink = 'copy_page_link';
 }

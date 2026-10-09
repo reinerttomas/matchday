@@ -4,6 +4,7 @@ import { CalendarClock, CalendarOff, MapPin } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CalendarSubscription from '@/components/calendar-subscription';
+import InAppBrowserNotice from '@/components/in-app-browser-notice';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
+import { useIsInAppBrowser } from '@/hooks/use-device';
 import { recordTeamPageEvent } from '@/lib/team-page-events';
 import type {
     CalendarLinks,
@@ -34,6 +36,8 @@ type Props = {
 };
 
 export default function Team({ slug, season, teamSeason, calendar }: Props) {
+    const isInAppBrowser = useIsInAppBrowser();
+
     // Effects run only in the browser, so a server-rendered page is counted once, after hydration.
     useEffect(() => recordTeamPageEvent(slug, 'page_view'), [slug]);
 
@@ -53,7 +57,10 @@ export default function Team({ slug, season, teamSeason, calendar }: Props) {
                         aria-labelledby="calendar-subscription"
                         className="min-w-0 lg:order-2"
                     >
-                        <div className="lg:sticky lg:top-6">
+                        <div className="flex flex-col gap-4 lg:sticky lg:top-6">
+                            {isInAppBrowser && (
+                                <InAppBrowserNotice slug={slug} />
+                            )}
                             <CalendarSubscription
                                 slug={slug}
                                 calendar={calendar}

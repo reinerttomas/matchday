@@ -49,7 +49,10 @@ export type TeamPageAction =
     | 'webcal'
     | 'outlook'
     | 'copy_address'
-    | 'help_open';
+    | 'help_open'
+    | 'escape_intent'
+    | 'escape_safari'
+    | 'copy_page_link';
 
 export type CalendarLinks = {
     address: string;

@@ -33,6 +33,20 @@ test('records the in-app browser the page was opened in', function () {
         ->in_app_browser->toBe('messenger');
 });
 
+test('records a tap on a button that leaves the in-app browser', function (string $action, TeamPageAction $recordedAction) {
+    Team::factory()->create(['slug' => 'kutna-hora-b']);
+
+    $this->post('/t/kutna-hora-b/events', ['action' => $action, 'in_app_browser' => 'messenger'])->assertNoContent();
+
+    expect(TeamPageEvent::query()->sole())
+        ->action->toBe($recordedAction)
+        ->in_app_browser->toBe('messenger');
+})->with([
+    'Android escape' => ['escape_intent', TeamPageAction::EscapeIntent],
+    'iOS escape' => ['escape_safari', TeamPageAction::EscapeSafari],
+    'copy page link' => ['copy_page_link', TeamPageAction::CopyPageLink],
+]);
+
 test('rejects an unknown action with 422 although a beacon does not ask for json', function () {
     Team::factory()->create(['slug' => 'kutna-hora-b']);
 
