@@ -4,30 +4,30 @@
 
 **Blocked by:** 44 — Record calendar subscription activity
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] `inapp-spy` (approved) is a pnpm dependency. Detection calls `InAppSpy()` on the client, like `detectDevice()` in `calendar-subscription.tsx`. The server renders no notice, and the client shows it after hydration (`useSyncExternalStore` with a server snapshot of "not in-app"). The notice shows whenever `isInApp` is true, for every app `inapp-spy` recognises (incl. `messenger` and `whatsapp`).
-- [ ] `SFSVCExperimental()` is not used. It can report regular Safari as SFSafariViewController.
-- [ ] Regular Safari, Chrome (incl. `CriOS`), Firefox (incl. `FxiOS`) and desktop browsers never see the notice.
-- [ ] The notice sits above the subscription card and uses shadcn components (`Alert` or a `Card` matching the page). The copy is in Czech in TSX:
+- [x] `inapp-spy` (approved) is a pnpm dependency. Detection calls `InAppSpy()` on the client, like `detectDevice()` in `calendar-subscription.tsx`. The server renders no notice, and the client shows it after hydration (`useSyncExternalStore` with a server snapshot of "not in-app"). The notice shows whenever `isInApp` is true, for every app `inapp-spy` recognises (incl. `messenger` and `whatsapp`).
+- [x] `SFSVCExperimental()` is not used. It can report regular Safari as SFSafariViewController.
+- [x] Regular Safari, Chrome (incl. `CriOS`), Firefox (incl. `FxiOS`) and desktop browsers never see the notice.
+- [x] The notice sits above the subscription card and uses shadcn components (`Alert` or a `Card` matching the page). The copy is in Czech in TSX:
     - title "Otevřete stránku v prohlížeči"
     - text explaining that the calendar may not get added inside the app, and that it works from Safari / Chrome
-- [ ] On Android the main button "Otevřít v prohlížeči" links to `intent://{host}{path}{query}#Intent;scheme=https;end`, built from the current page URL. There is no `package=` part, so it opens the player's default browser, not necessarily Chrome.
-- [ ] On iOS the main button "Otevřít v Safari" links to the current URL with `https://` replaced by `x-safari-https://`. Under it, a short instruction gives the manual path: "Pokud se nic nestane, klepněte na ⋯ a zvolte „Otevřít v prohlížeči“."
-- [ ] Both platforms offer "Kopírovat odkaz" for the page URL, reusing `useClipboard`. When the clipboard is blocked, the URL is shown in a selectable read-only input, the same way `CalendarAddress` falls back.
-- [ ] Nothing redirects automatically. Every escape is a real tap, because in-app browsers block or hang on navigation without a user gesture.
-- [ ] The subscription card below stays fully usable inside the in-app browser. The notice adds a path and blocks nothing.
-- [ ] Activity recording from ticket 44 picks up the in-app browser:
+- [x] On Android the main button "Otevřít v prohlížeči" links to `intent://{host}{path}{query}#Intent;scheme=https;end`, built from the current page URL. There is no `package=` part, so it opens the player's default browser, not necessarily Chrome.
+- [x] On iOS the main button "Otevřít v Safari" links to the current URL with `https://` replaced by `x-safari-https://`. Under it, a short instruction gives the manual path: "Pokud se nic nestane, klepněte na ⋯ a zvolte „Otevřít v prohlížeči“."
+- [x] Both platforms offer "Kopírovat odkaz" for the page URL, reusing `useClipboard`. When the clipboard is blocked, the URL is shown in a selectable read-only input, the same way `CalendarAddress` falls back.
+- [x] Nothing redirects automatically. Every escape is a real tap, because in-app browsers block or hang on navigation without a user gesture.
+- [x] The subscription card below stays fully usable inside the in-app browser. The notice adds a path and blocks nothing.
+- [x] Activity recording from ticket 44 picks up the in-app browser:
     - every event the page sends carries the `inapp-spy` `appKey` as `in_app_browser` (null outside an in-app browser)
     - `TeamPageAction` gains `EscapeIntent`, `EscapeSafari` and `CopyPageLink`, sent when those buttons are tapped
     - the feature and browser tests from ticket 44 cover the new actions
-- [ ] Browser tests in `tests/Browser/PublicTeamPageTest.php` (`withUserAgent`) cover:
+- [x] Browser tests in `tests/Browser/PublicTeamPageTest.php` (`withUserAgent`) cover:
     - Messenger on Android shows the notice with the `intent://` link to the current page
     - Messenger on iPhone shows the notice with the `x-safari-https://` link and the manual instruction
     - Instagram on Android shows the notice
     - regular Safari on iPhone and Chrome on Android show no notice
     - no horizontal scroll and no JavaScript errors on mobile with the notice shown
-- [ ] `composer ci:check` passes.
+- [x] `composer ci:check` passes.
 
 ## Notes
 
@@ -40,3 +40,13 @@
     - `x-safari-https://` works on iOS 15, 17 and 18, not on iOS 16. Meta's iOS in-app browsers may ignore it or hang, which is why the manual "⋯" instruction and "Kopírovat odkaz" are always shown.
 - Manual check on real phones before closing (the user tests this by hand). Open a `/t/{slug}` link sent in Messenger and in WhatsApp on Android and iPhone. Note whether the notice appears and where each button lands, then subscribe via Google Kalendář and iPhone / Mac. Record the UA strings seen in each app in a comment below.
 - Sources: [eiab](https://github.com/anaclumos/eiab), [The Pitfalls of In-App Browsers](https://frontendmasters.com/blog/the-pitfalls-of-in-app-browsers/), [Escaping Instagram's In-App Browser on iOS](https://dev.to/jplogix/escaping-instagrams-in-app-browser-on-ios-and-why-its-so-hard-58om), [Safari URL scheme on iOS](https://christiantietze.de/posts/2023/05/safari-for-mac-url-scheme/), [Android Chrome intents](https://www.branch.io/resources/blog/technical-guide-to-android-chrome-intents/), [Passkeys in in-app browsers (UA tokens, Google `disallowed_useragent`)](https://www.corbado.com/blog/passkeys-in-app-browsers).
+
+## Comments
+
+- 2026-10-09: Implemented in b4d30ee, then tidied up in 0d82a82. Decisions made during implementation:
+    - An in-app browser that `inapp-spy` can't name is recorded as `in_app_browser = 'webview'`, never null. Null means a regular browser.
+    - On a device that is neither Android nor Apple, the notice offers no escape button. It shows only "Otevřete stránku v prohlížeči přes nabídku aplikace." and "Kopírovat odkaz".
+    - The escape links take their scheme from the current URL: `scheme=https` / `x-safari-https://` in production.
+    - `InAppSpy()` is called only from `resources/js/lib/in-app-browser.ts`.
+    - The Alert keeps its default `role="alert"`.
+- The manual check on real phones (see Notes) is still open and is the user's to do.

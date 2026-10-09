@@ -8,7 +8,7 @@
 
 - [ ] An authenticated page (e.g. `/subscriptions`, labelled "Odběry" in the sidebar, Czech UI copy in TSX) built from shadcn components.
 - [ ] Filters: team (all teams by default) and period (7 / 30 / 90 / 180 days, 30 by default).
-- [ ] "Akce na stránce": a table of `TeamPageAction` × `in_app_browser` (null shown as "Prohlížeč") with counts, so e.g. "Google from Messenger" vs. "Google from a browser" can be compared.
+- [ ] "Akce na stránce": a table of `TeamPageAction` × `in_app_browser` (null shown as "Prohlížeč", `webview` as "Neznámá aplikace" — an in-app browser `inapp-spy` can't name) with counts, so e.g. "Google from Messenger" vs. "Google from a browser" can be compared.
 - [ ] "Stahování kalendáře": the feed fetch counts grouped by calendar app, plus the top raw User-Agents with their counts. The rules mapping UAs to apps are decided from the data collected by ticket 44.
 - [ ] Empty state when the period has no data.
 - [ ] Feature tests cover the aggregated props for the filters and the empty state. Guests are redirected to login.
