@@ -83,15 +83,7 @@ final readonly class FixtureFormatter
     }
 
     /**
-     * Describe a revision as its field's old → new value, such as "Čas: TBD → 19:00", or as a new fixture when it records one.
-     */
-    public function revision(Revision $revision): string
-    {
-        return implode('', array_column($this->revisionParts($revision), 'text'));
-    }
-
-    /**
-     * Describe a revision as parts, so a page can strike through the old value while the wording stays in the translation file.
+     * Describe a revision as its field's old → new value, such as "Čas: TBD → 19:00", or as a new fixture when it records one, in parts, so a page can strike through the old value while the wording stays in the translation file.
      *
      * @return list<RevisionPart>
      */

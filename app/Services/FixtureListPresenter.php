@@ -8,15 +8,16 @@ use App\Enums\FixtureStatus;
 use App\Enums\ImportStatus;
 use App\Models\Fixture;
 use App\Models\Import;
-use App\Models\Revision;
 use App\Models\TeamSeason;
 use Carbon\CarbonImmutable;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
+ * @phpstan-import-type RevisionPart from FixtureFormatter
+ *
  * @phpstan-type BadgeProps array{kind: string, label: string}
- * @phpstan-type FixtureProps array{id: int, day: string, round: string|null, time: string|null, isHome: bool, homeTeam: string, awayTeam: string, venue: string|null, status: string, badges: list<BadgeProps>, score: string|null, revisions: list<string>}
+ * @phpstan-type FixtureProps array{id: int, day: string, round: string|null, time: string|null, isHome: bool, homeTeam: string, awayTeam: string, venue: string|null, status: string, badges: list<BadgeProps>, score: string|null, revisions: list<list<RevisionPart>>}
  * @phpstan-type ImportFailureProps array{status: string, reason: string|null}
  * @phpstan-type FixtureListProps array{sourceUrl: string, period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFinished: string|null, lastImportFailure: ImportFailureProps|null, fixtures: list<FixtureProps>}
  */
@@ -136,7 +137,7 @@ final readonly class FixtureListPresenter
             'status' => $fixture->status->value,
             'badges' => $this->badges($fixture),
             'score' => $fixture->status === FixtureStatus::Finished ? $this->fixtureFormatter->score($fixture->home_score, $fixture->away_score) : null,
-            'revisions' => array_values($fixture->revisions->map(fn (Revision $revision): string => $this->fixtureFormatter->revision($revision))->all()),
+            'revisions' => array_values(array_map($this->fixtureFormatter->revisionParts(...), $fixture->revisions->all())),
         ];
     }
 

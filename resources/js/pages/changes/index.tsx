@@ -7,6 +7,7 @@ import { ChangeSummaryDialog } from '@/components/change-summary-dialog';
 import Heading from '@/components/heading';
 import { Matchup } from '@/components/matchup';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
+import { Revision } from '@/components/revision';
 import { Badge } from '@/components/ui/badge';
 import {
     Collapsible,
@@ -29,7 +30,6 @@ import type {
     RevisingImport,
     RevisionHistory,
     RevisionHistoryFilter,
-    RevisionPart,
 } from '@/types';
 
 type Props = {
@@ -308,41 +308,6 @@ function FixtureDayAndSides({ fixture }: { fixture: AddedFixture }) {
             <Matchup parts={fixture.matchup} />
         </>
     );
-}
-
-function Revision({ parts }: { parts: RevisionPart[] }) {
-    return parts.map((part, position) => {
-        switch (part.kind) {
-            case 'added':
-                return (
-                    <Badge
-                        key={position}
-                        variant="outline"
-                        className="border-sky-600/30 bg-sky-50 text-sky-700 dark:border-sky-400/30 dark:bg-sky-950 dark:text-sky-300"
-                    >
-                        {part.text}
-                    </Badge>
-                );
-            case 'old_value':
-                return (
-                    <s key={position} className="text-muted-foreground">
-                        {part.text}
-                    </s>
-                );
-            case 'new_value':
-                return (
-                    <span key={position} className="font-medium">
-                        {part.text}
-                    </span>
-                );
-            default:
-                return (
-                    <span key={position} className="text-muted-foreground">
-                        {part.text}
-                    </span>
-                );
-        }
-    });
 }
 
 /**

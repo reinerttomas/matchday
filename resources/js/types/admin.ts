@@ -95,7 +95,7 @@ export type FixtureListItem = {
     status: FixtureStatus;
     badges: FixtureBadge[];
     score: string | null;
-    revisions: string[];
+    revisions: RevisionPart[][];
 };
 
 export type ImportFailure = {

@@ -213,7 +213,7 @@ test('marks a fixture revised in the last 7 days as changed', function (string $
     'just over 7 days ago' => ['2026-09-27 09:59:59', false],
 ]);
 
-test('lists a changed fixture\'s recent revisions as old → new values formatted for display', function () {
+test('lists a changed fixture\'s recent revisions as parts of field: old → new values formatted for display', function () {
     $teamSeason = importedTeamSeason();
     $fixture = Fixture::factory()->for($teamSeason)->rescheduled()->create();
     $olderImport = Import::factory()->for($teamSeason)->create();
@@ -238,14 +238,24 @@ test('lists a changed fixture\'s recent revisions as old → new values formatte
 
     $fixtureProps = listedFixtures()[0];
 
-    expect($fixtureProps['revisions'])->toBe([
-        'Datum: 4. 10. 2026 → 11. 10. 2026',
-        'Čas: TBD → 19:00',
-        'Hala: – → Sportovní hala Kutná Hora',
-        'Stav: Odloženo → Naplánováno',
-        'Dohrávka: ne → ano',
-        'Skóre domácích: 3 → –',
-        'Skóre hostů: – → 4',
+    expect($fixtureProps['revisions'][0])->toBe([
+        ['text' => 'Datum', 'kind' => 'field'],
+        ['text' => ': ', 'kind' => 'text'],
+        ['text' => '4. 10. 2026', 'kind' => 'old_value'],
+        ['text' => ' → ', 'kind' => 'text'],
+        ['text' => '11. 10. 2026', 'kind' => 'new_value'],
+    ]);
+    expect(array_map(
+        fn (array $parts): string => implode('', array_map(fn (array $part): string => $part['kind'] === 'old_value' ? "~~{$part['text']}~~" : $part['text'], $parts)),
+        $fixtureProps['revisions'],
+    ))->toBe([
+        'Datum: ~~4. 10. 2026~~ → 11. 10. 2026',
+        'Čas: ~~TBD~~ → 19:00',
+        'Hala: ~~–~~ → Sportovní hala Kutná Hora',
+        'Stav: ~~Odloženo~~ → Naplánováno',
+        'Dohrávka: ~~ne~~ → ano',
+        'Skóre domácích: ~~3~~ → –',
+        'Skóre hostů: ~~–~~ → 4',
     ]);
     expect($fixtureProps['badges'])->toBe([
         ['kind' => 'rescheduled', 'label' => 'Dohrávka'],
@@ -258,7 +268,7 @@ test('lists a fixture that appeared after the initial import as a new fixture', 
     $fixture = Fixture::factory()->for($teamSeason)->create();
     Revision::factory()->for($fixture)->for(Import::factory()->for($teamSeason))->fixtureAdded()->create();
 
-    expect(listedFixtures()[0]['revisions'])->toBe(['Nový zápas v rozpisu']);
+    expect(listedFixtures()[0]['revisions'])->toBe([[['text' => 'Nový zápas v rozpisu', 'kind' => 'added']]]);
 });
 
 test('loads revisions without a query per fixture', function () {

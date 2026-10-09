@@ -3,15 +3,23 @@ import { cn } from 'cn';
 import {
     AlertTriangle,
     CalendarOff,
+    ChevronDown,
     DownloadCloud,
     ExternalLink,
 } from 'lucide-react';
+import { useState } from 'react';
 import Heading from '@/components/heading';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
+import { RevisionList } from '@/components/revision';
 import { SynchronizeButton } from '@/components/synchronize-button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
     Empty,
     EmptyContent,
@@ -230,68 +238,81 @@ function NoFixtures({ period }: { period: FixtureListPeriod }) {
 }
 
 /**
- * One fixture in the column order of the federation's fixture list (date · round · home · score or time · away · venue), so the two pages read side by side line by line; a phone stacks the same cells.
+ * One fixture in the column order of the federation's fixture list (date · round · home · score or time · away · venue), so the two pages read side by side line by line; a phone stacks the same cells. A revised fixture's "Změněno" badge opens its revisions in a panel under the row, so the row keeps one line however many revisions it has.
  */
 function FixtureRow({ fixture }: { fixture: FixtureListItem }) {
+    const [isExpanded, setIsExpanded] = useState(false);
     const isRevised = fixture.revisions.length > 0;
 
     return (
-        <li
-            className={cn(
-                'grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 px-3 py-2.5 text-sm',
-                'xl:grid-cols-[6rem_4.5rem_minmax(0,1fr)_4.5rem_minmax(0,1fr)_minmax(0,1fr)_10rem]',
-                isRevised && 'bg-violet-50/60 dark:bg-violet-950/30',
-            )}
-        >
-            {/* The day and round share the top line on a phone and become their own columns on a wide screen. */}
-            <div className="col-span-3 flex gap-1.5 text-muted-foreground xl:contents">
-                <span className="font-medium text-foreground tabular-nums">
-                    {fixture.day}
-                </span>
-                {fixture.round !== null && (
-                    <span aria-hidden className="xl:hidden">
-                        ·
-                    </span>
-                )}
-                <span>{fixture.round}</span>
-            </div>
-            <FixtureTeam
-                name={fixture.homeTeam}
-                isOurTeam={fixture.isHome}
-                isCancelled={fixture.status === 'cancelled'}
-                className="text-right"
-            />
-            {/* Tall enough for the score badge, so rows keep one height whether or not they show badges. */}
-            <div className="flex min-h-7 items-center justify-center">
-                <FixtureScoreOrTime fixture={fixture} />
-            </div>
-            <FixtureTeam
-                name={fixture.awayTeam}
-                isOurTeam={!fixture.isHome}
-                isCancelled={fixture.status === 'cancelled'}
-            />
-            {/* On a phone an unknown venue would be a line holding only the dash. */}
-            <div
+        <Collapsible open={isExpanded} onOpenChange={setIsExpanded} asChild>
+            <li
                 className={cn(
-                    'col-span-3 break-words text-muted-foreground xl:col-span-1',
-                    fixture.venue === null && 'hidden xl:block',
+                    'grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 px-3 py-2.5 text-sm',
+                    'xl:grid-cols-[6rem_4.5rem_minmax(0,1fr)_4.5rem_minmax(0,1fr)_minmax(0,1fr)_12rem]',
+                    isRevised && 'bg-violet-50/60 dark:bg-violet-950/30',
                 )}
             >
-                {fixture.venue ?? '–'}
-            </div>
-            <div className="col-span-3 flex flex-wrap items-center gap-1.5 empty:hidden xl:col-span-1 xl:empty:block">
-                {fixture.badges.map((badge) => (
-                    <FixtureBadgeLabel key={badge.kind} badge={badge} />
-                ))}
-            </div>
-            {isRevised && (
-                <ul className="col-span-full space-y-0.5 text-xs break-words text-violet-700 dark:text-violet-300">
-                    {fixture.revisions.map((revision, position) => (
-                        <li key={position}>{revision}</li>
-                    ))}
-                </ul>
-            )}
-        </li>
+                {/* The day and round share the top line on a phone and become their own columns on a wide screen. */}
+                <div className="col-span-3 flex gap-1.5 text-muted-foreground xl:contents">
+                    <span className="font-medium text-foreground tabular-nums">
+                        {fixture.day}
+                    </span>
+                    {fixture.round !== null && (
+                        <span aria-hidden className="xl:hidden">
+                            ·
+                        </span>
+                    )}
+                    <span>{fixture.round}</span>
+                </div>
+                <FixtureTeam
+                    name={fixture.homeTeam}
+                    isOurTeam={fixture.isHome}
+                    isCancelled={fixture.status === 'cancelled'}
+                    className="text-right"
+                />
+                {/* Tall enough for the score badge, so rows keep one height whether or not they show badges. */}
+                <div className="flex min-h-7 items-center justify-center">
+                    <FixtureScoreOrTime fixture={fixture} />
+                </div>
+                <FixtureTeam
+                    name={fixture.awayTeam}
+                    isOurTeam={!fixture.isHome}
+                    isCancelled={fixture.status === 'cancelled'}
+                />
+                {/* On a phone an unknown venue would be a line holding only the dash. */}
+                <div
+                    className={cn(
+                        'col-span-3 break-words text-muted-foreground xl:col-span-1',
+                        fixture.venue === null && 'hidden xl:block',
+                    )}
+                >
+                    {fixture.venue ?? '–'}
+                </div>
+                <div className="col-span-3 flex flex-wrap items-center gap-1.5 empty:hidden xl:col-span-1 xl:empty:block">
+                    {fixture.badges.map((badge) =>
+                        badge.kind === 'revised' ? (
+                            <RevisionsToggle
+                                key={badge.kind}
+                                badge={badge}
+                                revisionsCount={fixture.revisions.length}
+                                isExpanded={isExpanded}
+                            />
+                        ) : (
+                            <FixtureBadgeLabel key={badge.kind} badge={badge} />
+                        ),
+                    )}
+                </div>
+                {isRevised && (
+                    <CollapsibleContent
+                        data-test="fixture-revisions"
+                        className="col-span-full mt-1 rounded-md border border-violet-200 bg-background p-3 dark:border-violet-900"
+                    >
+                        <RevisionList revisions={fixture.revisions} />
+                    </CollapsibleContent>
+                )}
+            </li>
+        </Collapsible>
     );
 }
 
@@ -363,5 +384,42 @@ function FixtureBadgeLabel({ badge }: { badge: FixtureBadge }) {
         <Badge variant="outline" className={badgeClassNames[badge.kind]}>
             {badge.label}
         </Badge>
+    );
+}
+
+function RevisionsToggle({
+    badge,
+    revisionsCount,
+    isExpanded,
+}: {
+    badge: FixtureBadge;
+    revisionsCount: number;
+    isExpanded: boolean;
+}) {
+    return (
+        <CollapsibleTrigger asChild>
+            <Badge
+                asChild
+                variant="outline"
+                className={cn(
+                    badgeClassNames.revised,
+                    'cursor-pointer hover:bg-violet-100 dark:hover:bg-violet-900',
+                )}
+            >
+                <button type="button" data-test="toggle-revisions">
+                    {badge.label}
+                    <span className="tabular-nums opacity-70">
+                        {revisionsCount}
+                    </span>
+                    <ChevronDown
+                        aria-hidden
+                        className={cn(
+                            'transition-transform',
+                            isExpanded && 'rotate-180',
+                        )}
+                    />
+                </button>
+            </Badge>
+        </CollapsibleTrigger>
     );
 }
