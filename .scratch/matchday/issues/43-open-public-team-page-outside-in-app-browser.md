@@ -50,3 +50,4 @@
     - `InAppSpy()` is called only from `resources/js/lib/in-app-browser.ts`.
     - The Alert keeps its default `role="alert"`.
 - The manual check on real phones (see Notes) is still open and is the user's to do.
+- 2026-10-09, manual check, part 1 (iPhone 13 mini, iOS 27, Messenger 582, via a Cloudflare tunnel): detection and event recording work. Messenger drops `x-safari-https://` and `webcal://` silently, so the Safari button is useless there. Superseded by the simpler flow in ticket 46. Messenger on Android and WhatsApp are still to be checked.
