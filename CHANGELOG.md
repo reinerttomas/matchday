@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/reinerttomas/matchday/compare/v0.3.0...v0.4.0) (2026-10-09)
+
+
+### Features
+
+* make calendar subscription work from chat apps ([#5](https://github.com/reinerttomas/matchday/issues/5)) ([663c842](https://github.com/reinerttomas/matchday/commit/663c8428419a3525afcdc84c30c7320a75bb4cc7))
+* show fixture revisions in an expandable row ([d577e28](https://github.com/reinerttomas/matchday/commit/d577e28bff6116d3bd587b461cf18ed16c6af313))
+
 ## [0.3.0](https://github.com/reinerttomas/matchday/compare/v0.2.0...v0.3.0) (2026-10-09)
 
 
