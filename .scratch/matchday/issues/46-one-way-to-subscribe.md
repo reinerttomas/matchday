@@ -7,41 +7,41 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 ### In a real browser
 
-- [ ] The card shows one primary button chosen by `useDevice()`:
+- [x] The card shows one primary button chosen by `useDevice()`:
     - `apple`: **"Přidat do kalendáře v iPhonu"** → `calendar.webcal`, recorded as `webcal`
     - `android` and `other`: **"Přidat do Google Kalendáře"** → `calendar.google` in a new tab, recorded as `google`
-- [ ] On `android`, a short second step sits directly under the primary button, not hidden in the dialog: "Pak v aplikaci Kalendář Google otevřete Nastavení, vyberte kalendář týmu a zapněte Synchronizace." Google says a subscribed calendar can't be added in its phone app. Without sync turned on, the calendar stays on the web and never shows up in the phone.
-- [ ] Under the primary button, a "Jiný kalendář" toggle (shadcn `Collapsible`, collapsed by default) reveals the other two subscribe buttons (Google / iPhone / Outlook minus the primary one) and "Kopírovat adresu". Opening it records a new `TeamPageAction::OtherOptionsOpen` (`other_options_open`).
-- [ ] "Nefunguje to?" and its dialog (per-device instructions, the address to copy) stay as they are.
-- [ ] The existing actions (`google`, `webcal`, `outlook`, `copy_address`, `help_open`) keep being recorded the same way, wherever their button now sits.
+- [x] On `android`, a short second step sits directly under the primary button, not hidden in the dialog: "Pak v aplikaci Kalendář Google otevřete Nastavení, vyberte kalendář týmu a zapněte Synchronizace." Google says a subscribed calendar can't be added in its phone app. Without sync turned on, the calendar stays on the web and never shows up in the phone.
+- [x] Under the primary button, a "Jiný kalendář" toggle (shadcn `Collapsible`, collapsed by default) reveals the other two subscribe buttons (Google / iPhone / Outlook minus the primary one) and "Kopírovat adresu". Opening it records a new `TeamPageAction::OtherOptionsOpen` (`other_options_open`).
+- [x] "Nefunguje to?" and its dialog (per-device instructions, the address to copy) stay as they are.
+- [x] The existing actions (`google`, `webcal`, `outlook`, `copy_address`, `help_open`) keep being recorded the same way, wherever their button now sits.
 
 ### In an in-app browser
 
-- [ ] When `useIsInAppBrowser()` is true, the subscription card is not rendered. The notice from ticket 43 takes its place.
-- [ ] The notice keeps its title "Otevřete stránku v prohlížeči". Its text says that the calendar can be added only from the browser (Safari / Chrome). Below that it shows the manual steps as a numbered list:
+- [x] When `useIsInAppBrowser()` is true, the subscription card is not rendered. The notice from ticket 43 takes its place.
+- [x] The notice keeps its title "Otevřete stránku v prohlížeči". Its text says that the calendar can be added only from the browser (Safari / Chrome). Below that it shows the manual steps as a numbered list:
     1. "Klepněte na ⋯ v rohu obrazovky."
     2. "Zvolte „Otevřít v prohlížeči“."
     3. "Přidejte si kalendář jedním tlačítkem."
-- [ ] On `android` the notice also offers the "Otevřít v prohlížeči" button (`intent://`, `escape_intent`) above the steps. Sources report it as reliable on Android, but it is untested on a device.
-- [ ] The `x-safari-https://` button is removed, along with the `escape_safari` action (`TeamPageAction::EscapeSafari` and the TS union member). This branch isn't released yet, so the only `escape_safari` rows are local test data.
-- [ ] "Kopírovat odkaz" (`copy_page_link`) stays, so the player can paste the page into Safari / Chrome themselves.
-- [ ] On `other` devices the notice shows the same steps and "Kopírovat odkaz", with no escape button.
+- [x] On `android` the notice also offers the "Otevřít v prohlížeči" button (`intent://`, `escape_intent`) above the steps. Sources report it as reliable on Android, but it is untested on a device.
+- [x] The `x-safari-https://` button is removed, along with the `escape_safari` action (`TeamPageAction::EscapeSafari` and the TS union member). This branch isn't released yet, so the only `escape_safari` rows are local test data.
+- [x] "Kopírovat odkaz" (`copy_page_link`) stays, so the player can paste the page into Safari / Chrome themselves.
+- [x] On `other` devices the notice shows the same steps and "Kopírovat odkaz", with no escape button.
 
 ### Tests
 
-- [ ] Browser tests in `tests/Browser/PublicTeamPageTest.php` cover:
+- [x] Browser tests in `tests/Browser/PublicTeamPageTest.php` cover:
     - iPhone Safari: one primary "Přidat do kalendáře v iPhonu" with the `webcal://` href. The other buttons are not visible until "Jiný kalendář" is opened, and opening it records `other_options_open`.
     - Android Chrome: primary "Přidat do Google Kalendáře" and the sync step visible.
     - Desktop: primary "Přidat do Google Kalendáře" with no Android sync step.
     - Messenger on iPhone (the real UA from Notes): no `@subscribe-button` on the page, the numbered steps, no `x-safari` link anywhere, and "Kopírovat odkaz".
     - Messenger on Android: the `intent://` button and the steps.
     - no horizontal scroll and no JavaScript errors on mobile, both with and without the notice.
-- [ ] Update or remove the ticket-43/44 browser tests that assume three equal buttons or the Safari escape button. The feature dataset for `TeamPageAction` follows the enum change.
-- [ ] `composer ci:check` passes.
+- [x] Update or remove the ticket-43/44 browser tests that assume three equal buttons or the Safari escape button. The feature dataset for `TeamPageAction` follows the enum change.
+- [x] `composer ci:check` passes.
 
 ## Notes
 
@@ -56,3 +56,11 @@
     - **Messenger on iPhone (iPhone 13 mini, iOS 27, Messenger 582):** flagged as `messenger`. `x-safari-https://` was tapped 6× and did nothing. `webcal://` was tapped 2× with no dialog and no feed fetch. Google works through the same detour. The clipboard works. The ⋯ menu item is called „Otevřít v prohlížeči“. UA: `Mozilla/5.0 (iPhone; CPU iPhone OS 27_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/24A437 [FBAN/FBIOS;FBAV/582.0.0.26.106;FBBV/1084662339;FBDV/iPhone14,4;FBMD/iPhone;FBSN/iOS;FBSV/27.0;FBSS/3;FBCR/;FBID/phone;FBLC/cs_CZ;FBOP/80]`
     - **Android:** not tested. The user has no Android device.
 - iOS reporting the calendar as already subscribed: the user had subscribed to it before, so no new fetch was expected. Which UA Apple fetches the feed with is still unknown; check it after release in `calendar_fetches`.
+
+## Comments
+
+- 2026-10-09: Implemented in 79b5978. Decisions made during implementation:
+    - The buttons folded under "Jiný kalendář" keep their short labels („Google Kalendář“, „iPhone / Mac“, „Outlook“), in that order.
+    - `other_options_open` is recorded every time the fold opens, the same way `help_open` is.
+    - The help dialog's steps were reworded to the new button labels.
+    - Open for the user: Mac and iPad also show „Přidat do kalendáře v iPhonu“, because `useDevice()` counts them as `apple`. The options are to keep it, to use „Přidat do Apple Kalendáře“ for all Apple devices, or to keep "v iPhonu" only on iPhone.
