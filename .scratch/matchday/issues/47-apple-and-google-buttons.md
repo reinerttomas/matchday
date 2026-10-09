@@ -4,21 +4,21 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] The card shows these buttons, by `useDevice()`:
+- [x] The card shows these buttons, by `useDevice()`:
     - `apple` (iPhone, iPad, Mac): **"Přidat do Apple Kalendáře"** (primary, `webcal`), then **"Přidat do Google Kalendáře"** (outline, `google`, new tab)
     - `android`: only **"Přidat do Google Kalendáře"** (primary), with the existing sync step directly under it
     - `other`: **"Přidat do Google Kalendáře"** (primary), then **"Přidat do Apple Kalendáře"** (outline)
-- [ ] "Jiný kalendář", its `Collapsible` and the `other_options_open` action (`TeamPageAction::OtherOptionsOpen` and the TS union member) are removed. The branch isn't released yet, so only local test rows have that action.
-- [ ] The Outlook button is removed. `calendar.outlook` stays in `CalendarLinks`, so the server side doesn't change. The `outlook` action stays in the enum, because past rows may hold it.
-- [ ] "Kopírovat adresu" (`copy_address`) and "Nefunguje to?" sit in the card footer, visible without unfolding anything, as before ticket 46.
-- [ ] The help dialog steps name the new buttons:
+- [x] "Jiný kalendář", its `Collapsible` and the `other_options_open` action (`TeamPageAction::OtherOptionsOpen` and the TS union member) are removed. The branch isn't released yet, so only local test rows have that action.
+- [x] The Outlook button is removed. `calendar.outlook` stays in `CalendarLinks`, so the server side doesn't change. The `outlook` action stays in the enum, because past rows may hold it.
+- [x] "Kopírovat adresu" (`copy_address`) and "Nefunguje to?" sit in the card footer, visible without unfolding anything, as before ticket 46.
+- [x] The help dialog steps name the new buttons:
     - Google tab: "Klikněte na tlačítko „Přidat do Google Kalendáře“ a přihlaste se ke svému účtu Google."
     - Android tab, first step: "…klepněte na „Přidat do Google Kalendáře“…"
     - iPhone tab: "Klepněte na tlačítko „Přidat do Apple Kalendáře“."
     - Outlook tab, first step: "Zkopírujte adresu kalendáře tlačítkem „Kopírovat adresu“." The step after it is the existing manual path ("v Outlooku kalendář → „Přidat kalendář“ → „Přihlásit se k odběru z webu“, vložte zkopírovanou adresu a potvrďte"). There is no Outlook button any more.
-- [ ] Browser tests in `tests/Browser/PublicTeamPageTest.php`, updating the ticket-46 tests that assume one primary button and "Jiný kalendář":
+- [x] Browser tests in `tests/Browser/PublicTeamPageTest.php`, updating the ticket-46 tests that assume one primary button and "Jiný kalendář":
     - iPhone: Apple first with a `webcal:` href, Google second.
     - Mac: Apple first.
     - Android: only Google, with the sync step.
@@ -26,7 +26,7 @@
     - On every device: no Outlook button, no "Jiný kalendář", "Kopírovat adresu" visible right away.
     - Taps still record `webcal` / `google` / `copy_address`.
     - no horizontal scroll and no JavaScript errors on mobile.
-- [ ] `composer ci:check` passes.
+- [x] `composer ci:check` passes.
 
 ## Notes
 
@@ -34,3 +34,7 @@
 - The prototype is on the branch `prototype/subscribe-buttons` (commit `0a62701`). See `VariantB` in `resources/js/components/calendar-subscription-prototype.tsx` for the look. Do not merge the branch. It also has `?device=` simulation in `use-device.ts`, which is handy for checking the card by hand while running `pnpm dev`.
 - Apple is never offered on Android, because the Apple calendar doesn't exist there.
 - "Přidat do Apple Kalendáře" also settles the open point from ticket 46: Mac and iPad no longer read "v iPhonu".
+
+## Comments
+
+- 2026-10-09: Implemented in 81f08c6. `SubscribeButton` now takes `isPrimary` and sets its own variant and classes. The phone-fit test runs on both iPhone (two buttons) and Android (button plus sync step). `.scratch/matchday/spec.md` (stories 3 and 19–21, the public page section, browser tests) was updated to the two-button card and the in-app browser notice.

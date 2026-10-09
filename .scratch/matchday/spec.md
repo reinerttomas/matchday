@@ -23,7 +23,7 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 
 1. As a player, I want to add my team's calendar to Google Calendar from a link, so that fixtures appear next to my other events.
 2. As a player, I want to add the calendar to my iPhone or Mac calendar, so that I can see fixtures in the Apple Calendar app.
-3. As a player, I want to add the calendar to Outlook, so that I can use the calendar I already have.
+3. As a player, I want to add the calendar to Outlook by its address, with steps in the "Nefunguje to?" dialog, so that I can use the calendar I already have.
 4. As a player, I want to copy the raw calendar address, so that I can add it to any other calendar app.
 5. As a player on Android, I want separate instructions, so that I can subscribe even though the Google Calendar Android app cannot add a calendar from a link.
 6. As a player, I want a fixture whose time changed to update the existing event in my calendar, so that I never see two events for one fixture.
@@ -42,9 +42,9 @@ Domain vocabulary follows `CONTEXT.md`: Season, Team, Team season, Fixture, Oppo
 ### Player — public team page
 
 18. As a player, I want a public team page, opened from a shared link, that I can use comfortably on my phone, with a club-style hero (competition and season, then the team name large) and, on a wide screen, the schedule on the left and a compact subscribe card ("Zápasy do kalendáře") in a right column that stays in view while scrolling, while a phone shows the subscribe card first, so that subscribing takes a minute.
-19. As a player on an Apple device, I want the "iPhone / Mac" button first and emphasized, above the outline "Google Kalendář" and "Outlook" buttons, so that the most relevant option is the obvious one.
-20. As a player on a non-Apple device, I want the "Google Kalendář" button first and emphasized, above the outline "iPhone / Mac" and "Outlook" buttons, so that the most relevant option is the obvious one.
-21. As a player, I want a "Kopírovat adresu" button under the subscribe buttons that confirms with "Adresa zkopírována", so that I can paste the address into my calendar app.
+19. As a player on an Apple device (iPhone, iPad, Mac), I want "Přidat do Apple Kalendáře" first and emphasized, above an outline "Přidat do Google Kalendáře", so that my own calendar is the obvious choice and Google is still one tap away.
+20. As a player on Android, I want only "Přidat do Google Kalendáře", with the sync step under it, and on any other device "Přidat do Google Kalendáře" first and emphasized, above an outline "Přidat do Apple Kalendáře", so that the most relevant option is the obvious one.
+21. As a player, I want a "Kopírovat adresu" button in the card footer, always visible, that confirms with "Adresa zkopírována", so that I can paste the address into my calendar app.
 22. As a player, I want a "Nefunguje to?" dialog with step-by-step instructions in tabs (Google, Android, iPhone, Outlook, the tab for my device preselected) and the calendar address with a copy button, opening by itself when the clipboard is blocked, so that I can add the calendar by hand when a button doesn't work.
 23. As a player, I want to be told that the calendar updates itself and moved fixtures move in it, and in the "Nefunguje to?" dialog that changes show up within a few hours and are also announced in the WhatsApp group, so that I know what to expect.
 24. As a player, I want upcoming fixtures ("Rozpis zápasů") as one card per match day with a date tile (weekday abbreviation "NE", the day number large, month abbreviation "lis") and one line per fixture with its time, or the score of a finished fixture, or "TBD", and the next match day's card highlighted (a blue date tile, a blue border and a badge with the relative day: "Dnes", "Zítra", "Za 3 dny", "Za 10 dní"), so that I can scan the schedule quickly and see at once when the team plays next.
@@ -270,7 +270,8 @@ The model replaces section 4 of the original spec. The starter-kit tables (users
 - The public route `/t/{slug}` renders an Inertia page with the current season's team season data: competition and season, team name, calendar URLs for Google, webcal (Apple) and Outlook, and upcoming fixtures grouped by match day.
 - Layout: a full-width hero with a blue gradient (competition and season in small uppercase letters, the team name large, no counts), then the schedule on the left and the subscribe card in a sticky right column (about 18rem) on a wide screen; a phone shows the subscribe card before the schedule.
 - Each match day comes with its heading ("Neděle 4. října"), its date tile parts (weekday abbreviation, day number, month abbreviation) and its relative day ("Dnes", "Zítra", "Za 3 dny", "Za 10 dní"), all formatted on the server (Carbon's Czech locale and `lang/cs/fixtures.php`) from today's date in Prague, so the page never depends on the browser's clock. The first match day is the next one and is highlighted.
-- The subscribe card has three full-width buttons (iPhone / Mac, Google Kalendář, Outlook), "Kopírovat adresu" and a "Nefunguje to?" dialog with the device tabs and the calendar address. The button order and the preselected tab by device are decided on the client. There is no QR code.
+- The subscribe card shows the Apple and Google buttons ordered by device (Apple first on Apple devices, Google first elsewhere, only Google on Android with the sync step under it), then "Kopírovat adresu" and a "Nefunguje to?" dialog with the device tabs and the calendar address in the footer. There is no Outlook button; Outlook is added by hand from the copied address. The buttons and the preselected tab are decided on the client. There is no QR code.
+- In an in-app browser (detected with `inapp-spy`) the subscribe card is replaced by an "Otevřete stránku v prohlížeči" notice with the steps to open the page in the real browser and "Kopírovat odkaz"; on Android it also offers an `intent://` button.
 - The empty states are: "Sezona skončila" (no upcoming fixtures), "Pro sezonu X zatím není rozpis" (no team season in the current season) and 404 (unknown slug).
 
 ### Admin pages
@@ -307,7 +308,7 @@ The admin pages sit behind auth. The starter-kit dashboard redirects to the fixt
     - access control: admin routes require auth, public routes don't, registration is disabled.
 - **Seam 3 – time.** Tests use `travelTo()` for the 7-day window, "upcoming", import duration and year inference.
 - **Browser tests.** These use pest-plugin-browser, following `tests/Browser/Auth/LoginTest.php`, and run only where behaviour lives in the client:
-    - Public page: button order on an emulated iPhone vs. Android/desktop; the "Nefunguje to?" dialog with the device's tab preselected; "Zobrazit celou sezonu" expanding beyond four match days; the instruction tabs; copying the address, and the dialog opening when the clipboard is blocked; the subscribe card above the schedule, no horizontal scroll and no JavaScript errors on mobile.
+    - Public page: the calendar buttons and their order on iPhone, Mac, Android and desktop (no Outlook button, "Kopírovat adresu" visible), and tap recording for webcal / google / copy_address; the in-app browser notice instead of the card; the "Nefunguje to?" dialog with the device's tab preselected; "Zobrazit celou sezonu" expanding beyond four match days; the instruction tabs; copying the address, and the dialog opening when the clipboard is blocked; the subscribe card above the schedule, no horizontal scroll and no JavaScript errors on mobile.
     - WhatsApp dialog: edit the text → "Otevřít WhatsApp" carries the edited text in the wa.me link → "Označit jako odesláno" appears → after marking, the dialog closes and the sidebar count drops.
 - Responsive layouts, dark mode, polling and plain forms are not browser-tested; feature tests cover their server side.
 - New tests must satisfy the existing architecture tests: final, readonly classes outside the framework-extending namespaces, strict types, documented methods and properties, and validation through form requests.
