@@ -15,6 +15,7 @@ use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\SentChangeSummaryController;
 use App\Http\Controllers\TeamNameController;
+use App\Http\Controllers\TeamPageEventController;
 use App\Http\Controllers\TeamSeasonController;
 use App\Http\Controllers\VenueController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('calendar/{team:slug}.ics', CalendarController::class)->name('calendar');
 
 Route::get('t/{team:slug}', PublicTeamPageController::class)->name('public-team-page');
+Route::post('t/{team:slug}/events', [TeamPageEventController::class, 'store'])->middleware('throttle:team-page-events')->name('team-page-events.store');
 
 Route::middleware('guest')->group(function () {
     Route::get('auth/google/redirect', GoogleRedirectController::class)->name('auth.google.redirect');

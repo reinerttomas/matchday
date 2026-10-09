@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Enums\TeamPageAction;
 use App\Models\Fixture;
 use App\Models\Season;
 use App\Models\Team;
+use App\Models\TeamPageEvent;
 use App\Models\TeamSeason;
 
 test('reveals the rest of the season beyond the first four match days', function () {
@@ -125,4 +127,37 @@ test('opens the manual instructions with the address to copy by hand when the cl
         ->assertVisible('@help-dialog')
         ->assertDontSee('Adresa zkopírována')
         ->assertScript('document.querySelector("[data-test=calendar-address]").value.endsWith("/calendar/kutna-hora-b.ics")');
+});
+
+test('records the page view and a tap on a subscribe button on a phone', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->mobile()->assertSee('Zápasy do kalendáře');
+    // Keeps the test off calendar.google.com; the page's own click handler runs after this one.
+    $page->script('window.addEventListener("click", (event) => event.preventDefault(), { capture: true })');
+
+    $page->click('Google Kalendář')
+        // A beacon shows up in resource timing once the app has answered it; the page polls for both, since this assertion runs only once.
+        ->assertScript(<<<'JS'
+            function () {
+                return new Promise((resolve) => {
+                    const startedAt = Date.now();
+                    const countAnsweredBeacons = () => {
+                        const answered = performance.getEntriesByType("resource").filter((entry) => entry.initiatorType === "beacon").length;
+                        if (answered >= 2 || Date.now() - startedAt > 5000) {
+                            resolve(answered);
+                        } else {
+                            setTimeout(countAnsweredBeacons, 50);
+                        }
+                    };
+                    countAnsweredBeacons();
+                });
+            }
+            JS, 2)
+        ->assertNoJavaScriptErrors();
+
+    expect(TeamPageEvent::query()->orderBy('id')->pluck('action')->all())->toBe([TeamPageAction::PageView, TeamPageAction::Google]);
 });

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -28,6 +31,7 @@ final class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureDevCommands();
+        $this->configureRateLimiting();
     }
 
     /**
@@ -58,5 +62,16 @@ final class AppServiceProvider extends ServiceProvider
     private function configureDevCommands(): void
     {
         DevCommands::except('server');
+    }
+
+    /**
+     * Configure rate limiting.
+     */
+    private function configureRateLimiting(): void
+    {
+        // Keyed by the client IP, which is used only here and never stored, so a signed-in admin's other limits stay apart.
+        RateLimiter::for('team-page-events', function (Request $request) {
+            return Limit::perMinute(30)->by($request->ip());
+        });
     }
 }

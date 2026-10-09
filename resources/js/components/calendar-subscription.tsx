@@ -22,7 +22,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useClipboard } from '@/hooks/use-clipboard';
-import type { CalendarLinks } from '@/types';
+import { recordTeamPageEvent } from '@/lib/team-page-events';
+import type { CalendarLinks, TeamPageAction } from '@/types';
 
 type Device = 'apple' | 'android' | 'other';
 
@@ -33,6 +34,7 @@ type SubscribeOption = {
     icon: LucideIcon;
     href: string;
     opensNewTab: boolean;
+    action: TeamPageAction;
 };
 
 /**
@@ -123,18 +125,21 @@ function subscribeOptions(
         icon: Apple,
         href: calendar.webcal,
         opensNewTab: false,
+        action: 'webcal',
     };
     const google: SubscribeOption = {
         label: 'Google Kalendář',
         icon: CalendarDays,
         href: calendar.google,
         opensNewTab: true,
+        action: 'google',
     };
     const outlook: SubscribeOption = {
         label: 'Outlook',
         icon: Mail,
         href: calendar.outlook,
         opensNewTab: true,
+        action: 'outlook',
     };
 
     return device === 'apple'
@@ -148,12 +153,22 @@ function subscribeOptions(
  * it would import a copy that never updates.
  */
 export default function CalendarSubscription({
+    slug,
     calendar,
 }: {
+    slug: string;
     calendar: CalendarLinks;
 }) {
     const device = useDevice();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
+
+    function changeHelpOpen(isOpen: boolean): void {
+        if (isOpen) {
+            recordTeamPageEvent(slug, 'help_open');
+        }
+
+        setIsHelpOpen(isOpen);
+    }
 
     return (
         <Card className="gap-4 py-5">
@@ -181,6 +196,10 @@ export default function CalendarSubscription({
                         <a
                             href={option.href}
                             data-test="subscribe-button"
+                            // Only records the tap; the link still navigates on its own.
+                            onClick={() =>
+                                recordTeamPageEvent(slug, option.action)
+                            }
                             {...(option.opensNewTab && {
                                 target: '_blank',
                                 rel: 'noreferrer',
@@ -195,10 +214,11 @@ export default function CalendarSubscription({
             <CardFooter className="flex-col items-start gap-1 border-t px-5 [.border-t]:pt-4">
                 <CopyAddressButton
                     address={calendar.address}
-                    // Without the clipboard the player copies the address by hand from the dialog.
+                    onCopied={() => recordTeamPageEvent(slug, 'copy_address')}
+                    // Without the clipboard the player copies the address by hand from the dialog. Only opens the player asks for count as help_open.
                     onCopyFailed={() => setIsHelpOpen(true)}
                 />
-                <Dialog open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+                <Dialog open={isHelpOpen} onOpenChange={changeHelpOpen}>
                     <DialogTrigger asChild>
                         <Button
                             variant="link"
@@ -222,7 +242,12 @@ export default function CalendarSubscription({
                             </DialogDescription>
                         </DialogHeader>
                         <Instructions device={device} />
-                        <CalendarAddress address={calendar.address} />
+                        <CalendarAddress
+                            address={calendar.address}
+                            onCopied={() =>
+                                recordTeamPageEvent(slug, 'copy_address')
+                            }
+                        />
                     </DialogContent>
                 </Dialog>
             </CardFooter>
@@ -232,16 +257,20 @@ export default function CalendarSubscription({
 
 function CopyAddressButton({
     address,
+    onCopied,
     onCopyFailed,
 }: {
     address: string;
+    onCopied: () => void;
     onCopyFailed: () => void;
 }) {
     const [copiedText, copy] = useClipboard();
     const isCopied = copiedText === address;
 
     async function copyAddress(): Promise<void> {
-        if (!(await copy(address))) {
+        if (await copy(address)) {
+            onCopied();
+        } else {
             onCopyFailed();
         }
     }
@@ -271,14 +300,22 @@ function CopyAddressButton({
     );
 }
 
-function CalendarAddress({ address }: { address: string }) {
+function CalendarAddress({
+    address,
+    onCopied,
+}: {
+    address: string;
+    onCopied: () => void;
+}) {
     const [copiedText, copy] = useClipboard();
     const isCopied = copiedText === address;
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Some in-app browsers block the clipboard, so the address is selected for the player to copy by hand.
     async function copyAddress(): Promise<void> {
-        if (!(await copy(address))) {
+        if (await copy(address)) {
+            onCopied();
+        } else {
             inputRef.current?.select();
         }
     }
