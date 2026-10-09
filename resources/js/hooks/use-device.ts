@@ -1,4 +1,3 @@
-import InAppSpy from 'inapp-spy';
 import { useSyncExternalStore } from 'react';
 
 export type Device = 'apple' | 'android' | 'other';
@@ -18,10 +17,6 @@ function detectDevice(): Device {
     return APPLE_DEVICE.test(navigator.userAgent) ? 'apple' : 'other';
 }
 
-function detectInAppBrowser(): boolean {
-    return InAppSpy().isInApp;
-}
-
 function subscribeToNothing(): () => void {
     return () => {};
 }
@@ -34,17 +29,5 @@ export function useDevice(): Device {
         subscribeToNothing,
         detectDevice,
         () => 'other',
-    );
-}
-
-/**
- * Whether the page runs in an app's own browser, such as Messenger's or WhatsApp's. The server cannot see that either,
- * so it renders for a regular browser and the client switches after hydration.
- */
-export function useIsInAppBrowser(): boolean {
-    return useSyncExternalStore(
-        subscribeToNothing,
-        detectInAppBrowser,
-        () => false,
     );
 }

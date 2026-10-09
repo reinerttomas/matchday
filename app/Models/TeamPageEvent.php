@@ -37,6 +37,11 @@ final class TeamPageEvent extends Model
     public const UPDATED_AT = null;
 
     /**
+     * The width of the user_agent column; a longer User-Agent is cut to fit.
+     */
+    public const int USER_AGENT_MAX_LENGTH = 512;
+
+    /**
      * Get the events older than the 180 days that are kept.
      *
      * @return Builder<self>

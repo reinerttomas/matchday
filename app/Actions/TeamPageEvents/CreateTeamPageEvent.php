@@ -20,7 +20,7 @@ final readonly class CreateTeamPageEvent
             'team_id' => $team->id,
             'action' => $action,
             'in_app_browser' => $inAppBrowser,
-            'user_agent' => Str::substr($userAgent, 0, 512),
+            'user_agent' => Str::substr($userAgent, 0, TeamPageEvent::USER_AGENT_MAX_LENGTH),
         ]);
     }
 }

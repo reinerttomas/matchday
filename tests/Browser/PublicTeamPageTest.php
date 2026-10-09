@@ -277,6 +277,21 @@ test('asks to leave Instagram on Android too', function () {
         ->assertNoJavaScriptErrors();
 });
 
+test('offers only the manual path out of an in-app browser on a device that is neither Android nor Apple', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->desktop()->withUserAgent('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x63090a13) XWEB/9129 Flue');
+
+    $page->assertSeeIn('@in-app-browser-notice', 'Otevřete stránku v prohlížeči přes nabídku aplikace.')
+        ->assertMissing('@escape-in-app-browser')
+        ->assertDontSeeIn('@in-app-browser-notice', 'Pokud se nic nestane')
+        ->assertSeeIn('@copy-page-link', 'Kopírovat odkaz')
+        ->assertNoJavaScriptErrors();
+});
+
 test('shows no in-app browser notice in a regular browser', function (string $device, string $userAgent) {
     TeamSeason::factory()
         ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))

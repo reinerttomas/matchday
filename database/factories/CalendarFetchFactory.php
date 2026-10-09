@@ -22,7 +22,7 @@ final class CalendarFetchFactory extends Factory
     {
         return [
             'team_id' => Team::factory(),
-            'date' => today('Europe/Prague'),
+            'date' => today(config('services.ceskyflorbal.timezone')),
             'user_agent' => fake()->randomElement(['Google-Calendar-Importer', 'iOS/18.0 (22A3354) dataaccessd/1.0', 'Microsoft Office/16.0']),
             'user_agent_hash' => fn (array $attributes): string => hash('sha256', $attributes['user_agent']),
             'count' => fake()->numberBetween(1, 8),

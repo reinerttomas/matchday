@@ -14,7 +14,7 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
-import { useIsInAppBrowser } from '@/hooks/use-device';
+import { useIsInAppBrowser } from '@/hooks/use-in-app-browser';
 import { recordTeamPageEvent } from '@/lib/team-page-events';
 import type {
     CalendarLinks,

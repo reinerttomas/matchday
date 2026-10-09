@@ -1,4 +1,4 @@
-import InAppSpy from 'inapp-spy';
+import { detectInAppBrowser } from '@/lib/in-app-browser';
 import { store } from '@/routes/team-page-events';
 import type { TeamPageAction } from '@/types';
 
@@ -16,11 +16,10 @@ export function recordTeamPageEvent(
     }
 
     const event = new URLSearchParams({ action });
-    const { isInApp, appKey } = InAppSpy();
+    const inAppBrowser = detectInAppBrowser();
 
-    // An in-app browser inapp-spy cannot name still differs from a regular browser, which is recorded as null.
-    if (isInApp) {
-        event.set('in_app_browser', appKey ?? 'webview');
+    if (inAppBrowser !== null) {
+        event.set('in_app_browser', inAppBrowser);
     }
 
     navigator.sendBeacon(store.url(slug), event);

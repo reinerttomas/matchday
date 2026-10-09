@@ -33,13 +33,18 @@ final class CalendarFetch extends Model
     use MassPrunable;
 
     /**
+     * The width of the user_agent column; a longer User-Agent is cut to fit.
+     */
+    public const int USER_AGENT_MAX_LENGTH = 512;
+
+    /**
      * Get the counts of days before the 180 days that are kept.
      *
      * @return Builder<self>
      */
     public function prunable(): Builder
     {
-        return self::query()->where('date', '<', today('Europe/Prague')->subDays(180));
+        return self::query()->where('date', '<', today(config('services.ceskyflorbal.timezone'))->subDays(180));
     }
 
     /**

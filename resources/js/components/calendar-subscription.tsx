@@ -132,6 +132,7 @@ export default function CalendarSubscription({
     const device = useDevice();
     const [isHelpOpen, setIsHelpOpen] = useState(false);
 
+    // Only the player opening the dialog counts as help_open; the dialog opening itself after a blocked copy does not.
     function changeHelpOpen(isOpen: boolean): void {
         if (isOpen) {
             recordTeamPageEvent(slug, 'help_open');
@@ -185,7 +186,7 @@ export default function CalendarSubscription({
                 <CopyAddressButton
                     address={calendar.address}
                     onCopied={() => recordTeamPageEvent(slug, 'copy_address')}
-                    // Without the clipboard the player copies the address by hand from the dialog. Only opens the player asks for count as help_open.
+                    // Without the clipboard the player copies the address by hand from the dialog.
                     onCopyFailed={() => setIsHelpOpen(true)}
                 />
                 <Dialog open={isHelpOpen} onOpenChange={changeHelpOpen}>
