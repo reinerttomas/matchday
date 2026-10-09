@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/reinerttomas/matchday/compare/v0.2.0...v0.3.0) (2026-10-09)
+
+
+### Features
+
+* send emails through resend ([5079cc9](https://github.com/reinerttomas/matchday/commit/5079cc9551dce36a6459a03dc624ea982ee281d4))
+
 ## [0.2.0](https://github.com/reinerttomas/matchday/compare/v0.1.0...v0.2.0) (2026-10-08)
 
 
