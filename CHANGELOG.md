@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/reinerttomas/matchday/compare/v0.4.0...v0.5.0) (2026-10-09)
+
+
+### Features
+
+* add matchday app icon and logo ([37c4dee](https://github.com/reinerttomas/matchday/commit/37c4dee2e93e4015a2184ec08915f288602b25d5))
+
 ## [0.4.0](https://github.com/reinerttomas/matchday/compare/v0.3.0...v0.4.0) (2026-10-09)
 
 
