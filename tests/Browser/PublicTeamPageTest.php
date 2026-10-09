@@ -63,7 +63,7 @@ test('reveals the rest of the season beyond the first four match days', function
         ->assertNoJavaScriptErrors();
 });
 
-test('fits a phone screen without horizontal scrolling, with the subscribe card above the schedule', function () {
+test('fits a phone screen without horizontal scrolling, with the subscribe card above the schedule', function (string $device, string $userAgent) {
     $teamSeason = TeamSeason::factory()
         ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
@@ -74,19 +74,20 @@ test('fits a phone screen without horizontal scrolling, with the subscribe card 
     ]);
     Fixture::factory()->for($teamSeason)->tbdTime()->create(['date' => today('Europe/Prague')->addDay()->toDateString()]);
 
-    // Android shows the longest card: the sync step under the button, and here also the other calendars.
-    $page = visit('/t/kutna-hora-b')->on()->mobile()->withUserAgent(CHROME_ANDROID);
+    $page = visit('/t/kutna-hora-b')->on()->{$device}()->withUserAgent($userAgent);
 
     $page->assertSee('FBC Kutná Hora B')
         ->assertSee('Odloženo')
         ->assertSeeIn('@relative-day', 'Zítra')
         ->assertScript('document.getElementById("calendar-subscription").getBoundingClientRect().bottom < document.getElementById("schedule").getBoundingClientRect().top')
-        ->click('Jiný kalendář')
         ->assertScript('document.documentElement.scrollWidth <= window.innerWidth')
         ->assertNoJavaScriptErrors();
-});
+})->with([
+    'iPhone, with both calendars' => ['iPhone15', SAFARI_IPHONE],
+    'Android, with the sync step' => ['pixel8', CHROME_ANDROID],
+]);
 
-test('leads with one subscribe button and the instructions for the player\'s device', function (string $device, string $userAgent, string $button, string $hrefScheme, bool $showsSyncStep, string $instructionsTab) {
+test('offers the calendars for the player\'s device, the address to copy and the instructions for the device', function (string $device, string $userAgent, string $buttons, string $hrefSchemes, bool $showsSyncStep, string $instructionsTab) {
     TeamSeason::factory()
         ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
@@ -95,20 +96,22 @@ test('leads with one subscribe button and the instructions for the player\'s dev
     $page = visit('/t/kutna-hora-b')->on()->{$device}()->withUserAgent($userAgent);
 
     $page->assertSee('Zápasy do kalendáře')
-        ->assertCount('@subscribe-button', 1)
-        ->assertSeeIn('@subscribe-button', $button)
-        ->assertScript('document.querySelector("[data-test=subscribe-button]").protocol', $hrefScheme)
+        ->assertScript('Array.from(document.querySelectorAll("[data-test=subscribe-button]")).map((link) => link.textContent).join(" | ")', $buttons)
+        ->assertScript('Array.from(document.querySelectorAll("[data-test=subscribe-button]")).map((link) => link.protocol).join(" | ")', $hrefSchemes)
         ->assertScript('document.body.innerText.includes("zapněte Synchronizace")', $showsSyncStep)
+        ->assertDontSee('Outlook')
+        ->assertDontSee('Jiný kalendář')
+        ->assertVisible('@copy-address')
         ->assertScript('Array.from(document.links).every((link) => ! link.hasAttribute("download") && ! (link.protocol.startsWith("http") && link.pathname.endsWith(".ics")))')
         ->click('Nefunguje to?')
         ->assertVisible('@help-dialog')
         ->assertAttribute("@instructions-tab-{$instructionsTab}", 'aria-selected', 'true')
         ->assertNoJavaScriptErrors();
 })->with([
-    'iPhone' => ['iPhone15', SAFARI_IPHONE, 'Přidat do kalendáře v iPhonu', 'webcal:', false, 'iphone'],
-    'Mac' => ['desktop', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', 'Přidat do kalendáře v iPhonu', 'webcal:', false, 'iphone'],
+    'iPhone' => ['iPhone15', SAFARI_IPHONE, 'Přidat do Apple Kalendáře | Přidat do Google Kalendáře', 'webcal: | https:', false, 'iphone'],
+    'Mac' => ['desktop', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', 'Přidat do Apple Kalendáře | Přidat do Google Kalendáře', 'webcal: | https:', false, 'iphone'],
     'Android' => ['pixel8', CHROME_ANDROID, 'Přidat do Google Kalendáře', 'https:', true, 'android'],
-    'Windows desktop' => ['desktop', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36', 'Přidat do Google Kalendáře', 'https:', false, 'google'],
+    'Windows desktop' => ['desktop', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36', 'Přidat do Google Kalendáře | Přidat do Apple Kalendáře', 'https: | webcal:', false, 'google'],
 ]);
 
 test('switches the subscribe instructions between devices', function () {
@@ -147,7 +150,6 @@ test('copies the calendar address', function () {
     $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async (text) => { window.copiedText = text; } })');
 
     $page->assertDontSee('Adresa zkopírována')
-        ->click('Jiný kalendář')
         ->click('@copy-address')
         ->assertSeeIn('@copy-address', 'Adresa zkopírována')
         ->assertScript('document.querySelector("[data-test=copy-status]").textContent', 'Adresa zkopírována')
@@ -165,8 +167,7 @@ test('opens the manual instructions with the address to copy by hand when the cl
     $page = visit('/t/kutna-hora-b');
     $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async () => { throw new Error("Blocked"); } })');
 
-    $page->click('Jiný kalendář')
-        ->click('@copy-address')
+    $page->click('@copy-address')
         ->assertVisible('@help-dialog')
         ->assertDontSee('Adresa zkopírována')
         ->assertScript('document.querySelector("[data-test=calendar-address]").value.endsWith("/calendar/kutna-hora-b.ics")');
@@ -189,30 +190,26 @@ test('records the page view and a tap on the subscribe button on a phone', funct
     expect(TeamPageEvent::query()->orderBy('id')->pluck('action')->all())->toBe([TeamPageAction::PageView, TeamPageAction::Google]);
 });
 
-test('folds the other calendars and the address away until the player asks for them, and records both taps', function () {
+test('records taps on both calendars and on the address on an iPhone', function () {
     TeamSeason::factory()
         ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
         ->create();
 
-    $page = visit('/t/kutna-hora-b')->on()->iPhone15()->withUserAgent(SAFARI_IPHONE);
-
-    $page->assertSeeIn('@subscribe-button', 'Přidat do kalendáře v iPhonu')
-        ->assertScript('document.querySelector("[data-test=subscribe-button]").getAttribute("href").startsWith("webcal://")')
-        ->assertDontSee('Google Kalendář')
-        ->assertDontSee('Outlook')
-        ->assertMissing('@copy-address')
-        ->click('Jiný kalendář')
-        ->assertScript('Array.from(document.querySelectorAll("[data-test=subscribe-button]")).map((link) => link.textContent).join(" | ")', 'Přidat do kalendáře v iPhonu | Google Kalendář | Outlook')
-        ->assertVisible('@copy-address');
-    // Installed only now, because the toggle ignores a click whose default is prevented.
+    $page = visit('/t/kutna-hora-b')->on()->iPhone15()->withUserAgent(SAFARI_IPHONE)->assertSee('Zápasy do kalendáře');
+    // Keeps the test on the page; the page's own click handlers run after this one.
     $page->script('window.addEventListener("click", (event) => event.preventDefault(), { capture: true })');
+    $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async () => {} })');
 
-    $page->click('Outlook')
+    $page->click('Přidat do Apple Kalendáře')
+        ->assertScript(answeredBeacons(2), 2)
+        ->click('Přidat do Google Kalendáře')
         ->assertScript(answeredBeacons(3), 3)
+        ->click('@copy-address')
+        ->assertScript(answeredBeacons(4), 4)
         ->assertNoJavaScriptErrors();
 
-    expect(TeamPageEvent::query()->orderBy('id')->pluck('action')->all())->toBe([TeamPageAction::PageView, TeamPageAction::OtherOptionsOpen, TeamPageAction::Outlook]);
+    expect(TeamPageEvent::query()->orderBy('id')->pluck('action')->all())->toBe([TeamPageAction::PageView, TeamPageAction::Webcal, TeamPageAction::Google, TeamPageAction::CopyAddress]);
 });
 
 test('offers to open the page in the default browser from Messenger on Android, and records the tap', function () {

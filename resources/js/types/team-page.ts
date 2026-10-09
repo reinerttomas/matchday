@@ -50,7 +50,6 @@ export type TeamPageAction =
     | 'outlook'
     | 'copy_address'
     | 'help_open'
-    | 'other_options_open'
     | 'escape_intent'
     | 'copy_page_link';
 

@@ -1,11 +1,5 @@
-import {
-    Apple,
-    CalendarDays,
-    Check,
-    ChevronDown,
-    Copy,
-    Mail,
-} from 'lucide-react';
+import { cn } from 'cn';
+import { Apple, CalendarDays, Check, Copy } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -17,11 +11,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import {
     Dialog,
     DialogContent,
@@ -55,7 +44,7 @@ const INSTRUCTIONS: { tab: InstructionsTab; label: string; steps: string[] }[] =
             tab: 'google',
             label: 'Google',
             steps: [
-                'Klikněte na tlačítko „Přidat do Google Kalendáře“ nebo „Google Kalendář“ pod „Jiný kalendář“ a přihlaste se ke svému účtu Google.',
+                'Klikněte na tlačítko „Přidat do Google Kalendáře“ a přihlaste se ke svému účtu Google.',
                 'Přidání kalendáře potvrďte tlačítkem „Přidat“.',
                 'Kalendář najdete vlevo v seznamu „Další kalendáře“.',
                 'Když se potvrzení nezobrazí, klikněte v Google Kalendáři vedle „Další kalendáře“ na „+“ → „Z adresy URL“, vložte zkopírovanou adresu a klikněte na „Přidat kalendář“.',
@@ -75,7 +64,7 @@ const INSTRUCTIONS: { tab: InstructionsTab; label: string; steps: string[] }[] =
             tab: 'iphone',
             label: 'iPhone',
             steps: [
-                'Klepněte na tlačítko „Přidat do kalendáře v iPhonu“.',
+                'Klepněte na tlačítko „Přidat do Apple Kalendáře“.',
                 'Odběr kalendáře potvrďte tlačítkem „Odebírat“ a pak přidání potvrďte.',
                 'Zápasy se objeví v aplikaci Kalendář.',
                 'Když se nic nestane, otevřete aplikaci Kalendář → „Kalendáře“ → „Přidat kalendář“ → „Přidat odebíraný kalendář“, vložte zkopírovanou adresu, klepněte na „Odebírat“ a přidání potvrďte.',
@@ -85,9 +74,8 @@ const INSTRUCTIONS: { tab: InstructionsTab; label: string; steps: string[] }[] =
             tab: 'outlook',
             label: 'Outlook',
             steps: [
-                'Pod „Jiný kalendář“ klikněte na tlačítko „Outlook“ a přihlaste se ke svému účtu Microsoft.',
-                'Zkontrolujte název kalendáře a potvrďte přidání.',
-                'Když se okno nezobrazí, otevřete v Outlooku kalendář → „Přidat kalendář“ → „Přihlásit se k odběru z webu“, vložte zkopírovanou adresu a potvrďte.',
+                'Zkopírujte adresu kalendáře tlačítkem „Kopírovat adresu“.',
+                'V Outlooku otevřete kalendář → „Přidat kalendář“ → „Přihlásit se k odběru z webu“, vložte zkopírovanou adresu a potvrďte.',
             ],
         },
     ];
@@ -99,7 +87,7 @@ const INSTRUCTIONS_TAB_FOR_DEVICE: Record<Device, InstructionsTab> = {
 };
 
 const APPLE_OPTION: SubscribeOption = {
-    label: 'iPhone / Mac',
+    label: 'Přidat do Apple Kalendáře',
     icon: Apple,
     hrefFor: (calendar) => calendar.webcal,
     opensNewTab: false,
@@ -107,37 +95,26 @@ const APPLE_OPTION: SubscribeOption = {
 };
 
 const GOOGLE_OPTION: SubscribeOption = {
-    label: 'Google Kalendář',
+    label: 'Přidat do Google Kalendáře',
     icon: CalendarDays,
     hrefFor: (calendar) => calendar.google,
     opensNewTab: true,
     action: 'google',
 };
 
-const OUTLOOK_OPTION: SubscribeOption = {
-    label: 'Outlook',
-    icon: Mail,
-    hrefFor: (calendar) => calendar.outlook,
-    opensNewTab: true,
-    action: 'outlook',
+/**
+ * The first option is the primary one. Android gets no Apple option, because the Apple calendar doesn't exist there.
+ */
+const OPTIONS_FOR_DEVICE: Record<Device, SubscribeOption[]> = {
+    apple: [APPLE_OPTION, GOOGLE_OPTION],
+    android: [GOOGLE_OPTION],
+    other: [GOOGLE_OPTION, APPLE_OPTION],
 };
-
-const PRIMARY_OPTION_FOR_DEVICE: Record<Device, SubscribeOption> = {
-    apple: { ...APPLE_OPTION, label: 'Přidat do kalendáře v iPhonu' },
-    android: { ...GOOGLE_OPTION, label: 'Přidat do Google Kalendáře' },
-    other: { ...GOOGLE_OPTION, label: 'Přidat do Google Kalendáře' },
-};
-
-function otherOptions(primaryOption: SubscribeOption): SubscribeOption[] {
-    return [GOOGLE_OPTION, APPLE_OPTION, OUTLOOK_OPTION].filter(
-        (option) => option.action !== primaryOption.action,
-    );
-}
 
 /**
- * Lets a player subscribe to the team's calendar: one button for their device up front, the other calendars and the
- * address to copy folded away and, in a dialog, instructions per device for adding it by hand. It never links to the
- * feed itself, because downloading it would import a copy that never updates.
+ * Lets a player subscribe to the team's calendar: the Apple and Google calendars ordered by their device, the address to
+ * copy and, in a dialog, instructions per device for adding it by hand. It never links to the feed itself, because
+ * downloading it would import a copy that never updates.
  */
 export default function CalendarSubscription({
     slug,
@@ -147,7 +124,6 @@ export default function CalendarSubscription({
     calendar: CalendarLinks;
 }) {
     const device = useDevice();
-    const primaryOption = PRIMARY_OPTION_FOR_DEVICE[device];
     const [isHelpOpen, setIsHelpOpen] = useState(false);
 
     // Only the player opening the dialog counts as help_open; the dialog opening itself after a blocked copy does not.
@@ -171,12 +147,15 @@ export default function CalendarSubscription({
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2 px-5">
-                <SubscribeButton
-                    slug={slug}
-                    calendar={calendar}
-                    option={primaryOption}
-                    className="h-auto min-h-9 justify-start bg-blue-600 py-2 whitespace-normal text-white hover:bg-blue-700"
-                />
+                {OPTIONS_FOR_DEVICE[device].map((option, index) => (
+                    <SubscribeButton
+                        key={option.action}
+                        slug={slug}
+                        calendar={calendar}
+                        option={option}
+                        isPrimary={index === 0}
+                    />
+                ))}
                 {device === 'android' && (
                     // Google's phone app cannot subscribe, and without sync the calendar never reaches the phone.
                     <p className="text-sm text-muted-foreground">
@@ -184,49 +163,14 @@ export default function CalendarSubscription({
                         vyberte kalendář týmu a zapněte Synchronizace.
                     </p>
                 )}
-                <Collapsible
-                    onOpenChange={(isOpen) => {
-                        if (isOpen) {
-                            recordTeamPageEvent(slug, 'other_options_open');
-                        }
-                    }}
-                >
-                    <CollapsibleTrigger asChild>
-                        <Button
-                            variant="link"
-                            size="sm"
-                            className="group h-auto min-h-6 px-0 py-1 text-muted-foreground hover:text-foreground has-[>svg]:px-0"
-                        >
-                            Jiný kalendář
-                            <ChevronDown
-                                aria-hidden
-                                className="transition-transform group-data-[state=open]:rotate-180"
-                            />
-                        </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="flex flex-col items-start gap-2 pt-1">
-                        {otherOptions(primaryOption).map((option) => (
-                            <SubscribeButton
-                                key={option.action}
-                                slug={slug}
-                                calendar={calendar}
-                                option={option}
-                                variant="outline"
-                                className="w-full justify-start"
-                            />
-                        ))}
-                        <CopyAddressButton
-                            address={calendar.address}
-                            onCopied={() =>
-                                recordTeamPageEvent(slug, 'copy_address')
-                            }
-                            // Without the clipboard the player copies the address by hand from the dialog.
-                            onCopyFailed={() => setIsHelpOpen(true)}
-                        />
-                    </CollapsibleContent>
-                </Collapsible>
             </CardContent>
             <CardFooter className="flex-col items-start gap-1 border-t px-5 [.border-t]:pt-4">
+                <CopyAddressButton
+                    address={calendar.address}
+                    onCopied={() => recordTeamPageEvent(slug, 'copy_address')}
+                    // Without the clipboard the player copies the address by hand from the dialog.
+                    onCopyFailed={() => setIsHelpOpen(true)}
+                />
                 <Dialog open={isHelpOpen} onOpenChange={changeHelpOpen}>
                     <DialogTrigger asChild>
                         <Button
@@ -268,17 +212,22 @@ function SubscribeButton({
     slug,
     calendar,
     option,
-    variant = 'default',
-    className,
+    isPrimary,
 }: {
     slug: string;
     calendar: CalendarLinks;
     option: SubscribeOption;
-    variant?: 'default' | 'outline';
-    className: string;
+    isPrimary: boolean;
 }) {
     return (
-        <Button asChild variant={variant} className={className}>
+        <Button
+            asChild
+            variant={isPrimary ? 'default' : 'outline'}
+            className={cn(
+                'h-auto min-h-9 justify-start py-2 whitespace-normal',
+                isPrimary && 'bg-blue-600 text-white hover:bg-blue-700',
+            )}
+        >
             <a
                 href={option.hrefFor(calendar)}
                 data-test="subscribe-button"
