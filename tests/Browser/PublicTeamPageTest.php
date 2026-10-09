@@ -2,10 +2,48 @@
 
 declare(strict_types=1);
 
+use App\Enums\TeamPageAction;
 use App\Models\Fixture;
 use App\Models\Season;
 use App\Models\Team;
+use App\Models\TeamPageEvent;
 use App\Models\TeamSeason;
+
+const SAFARI_IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+
+const CHROME_ANDROID = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36';
+
+/**
+ * Recorded from Messenger 582 on an iPhone 13 mini with iOS 27.
+ */
+const MESSENGER_IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 27_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/24A437 [FBAN/FBIOS;FBAV/582.0.0.26.106;FBBV/1084662339;FBDV/iPhone14,4;FBMD/iPhone;FBSN/iOS;FBSV/27.0;FBSS/3;FBCR/;FBID/phone;FBLC/cs_CZ;FBOP/80]';
+
+const MESSENGER_ANDROID = 'Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/AP2A.240805.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/129.0.6668.100 Mobile Safari/537.36 [FB_IAB/Orca-Android;FBAV/478.0.0.43.115;]';
+
+const OPEN_IN_BROWSER_STEPS = 'Array.from(document.querySelectorAll("[data-test=open-in-browser-steps] li")).map((step) => step.textContent).join(" | ")';
+
+/**
+ * Waits until the app has answered the given number of beacons; a beacon shows up in resource timing only then.
+ */
+function answeredBeacons(int $count): string
+{
+    return <<<JS
+        function () {
+            return new Promise((resolve) => {
+                const startedAt = Date.now();
+                const countAnsweredBeacons = () => {
+                    const answered = performance.getEntriesByType("resource").filter((entry) => entry.initiatorType === "beacon").length;
+                    if (answered >= {$count} || Date.now() - startedAt > 5000) {
+                        resolve(answered);
+                    } else {
+                        setTimeout(countAnsweredBeacons, 50);
+                    }
+                };
+                countAnsweredBeacons();
+            });
+        }
+        JS;
+}
 
 test('reveals the rest of the season beyond the first four match days', function () {
     $teamSeason = TeamSeason::factory()
@@ -25,7 +63,7 @@ test('reveals the rest of the season beyond the first four match days', function
         ->assertNoJavaScriptErrors();
 });
 
-test('fits a phone screen without horizontal scrolling, with the subscribe card above the schedule', function () {
+test('fits a phone screen without horizontal scrolling, with the subscribe card above the schedule', function (string $device, string $userAgent) {
     $teamSeason = TeamSeason::factory()
         ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
@@ -36,7 +74,7 @@ test('fits a phone screen without horizontal scrolling, with the subscribe card 
     ]);
     Fixture::factory()->for($teamSeason)->tbdTime()->create(['date' => today('Europe/Prague')->addDay()->toDateString()]);
 
-    $page = visit('/t/kutna-hora-b')->on()->mobile();
+    $page = visit('/t/kutna-hora-b')->on()->{$device}()->withUserAgent($userAgent);
 
     $page->assertSee('FBC Kutná Hora B')
         ->assertSee('Odloženo')
@@ -44,9 +82,12 @@ test('fits a phone screen without horizontal scrolling, with the subscribe card 
         ->assertScript('document.getElementById("calendar-subscription").getBoundingClientRect().bottom < document.getElementById("schedule").getBoundingClientRect().top')
         ->assertScript('document.documentElement.scrollWidth <= window.innerWidth')
         ->assertNoJavaScriptErrors();
-});
+})->with([
+    'iPhone, with both calendars' => ['iPhone15', SAFARI_IPHONE],
+    'Android, with the sync step' => ['pixel8', CHROME_ANDROID],
+]);
 
-test('puts the subscribe option and instructions for the player\'s device first', function (string $device, string $userAgent, string $buttons, string $instructionsTab) {
+test('offers the calendars for the player\'s device, the address to copy and the instructions for the device', function (string $device, string $userAgent, string $buttons, string $hrefSchemes, bool $showsSyncStep, string $instructionsTab) {
     TeamSeason::factory()
         ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
         ->for(Season::factory()->current())
@@ -56,16 +97,21 @@ test('puts the subscribe option and instructions for the player\'s device first'
 
     $page->assertSee('Zápasy do kalendáře')
         ->assertScript('Array.from(document.querySelectorAll("[data-test=subscribe-button]")).map((link) => link.textContent).join(" | ")', $buttons)
+        ->assertScript('Array.from(document.querySelectorAll("[data-test=subscribe-button]")).map((link) => link.protocol).join(" | ")', $hrefSchemes)
+        ->assertScript('document.body.innerText.includes("zapněte Synchronizace")', $showsSyncStep)
+        ->assertDontSee('Outlook')
+        ->assertDontSee('Jiný kalendář')
+        ->assertVisible('@copy-address')
         ->assertScript('Array.from(document.links).every((link) => ! link.hasAttribute("download") && ! (link.protocol.startsWith("http") && link.pathname.endsWith(".ics")))')
         ->click('Nefunguje to?')
         ->assertVisible('@help-dialog')
         ->assertAttribute("@instructions-tab-{$instructionsTab}", 'aria-selected', 'true')
         ->assertNoJavaScriptErrors();
 })->with([
-    'iPhone' => ['iPhone15', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1', 'iPhone / Mac | Google Kalendář | Outlook', 'iphone'],
-    'Mac' => ['desktop', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', 'iPhone / Mac | Google Kalendář | Outlook', 'iphone'],
-    'Android' => ['pixel8', 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36', 'Google Kalendář | iPhone / Mac | Outlook', 'android'],
-    'Windows desktop' => ['desktop', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36', 'Google Kalendář | iPhone / Mac | Outlook', 'google'],
+    'iPhone' => ['iPhone15', SAFARI_IPHONE, 'Přidat do Apple Kalendáře | Přidat do Google Kalendáře', 'webcal: | https:', false, 'iphone'],
+    'Mac' => ['desktop', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15', 'Přidat do Apple Kalendáře | Přidat do Google Kalendáře', 'webcal: | https:', false, 'iphone'],
+    'Android' => ['pixel8', CHROME_ANDROID, 'Přidat do Google Kalendáře', 'https:', true, 'android'],
+    'Windows desktop' => ['desktop', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36', 'Přidat do Google Kalendáře | Přidat do Apple Kalendáře', 'https: | webcal:', false, 'google'],
 ]);
 
 test('switches the subscribe instructions between devices', function () {
@@ -125,4 +171,197 @@ test('opens the manual instructions with the address to copy by hand when the cl
         ->assertVisible('@help-dialog')
         ->assertDontSee('Adresa zkopírována')
         ->assertScript('document.querySelector("[data-test=calendar-address]").value.endsWith("/calendar/kutna-hora-b.ics")');
+});
+
+test('records the page view and a tap on the subscribe button on a phone', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->pixel8()->withUserAgent(CHROME_ANDROID)->assertSee('Zápasy do kalendáře');
+    // Keeps the test off calendar.google.com; the page's own click handler runs after this one.
+    $page->script('window.addEventListener("click", (event) => event.preventDefault(), { capture: true })');
+
+    $page->click('Přidat do Google Kalendáře')
+        ->assertScript(answeredBeacons(2), 2)
+        ->assertNoJavaScriptErrors();
+
+    expect(TeamPageEvent::query()->orderBy('id')->pluck('action')->all())->toBe([TeamPageAction::PageView, TeamPageAction::Google]);
+});
+
+test('records taps on both calendars and on the address on an iPhone', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->iPhone15()->withUserAgent(SAFARI_IPHONE)->assertSee('Zápasy do kalendáře');
+    // Keeps the test on the page; the page's own click handlers run after this one.
+    $page->script('window.addEventListener("click", (event) => event.preventDefault(), { capture: true })');
+    $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async () => {} })');
+
+    $page->click('Přidat do Apple Kalendáře')
+        ->assertScript(answeredBeacons(2), 2)
+        ->click('Přidat do Google Kalendáře')
+        ->assertScript(answeredBeacons(3), 3)
+        ->click('@copy-address')
+        ->assertScript(answeredBeacons(4), 4)
+        ->assertNoJavaScriptErrors();
+
+    expect(TeamPageEvent::query()->orderBy('id')->pluck('action')->all())->toBe([TeamPageAction::PageView, TeamPageAction::Webcal, TeamPageAction::Google, TeamPageAction::CopyAddress]);
+});
+
+test('offers to open the page in the default browser from Messenger on Android, and records the tap', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b?utm_source=messenger')->on()->mobile()->withUserAgent(MESSENGER_ANDROID);
+    // Keeps the test inside the page; the page's own click handler runs after this one.
+    $page->script('window.addEventListener("click", (event) => event.preventDefault(), { capture: true })');
+
+    $page->assertSeeIn('@in-app-browser-notice', 'Otevřete stránku v prohlížeči')
+        ->assertSeeIn('@escape-in-app-browser', 'Otevřít v prohlížeči')
+        ->assertScript('document.querySelector("[data-test=escape-in-app-browser]").getAttribute("href") === `intent://${location.host}/t/kutna-hora-b?utm_source=messenger#Intent;scheme=${location.protocol.replace(":", "")};end`')
+        ->assertScript(OPEN_IN_BROWSER_STEPS, 'Klepněte na ⋯ v rohu obrazovky. | Zvolte „Otevřít v prohlížeči“. | Přidejte si kalendář jedním tlačítkem.')
+        ->assertScript('document.querySelector("[data-test=escape-in-app-browser]").getBoundingClientRect().bottom <= document.querySelector("[data-test=open-in-browser-steps]").getBoundingClientRect().top')
+        ->assertMissing('@subscribe-button')
+        ->assertScript('document.documentElement.scrollWidth <= window.innerWidth')
+        ->click('@escape-in-app-browser')
+        ->assertScript(answeredBeacons(2), 2)
+        ->assertNoJavaScriptErrors();
+
+    expect(TeamPageEvent::query()->orderBy('id')->get(['action', 'in_app_browser'])->toArray())->toBe([
+        ['action' => 'page_view', 'in_app_browser' => 'messenger'],
+        ['action' => 'escape_intent', 'in_app_browser' => 'messenger'],
+    ]);
+});
+
+test('shows only the way into the browser from Messenger on iPhone, where the subscribe buttons do nothing', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->iPhone15()->withUserAgent(MESSENGER_IPHONE);
+
+    $page->assertSeeIn('@in-app-browser-notice', 'Otevřete stránku v prohlížeči')
+        ->assertSeeIn('@in-app-browser-notice', 'Safari')
+        ->assertScript(OPEN_IN_BROWSER_STEPS, 'Klepněte na ⋯ v rohu obrazovky. | Zvolte „Otevřít v prohlížeči“. | Přidejte si kalendář jedním tlačítkem.')
+        ->assertSeeIn('@copy-page-link', 'Kopírovat odkaz')
+        ->assertMissing('@subscribe-button')
+        ->assertMissing('@escape-in-app-browser')
+        ->assertDontSee('Zápasy do kalendáře')
+        ->assertScript('Array.from(document.links).every((link) => ! link.href.startsWith("x-safari"))')
+        ->assertScript('document.documentElement.scrollWidth <= window.innerWidth')
+        ->assertNoJavaScriptErrors();
+});
+
+test('copies the page link from an in-app browser, and records the tap', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->mobile()->withUserAgent(MESSENGER_ANDROID);
+    $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async (text) => { window.copiedText = text; } })');
+
+    $page->click('@copy-page-link')
+        ->assertSeeIn('@copy-page-link', 'Odkaz zkopírován')
+        ->assertScript('document.querySelector("[data-test=copy-page-link-status]").textContent', 'Odkaz zkopírován')
+        ->assertScript('window.copiedText === location.href')
+        ->assertMissing('@page-link')
+        ->assertScript(answeredBeacons(2), 2)
+        ->assertNoJavaScriptErrors();
+
+    expect(TeamPageEvent::query()->orderBy('id')->get(['action', 'in_app_browser'])->toArray())->toBe([
+        ['action' => 'page_view', 'in_app_browser' => 'messenger'],
+        ['action' => 'copy_page_link', 'in_app_browser' => 'messenger'],
+    ]);
+});
+
+test('shows the page link to copy by hand when the in-app browser blocks the clipboard', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->iPhone15()->withUserAgent(MESSENGER_IPHONE);
+    $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async () => { throw new Error("Blocked"); } })');
+
+    $page->assertMissing('@page-link')
+        ->click('@copy-page-link')
+        ->assertVisible('@page-link')
+        ->assertDontSee('Odkaz zkopírován')
+        ->assertScript('document.querySelector("[data-test=page-link]").value === location.href')
+        ->assertScript('document.activeElement === document.querySelector("[data-test=page-link]")')
+        ->assertNoJavaScriptErrors();
+});
+
+test('asks to leave Instagram on Android too', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->mobile()->withUserAgent('Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/AP2A.240805.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/129.0.6668.100 Mobile Safari/537.36 Instagram 350.0.0.42.83 Android (34/14; 420dpi; 1080x2400; Google/google; Pixel 8; shiba; shiba; cs_CZ; 640000000)');
+
+    $page->assertSeeIn('@in-app-browser-notice', 'Otevřete stránku v prohlížeči')
+        ->assertSeeIn('@escape-in-app-browser', 'Otevřít v prohlížeči')
+        ->assertNoJavaScriptErrors();
+});
+
+test('offers only the manual path out of an in-app browser on a device that is neither Android nor Apple', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->desktop()->withUserAgent('Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36 NetType/WIFI MicroMessenger/7.0.20.1781(0x6700143B) WindowsWechat(0x63090a13) XWEB/9129 Flue');
+
+    $page->assertSeeIn('@in-app-browser-notice', 'Otevřete stránku v prohlížeči')
+        ->assertScript(OPEN_IN_BROWSER_STEPS, 'Klepněte na ⋯ v rohu obrazovky. | Zvolte „Otevřít v prohlížeči“. | Přidejte si kalendář jedním tlačítkem.')
+        ->assertMissing('@escape-in-app-browser')
+        ->assertMissing('@subscribe-button')
+        ->assertSeeIn('@copy-page-link', 'Kopírovat odkaz')
+        ->assertNoJavaScriptErrors();
+});
+
+test('shows no in-app browser notice in a regular browser', function (string $device, string $userAgent) {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->{$device}()->withUserAgent($userAgent);
+
+    $page->assertSee('Zápasy do kalendáře')
+        ->assertMissing('@in-app-browser-notice')
+        ->assertNoJavaScriptErrors();
+})->with([
+    'Safari on iPhone' => ['iPhone15', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'],
+    'Chrome on iPhone' => ['iPhone15', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/129.0.6668.69 Mobile/15E148 Safari/604.1'],
+    'Firefox on iPhone' => ['iPhone15', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/131.0 Mobile/15E148 Safari/605.1.15'],
+    'Chrome on Android' => ['pixel8', 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36'],
+    'Firefox on Android' => ['pixel8', 'Mozilla/5.0 (Android 14; Mobile; rv:131.0) Gecko/131.0 Firefox/131.0'],
+    'Chrome on Windows' => ['desktop', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'],
+]);
+
+test('asks to leave an in-app browser it cannot name, and records it as a webview', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/kutna-hora-b')->on()->mobile()->withUserAgent('Mozilla/5.0 (Linux; Android 14; Pixel 8 Build/AP2A.240805.005; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/129.0.6668.100 Mobile Safari/537.36');
+
+    $page->assertSeeIn('@in-app-browser-notice', 'Otevřete stránku v prohlížeči')
+        ->assertScript(answeredBeacons(1), 1)
+        ->assertNoJavaScriptErrors();
+
+    expect(TeamPageEvent::query()->sole())
+        ->action->toBe(TeamPageAction::PageView)
+        ->in_app_browser->toBe('webview');
 });

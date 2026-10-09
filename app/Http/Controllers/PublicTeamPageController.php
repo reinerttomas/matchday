@@ -21,6 +21,7 @@ final readonly class PublicTeamPageController
         $teamSeason = $team->currentTeamSeason;
 
         return Inertia::render('public/team', [
+            'slug' => $team->slug,
             'season' => Season::query()->where('is_current', true)->value('name'),
             'teamSeason' => $teamSeason === null ? null : $teamPagePresenter->present($teamSeason),
             'calendar' => $calendarLinks->for($team),

@@ -43,6 +43,16 @@ export type TeamPageTeamSeason = {
     matchDays: MatchDay[];
 };
 
+export type TeamPageAction =
+    | 'page_view'
+    | 'google'
+    | 'webcal'
+    | 'outlook'
+    | 'copy_address'
+    | 'help_open'
+    | 'escape_intent'
+    | 'copy_page_link';
+
 export type CalendarLinks = {
     address: string;
     google: string;

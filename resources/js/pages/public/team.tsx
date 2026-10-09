@@ -2,8 +2,9 @@ import { Head } from '@inertiajs/react';
 import { cn } from 'cn';
 import { CalendarClock, CalendarOff, MapPin } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CalendarSubscription from '@/components/calendar-subscription';
+import InAppBrowserNotice from '@/components/in-app-browser-notice';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,6 +14,8 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
+import { useIsInAppBrowser } from '@/hooks/use-in-app-browser';
+import { recordTeamPageEvent } from '@/lib/team-page-events';
 import type {
     CalendarLinks,
     MatchDay,
@@ -26,12 +29,18 @@ import type {
 const INITIAL_MATCH_DAYS = 4;
 
 type Props = {
+    slug: string;
     season: string | null;
     teamSeason: TeamPageTeamSeason | null;
     calendar: CalendarLinks;
 };
 
-export default function Team({ season, teamSeason, calendar }: Props) {
+export default function Team({ slug, season, teamSeason, calendar }: Props) {
+    const isInAppBrowser = useIsInAppBrowser();
+
+    // Effects run only in the browser, so a server-rendered page is counted once, after hydration.
+    useEffect(() => recordTeamPageEvent(slug, 'page_view'), [slug]);
+
     return (
         <>
             <Head title={teamSeason?.name ?? 'Rozpis zápasů'} />
@@ -45,11 +54,22 @@ export default function Team({ season, teamSeason, calendar }: Props) {
                 <main className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-10 lg:grid-cols-[1fr_18rem]">
                     {/* First in the source so a phone shows how to subscribe before the schedule. */}
                     <aside
-                        aria-labelledby="calendar-subscription"
+                        aria-labelledby={
+                            isInAppBrowser
+                                ? 'open-in-browser'
+                                : 'calendar-subscription'
+                        }
                         className="min-w-0 lg:order-2"
                     >
                         <div className="lg:sticky lg:top-6">
-                            <CalendarSubscription calendar={calendar} />
+                            {isInAppBrowser ? (
+                                <InAppBrowserNotice slug={slug} />
+                            ) : (
+                                <CalendarSubscription
+                                    slug={slug}
+                                    calendar={calendar}
+                                />
+                            )}
                         </div>
                     </aside>
                     <div className="flex min-w-0 flex-col gap-12 lg:order-1">
