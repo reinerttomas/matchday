@@ -31,8 +31,11 @@
         </style>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="icon" href="/icon.svg" type="image/svg+xml">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+        <link rel="manifest" href="/site.webmanifest">
+        <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+        <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)">
 
         @fonts
 
