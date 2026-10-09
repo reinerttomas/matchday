@@ -1,4 +1,11 @@
-import { Apple, CalendarDays, Check, Copy, Mail } from 'lucide-react';
+import {
+    Apple,
+    CalendarDays,
+    Check,
+    ChevronDown,
+    Copy,
+    Mail,
+} from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +17,11 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
     Dialog,
     DialogContent,
@@ -32,7 +44,7 @@ type InstructionsTab = 'google' | 'android' | 'iphone' | 'outlook';
 type SubscribeOption = {
     label: string;
     icon: LucideIcon;
-    href: string;
+    hrefFor: (calendar: CalendarLinks) => string;
     opensNewTab: boolean;
     action: TeamPageAction;
 };
@@ -43,7 +55,7 @@ const INSTRUCTIONS: { tab: InstructionsTab; label: string; steps: string[] }[] =
             tab: 'google',
             label: 'Google',
             steps: [
-                'Klikněte na tlačítko „Google Kalendář“ a přihlaste se ke svému účtu Google.',
+                'Klikněte na tlačítko „Přidat do Google Kalendáře“ nebo „Google Kalendář“ pod „Jiný kalendář“ a přihlaste se ke svému účtu Google.',
                 'Přidání kalendáře potvrďte tlačítkem „Přidat“.',
                 'Kalendář najdete vlevo v seznamu „Další kalendáře“.',
                 'Když se potvrzení nezobrazí, klikněte v Google Kalendáři vedle „Další kalendáře“ na „+“ → „Z adresy URL“, vložte zkopírovanou adresu a klikněte na „Přidat kalendář“.',
@@ -53,7 +65,7 @@ const INSTRUCTIONS: { tab: InstructionsTab; label: string; steps: string[] }[] =
             tab: 'android',
             label: 'Android',
             steps: [
-                'Aplikace Kalendář Google neumí přidat kalendář podle adresy, proto ho přidáte přes web: klepněte na „Google Kalendář“ a přihlaste se stejným účtem Google, jaký máte v telefonu.',
+                'Aplikace Kalendář Google neumí přidat kalendář podle adresy, proto ho přidáte přes web: klepněte na „Přidat do Google Kalendáře“ a přihlaste se stejným účtem Google, jaký máte v telefonu.',
                 'Když se otevře jen mobilní verze bez potvrzení, zapněte v nabídce prohlížeče „Verze pro počítač“ a klepněte na tlačítko znovu. Případně postup dokončete na počítači.',
                 'Přidání kalendáře potvrďte tlačítkem „Přidat“.',
                 'V aplikaci Kalendář Google otevřete nabídku → „Nastavení“, vyberte nový kalendář a zapněte „Synchronizace“.',
@@ -63,7 +75,7 @@ const INSTRUCTIONS: { tab: InstructionsTab; label: string; steps: string[] }[] =
             tab: 'iphone',
             label: 'iPhone',
             steps: [
-                'Klepněte na tlačítko „iPhone / Mac“.',
+                'Klepněte na tlačítko „Přidat do kalendáře v iPhonu“.',
                 'Odběr kalendáře potvrďte tlačítkem „Odebírat“ a pak přidání potvrďte.',
                 'Zápasy se objeví v aplikaci Kalendář.',
                 'Když se nic nestane, otevřete aplikaci Kalendář → „Kalendáře“ → „Přidat kalendář“ → „Přidat odebíraný kalendář“, vložte zkopírovanou adresu, klepněte na „Odebírat“ a přidání potvrďte.',
@@ -73,7 +85,7 @@ const INSTRUCTIONS: { tab: InstructionsTab; label: string; steps: string[] }[] =
             tab: 'outlook',
             label: 'Outlook',
             steps: [
-                'Klikněte na tlačítko „Outlook“ a přihlaste se ke svému účtu Microsoft.',
+                'Pod „Jiný kalendář“ klikněte na tlačítko „Outlook“ a přihlaste se ke svému účtu Microsoft.',
                 'Zkontrolujte název kalendáře a potvrďte přidání.',
                 'Když se okno nezobrazí, otevřete v Outlooku kalendář → „Přidat kalendář“ → „Přihlásit se k odběru z webu“, vložte zkopírovanou adresu a potvrďte.',
             ],
@@ -86,41 +98,46 @@ const INSTRUCTIONS_TAB_FOR_DEVICE: Record<Device, InstructionsTab> = {
     other: 'google',
 };
 
-function subscribeOptions(
-    calendar: CalendarLinks,
-    device: Device,
-): SubscribeOption[] {
-    const apple: SubscribeOption = {
-        label: 'iPhone / Mac',
-        icon: Apple,
-        href: calendar.webcal,
-        opensNewTab: false,
-        action: 'webcal',
-    };
-    const google: SubscribeOption = {
-        label: 'Google Kalendář',
-        icon: CalendarDays,
-        href: calendar.google,
-        opensNewTab: true,
-        action: 'google',
-    };
-    const outlook: SubscribeOption = {
-        label: 'Outlook',
-        icon: Mail,
-        href: calendar.outlook,
-        opensNewTab: true,
-        action: 'outlook',
-    };
+const APPLE_OPTION: SubscribeOption = {
+    label: 'iPhone / Mac',
+    icon: Apple,
+    hrefFor: (calendar) => calendar.webcal,
+    opensNewTab: false,
+    action: 'webcal',
+};
 
-    return device === 'apple'
-        ? [apple, google, outlook]
-        : [google, apple, outlook];
+const GOOGLE_OPTION: SubscribeOption = {
+    label: 'Google Kalendář',
+    icon: CalendarDays,
+    hrefFor: (calendar) => calendar.google,
+    opensNewTab: true,
+    action: 'google',
+};
+
+const OUTLOOK_OPTION: SubscribeOption = {
+    label: 'Outlook',
+    icon: Mail,
+    hrefFor: (calendar) => calendar.outlook,
+    opensNewTab: true,
+    action: 'outlook',
+};
+
+const PRIMARY_OPTION_FOR_DEVICE: Record<Device, SubscribeOption> = {
+    apple: { ...APPLE_OPTION, label: 'Přidat do kalendáře v iPhonu' },
+    android: { ...GOOGLE_OPTION, label: 'Přidat do Google Kalendáře' },
+    other: { ...GOOGLE_OPTION, label: 'Přidat do Google Kalendáře' },
+};
+
+function otherOptions(primaryOption: SubscribeOption): SubscribeOption[] {
+    return [GOOGLE_OPTION, APPLE_OPTION, OUTLOOK_OPTION].filter(
+        (option) => option.action !== primaryOption.action,
+    );
 }
 
 /**
- * Lets a player subscribe to the team's calendar: one-tap buttons ordered for their device, the address to copy and,
- * in a dialog, instructions per device for adding it by hand. It never links to the feed itself, because downloading
- * it would import a copy that never updates.
+ * Lets a player subscribe to the team's calendar: one button for their device up front, the other calendars and the
+ * address to copy folded away and, in a dialog, instructions per device for adding it by hand. It never links to the
+ * feed itself, because downloading it would import a copy that never updates.
  */
 export default function CalendarSubscription({
     slug,
@@ -130,6 +147,7 @@ export default function CalendarSubscription({
     calendar: CalendarLinks;
 }) {
     const device = useDevice();
+    const primaryOption = PRIMARY_OPTION_FOR_DEVICE[device];
     const [isHelpOpen, setIsHelpOpen] = useState(false);
 
     // Only the player opening the dialog counts as help_open; the dialog opening itself after a blocked copy does not.
@@ -153,42 +171,62 @@ export default function CalendarSubscription({
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-2 px-5">
-                {subscribeOptions(calendar, device).map((option, index) => (
-                    <Button
-                        key={option.label}
-                        asChild
-                        variant={index === 0 ? 'default' : 'outline'}
-                        className={
-                            index === 0
-                                ? 'justify-start bg-blue-600 text-white hover:bg-blue-700'
-                                : 'justify-start'
+                <SubscribeButton
+                    slug={slug}
+                    calendar={calendar}
+                    option={primaryOption}
+                    className="h-auto min-h-9 justify-start bg-blue-600 py-2 whitespace-normal text-white hover:bg-blue-700"
+                />
+                {device === 'android' && (
+                    // Google's phone app cannot subscribe, and without sync the calendar never reaches the phone.
+                    <p className="text-sm text-muted-foreground">
+                        Pak v aplikaci Kalendář Google otevřete Nastavení,
+                        vyberte kalendář týmu a zapněte Synchronizace.
+                    </p>
+                )}
+                <Collapsible
+                    onOpenChange={(isOpen) => {
+                        if (isOpen) {
+                            recordTeamPageEvent(slug, 'other_options_open');
                         }
-                    >
-                        <a
-                            href={option.href}
-                            data-test="subscribe-button"
-                            // Only records the tap; the link still navigates on its own.
-                            onClick={() =>
-                                recordTeamPageEvent(slug, option.action)
-                            }
-                            {...(option.opensNewTab && {
-                                target: '_blank',
-                                rel: 'noreferrer',
-                            })}
+                    }}
+                >
+                    <CollapsibleTrigger asChild>
+                        <Button
+                            variant="link"
+                            size="sm"
+                            className="group h-auto min-h-6 px-0 py-1 text-muted-foreground hover:text-foreground has-[>svg]:px-0"
                         >
-                            <option.icon aria-hidden />
-                            {option.label}
-                        </a>
-                    </Button>
-                ))}
+                            Jiný kalendář
+                            <ChevronDown
+                                aria-hidden
+                                className="transition-transform group-data-[state=open]:rotate-180"
+                            />
+                        </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="flex flex-col items-start gap-2 pt-1">
+                        {otherOptions(primaryOption).map((option) => (
+                            <SubscribeButton
+                                key={option.action}
+                                slug={slug}
+                                calendar={calendar}
+                                option={option}
+                                variant="outline"
+                                className="w-full justify-start"
+                            />
+                        ))}
+                        <CopyAddressButton
+                            address={calendar.address}
+                            onCopied={() =>
+                                recordTeamPageEvent(slug, 'copy_address')
+                            }
+                            // Without the clipboard the player copies the address by hand from the dialog.
+                            onCopyFailed={() => setIsHelpOpen(true)}
+                        />
+                    </CollapsibleContent>
+                </Collapsible>
             </CardContent>
             <CardFooter className="flex-col items-start gap-1 border-t px-5 [.border-t]:pt-4">
-                <CopyAddressButton
-                    address={calendar.address}
-                    onCopied={() => recordTeamPageEvent(slug, 'copy_address')}
-                    // Without the clipboard the player copies the address by hand from the dialog.
-                    onCopyFailed={() => setIsHelpOpen(true)}
-                />
                 <Dialog open={isHelpOpen} onOpenChange={changeHelpOpen}>
                     <DialogTrigger asChild>
                         <Button
@@ -223,6 +261,38 @@ export default function CalendarSubscription({
                 </Dialog>
             </CardFooter>
         </Card>
+    );
+}
+
+function SubscribeButton({
+    slug,
+    calendar,
+    option,
+    variant = 'default',
+    className,
+}: {
+    slug: string;
+    calendar: CalendarLinks;
+    option: SubscribeOption;
+    variant?: 'default' | 'outline';
+    className: string;
+}) {
+    return (
+        <Button asChild variant={variant} className={className}>
+            <a
+                href={option.hrefFor(calendar)}
+                data-test="subscribe-button"
+                // Only records the tap; the link still navigates on its own.
+                onClick={() => recordTeamPageEvent(slug, option.action)}
+                {...(option.opensNewTab && {
+                    target: '_blank',
+                    rel: 'noreferrer',
+                })}
+            >
+                <option.icon aria-hidden />
+                {option.label}
+            </a>
+        </Button>
     );
 }
 

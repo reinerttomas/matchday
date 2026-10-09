@@ -6,16 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { useDevice } from '@/hooks/use-device';
-import type { Device } from '@/hooks/use-device';
 import { recordTeamPageEvent } from '@/lib/team-page-events';
-import type { TeamPageAction } from '@/types';
 
-type EscapeOption = {
-    href: string;
-    action: TeamPageAction;
-    label: string;
-    hint: string | null;
-};
+const OPEN_IN_BROWSER_STEPS = [
+    'Klepněte na ⋯ v rohu obrazovky.',
+    'Zvolte „Otevřít v prohlížeči“.',
+    'Přidejte si kalendář jedním tlačítkem.',
+];
 
 /**
  * Opens the page in the player's default browser; without a package it is not tied to Chrome.
@@ -27,77 +24,46 @@ function androidEscapeUrl(): string {
 }
 
 /**
- * Safari's own scheme, which iOS 16 and some of Meta's in-app browsers ignore, hence the manual path next to it.
- */
-function safariEscapeUrl(): string {
-    return `x-safari-${window.location.href}`;
-}
-
-/**
- * Other devices have no known scheme that leaves an in-app browser, so the player gets only the manual path there.
- */
-function escapeOption(device: Device): EscapeOption | null {
-    switch (device) {
-        case 'android':
-            return {
-                href: androidEscapeUrl(),
-                action: 'escape_intent',
-                label: 'Otevřít v prohlížeči',
-                hint: null,
-            };
-        case 'apple':
-            return {
-                href: safariEscapeUrl(),
-                action: 'escape_safari',
-                label: 'Otevřít v Safari',
-                hint: 'Pokud se nic nestane, klepněte na ⋯ a zvolte „Otevřít v prohlížeči“.',
-            };
-        case 'other':
-            return null;
-    }
-}
-
-/**
- * Asks an app's own browser to send the player to their real browser, where Google sign-in and webcal:// links work. It
- * renders only on the client, and every escape is a tap, because in-app browsers block navigation nobody tapped.
+ * Takes the place of the subscription card in an app's own browser, where the subscribe buttons do nothing, and shows
+ * the player the way to their real browser. It renders only on the client, and the Android escape is a tap, because
+ * in-app browsers block navigation nobody tapped. Messenger on iPhone ignores Safari's own scheme, so only Android gets
+ * a button; everywhere else the player follows the steps.
  */
 export default function InAppBrowserNotice({ slug }: { slug: string }) {
-    const escape = escapeOption(useDevice());
+    const device = useDevice();
 
     return (
         <Alert data-test="in-app-browser-notice">
             <ExternalLink aria-hidden />
             <AlertTitle className="line-clamp-none">
-                Otevřete stránku v prohlížeči
+                <h2 id="open-in-browser">Otevřete stránku v prohlížeči</h2>
             </AlertTitle>
             <AlertDescription>
                 <p>
-                    V prohlížeči uvnitř aplikace se kalendář nemusí přidat. Ze
-                    Safari nebo Chrome to funguje.
+                    Kalendář jde přidat jen z prohlížeče (Safari nebo Chrome).
                 </p>
-                <div className="mt-2 flex w-full flex-col gap-2">
-                    {escape ? (
-                        <>
-                            <Button asChild>
-                                <a
-                                    href={escape.href}
-                                    data-test="escape-in-app-browser"
-                                    onClick={() =>
-                                        recordTeamPageEvent(slug, escape.action)
-                                    }
-                                >
-                                    {escape.label}
-                                </a>
-                            </Button>
-                            {escape.hint && (
-                                <p className="text-xs">{escape.hint}</p>
-                            )}
-                        </>
-                    ) : (
-                        <p className="text-xs">
-                            Otevřete stránku v prohlížeči přes nabídku aplikace.
-                        </p>
+                <div className="mt-2 flex w-full flex-col gap-3">
+                    {device === 'android' && (
+                        <Button asChild>
+                            <a
+                                href={androidEscapeUrl()}
+                                data-test="escape-in-app-browser"
+                                onClick={() =>
+                                    recordTeamPageEvent(slug, 'escape_intent')
+                                }
+                            >
+                                Otevřít v prohlížeči
+                            </a>
+                        </Button>
                     )}
+                    <ol
+                        className="list-decimal space-y-1 pl-5"
+                        data-test="open-in-browser-steps"
+                    >
+                        {OPEN_IN_BROWSER_STEPS.map((step) => (
+                            <li key={step}>{step}</li>
+                        ))}
+                    </ol>
                     <CopyPageLink
                         onCopied={() =>
                             recordTeamPageEvent(slug, 'copy_page_link')

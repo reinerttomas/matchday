@@ -54,17 +54,22 @@ export default function Team({ slug, season, teamSeason, calendar }: Props) {
                 <main className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-10 lg:grid-cols-[1fr_18rem]">
                     {/* First in the source so a phone shows how to subscribe before the schedule. */}
                     <aside
-                        aria-labelledby="calendar-subscription"
+                        aria-labelledby={
+                            isInAppBrowser
+                                ? 'open-in-browser'
+                                : 'calendar-subscription'
+                        }
                         className="min-w-0 lg:order-2"
                     >
-                        <div className="flex flex-col gap-4 lg:sticky lg:top-6">
-                            {isInAppBrowser && (
+                        <div className="lg:sticky lg:top-6">
+                            {isInAppBrowser ? (
                                 <InAppBrowserNotice slug={slug} />
+                            ) : (
+                                <CalendarSubscription
+                                    slug={slug}
+                                    calendar={calendar}
+                                />
                             )}
-                            <CalendarSubscription
-                                slug={slug}
-                                calendar={calendar}
-                            />
                         </div>
                     </aside>
                     <div className="flex min-w-0 flex-col gap-12 lg:order-1">

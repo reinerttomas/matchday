@@ -43,7 +43,6 @@ test('records a tap on a button that leaves the in-app browser', function (strin
         ->in_app_browser->toBe('messenger');
 })->with([
     'Android escape' => ['escape_intent', TeamPageAction::EscapeIntent],
-    'iOS escape' => ['escape_safari', TeamPageAction::EscapeSafari],
     'copy page link' => ['copy_page_link', TeamPageAction::CopyPageLink],
 ]);
 

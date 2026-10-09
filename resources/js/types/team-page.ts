@@ -50,8 +50,8 @@ export type TeamPageAction =
     | 'outlook'
     | 'copy_address'
     | 'help_open'
+    | 'other_options_open'
     | 'escape_intent'
-    | 'escape_safari'
     | 'copy_page_link';
 
 export type CalendarLinks = {
