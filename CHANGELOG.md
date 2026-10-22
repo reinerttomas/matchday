@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/reinerttomas/matchday/compare/v0.5.0...v0.5.1) (2026-10-22)
+
+
+### Bug Fixes
+
+* rebuild image on php 8.5.12 security release ([3e7d5af](https://github.com/reinerttomas/matchday/commit/3e7d5af9d98860e998553492b16ec37a8d251216))
+
 ## [0.5.0](https://github.com/reinerttomas/matchday/compare/v0.4.0...v0.5.0) (2026-10-09)
 
 
