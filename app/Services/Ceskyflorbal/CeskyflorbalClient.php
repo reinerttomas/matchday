@@ -34,7 +34,7 @@ final readonly class CeskyflorbalClient
      */
     public function fixtureList(TeamSeason $teamSeason): FixtureListPageData
     {
-        return $this->fixtureListParser->parse($this->download($this->federationTeamPage->fixtureListAddress($teamSeason->external_id)), $teamSeason);
+        return $this->fixtureListParser->parse($this->download($this->federationTeamPage->fixtureListAddress($teamSeason->external_id)), $teamSeason->external_id);
     }
 
     /**

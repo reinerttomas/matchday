@@ -4,11 +4,11 @@
 
 **Blocked by:** 01 — Derive federation team page addresses from the ID and drop `source_url` (both change the client's fixture list download)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] The parser's interface is `parse($html, $externalId)`. It finds the team's own link and name in fixture rows by the federation team ID.
-- [ ] The season's start year comes from the season in the page's team header (such as "PH A SČ LIGA MUŽŮ 2026/2027"), read before the rows are parsed. The import is not affected: a page whose header shows another season aborts with `season_mismatch` before its fixture dates are used.
-- [ ] The warning about an unknown fixture status logs `external_id` instead of `team_season_id`.
-- [ ] The import keeps calling the client with the team season, and the client passes the team season's `external_id` to the parser.
-- [ ] No new tests: the import and manual import tests cover the parser through HTTP and keep passing unchanged.
-- [ ] `composer ci:check` passes (stop the Vite dev server first).
+- [x] The parser's interface is `parse($html, $externalId)`. It finds the team's own link and name in fixture rows by the federation team ID.
+- [x] The season's start year comes from the season in the page's team header (such as "PH A SČ LIGA MUŽŮ 2026/2027"), read before the rows are parsed. The import is not affected: a page whose header shows another season aborts with `season_mismatch` before its fixture dates are used.
+- [x] The warning about an unknown fixture status logs `external_id` instead of `team_season_id`.
+- [x] The import keeps calling the client with the team season, and the client passes the team season's `external_id` to the parser.
+- [x] No new tests: the import and manual import tests cover the parser through HTTP and keep passing unchanged.
+- [x] `composer ci:check` passes (stop the Vite dev server first).
