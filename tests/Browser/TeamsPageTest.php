@@ -221,6 +221,86 @@ test('warns when ceskyflorbal.cz does not answer and still adds a team filled in
         ->team->name->toBe('FBC Kutná Hora B');
 });
 
+test('forgets the lookup when the address is edited, so Enter does not add the team', function () {
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshot());
+    Queue::fake([ImportFixtureList::class]);
+
+    $page = visit('/teams')->click('@add-team');
+    pasteFederationTeamPageUrl($page, 'https://www.ceskyflorbal.cz/team/detail/overview/45019');
+
+    $page->assertSeeIn('@federation-team-summary', 'FBC Kutná Hora B')
+        ->append('federation_team_page_url', '0')
+        ->assertMissing('@federation-team-summary')
+        ->assertMissing('@new-team-choice')
+        ->assertButtonDisabled('@store-team')
+        ->keys('federation_team_page_url', 'Enter')
+        ->wait(1)
+        ->assertVisible('@store-team')
+        ->assertNoJavaScriptErrors();
+
+    expect(TeamSeason::query()->exists())->toBeFalse();
+});
+
+test('drops the carry-over team preselected by an earlier lookup when the next lookup names no carry-over team', function () {
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    $team = Team::factory()->create(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']);
+    TeamSeason::factory()->for($team)->for(Season::factory()->state(['name' => '2025/2026']))->create();
+    Ceskyflorbal::fake(Http::sequence([
+        Http::response(Ceskyflorbal::fixtureListSnapshot()),
+        Http::response(Str::replace('FBC Kutná Hora B', 'FBC Sokol Kutná Hora B', Ceskyflorbal::fixtureListSnapshot())),
+    ]));
+
+    $page = visit('/teams')->click('@add-team');
+    pasteFederationTeamPageUrl($page, 'https://www.ceskyflorbal.cz/team/detail/overview/45019');
+
+    $page->assertAttribute('@carry-over-team-choice', 'aria-checked', 'true');
+    pasteFederationTeamPageUrl($page, 'https://www.ceskyflorbal.cz/team/detail/matches/45019');
+
+    $page->assertSeeIn('@federation-team-summary', 'FBC Sokol Kutná Hora B')
+        ->assertSee('Tým z minulé sezony')
+        ->assertAttribute('@new-team-choice', 'aria-checked', 'true')
+        ->assertValue('name', 'FBC Sokol Kutná Hora B')
+        ->click('@carry-over-team-choice')
+        ->assertSeeIn('@carry-over-team-select', 'Vyberte tým')
+        ->assertNoJavaScriptErrors();
+});
+
+test('keeps the carry-over team chosen by hand when a later lookup names no carry-over team', function () {
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    $team = Team::factory()->create(['name' => 'Kutná Hora B', 'slug' => 'kutna-hora-b']);
+    TeamSeason::factory()->for($team)->for(Season::factory()->state(['name' => '2025/2026']))->create();
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshot());
+
+    $page = visit('/teams')->click('@add-team');
+    pasteFederationTeamPageUrl($page, 'https://www.ceskyflorbal.cz/team/detail/overview/45019');
+
+    $page->assertAttribute('@new-team-choice', 'aria-checked', 'true')
+        ->click('@carry-over-team-choice')
+        ->click('@carry-over-team-select')
+        ->click('[role="option"]:has-text("Kutná Hora B")');
+    pasteFederationTeamPageUrl($page, 'https://www.ceskyflorbal.cz/team/detail/matches/45019');
+
+    $page->assertSeeIn('@federation-team-summary', 'FBC Kutná Hora B')
+        ->assertAttribute('@carry-over-team-choice', 'aria-checked', 'true')
+        ->assertSeeIn('@carry-over-team-select', 'Kutná Hora B')
+        ->assertNoJavaScriptErrors();
+});
+
+test('does not look the team up when the dialog is cancelled from the address field', function () {
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    Ceskyflorbal::fake(Http::response('', 500));
+
+    visit('/teams')
+        ->click('@add-team')
+        ->type('federation_team_page_url', 'https://www.ceskyflorbal.cz/team/detail/overview/45019')
+        ->click('Zrušit')
+        ->assertMissing('@store-team')
+        ->wait(1)
+        ->assertDontSee('Český florbal teď neodpovídá.')
+        ->assertNoJavaScriptErrors();
+});
+
 test('renames a team from its actions in a dialog with the name pre-filled', function () {
     $teamSeason = teamSeasonOnTeamsPageInBrowser();
 

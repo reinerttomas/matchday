@@ -1,10 +1,10 @@
 import { Form, useHttp } from '@inertiajs/react';
 import { ExternalLink, Plus } from 'lucide-react';
-import { useRef, useState } from 'react';
-import type { ChangeEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ChangeEvent, FocusEvent } from 'react';
 import { toast } from 'sonner';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -19,11 +19,11 @@ import {
     Field,
     FieldContent,
     FieldDescription,
+    FieldError,
     FieldLabel,
     FieldTitle,
 } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
     Select,
@@ -99,18 +99,15 @@ function AddTeamForm({
     const isNameEdited = useRef(false);
     const [choice, setChoice] = useState<Choice>('new');
     const [teamId, setTeamId] = useState('');
-    const { lookup, lookupError, lookUp } = useFederationTeamLookup((team) => {
-        if (!isNameEdited.current && team.name !== null) {
-            setName(team.name);
-        }
+    const isChoiceMadeByHand = useRef(false);
+    const { lookup, lookupError, lookUp, isLookedUp, reset } =
+        useFederationTeamLookup((team) => {
+            if (!isNameEdited.current && team.name !== null) {
+                setName(team.name);
+            }
 
-        const sameNamedTeam = sameNamedCarryOverTeam(carryOverTeams, team.name);
-
-        if (sameNamedTeam !== undefined) {
-            setChoice('carry-over');
-            setTeamId(String(sameNamedTeam.id));
-        }
-    });
+            preselect(sameNamedCarryOverTeam(carryOverTeams, team.name));
+        });
     const isResolved =
         lookup.status === 'found' || lookup.status === 'unavailable';
     const sameNamedTeam =
@@ -118,12 +115,36 @@ function AddTeamForm({
             ? sameNamedCarryOverTeam(carryOverTeams, lookup.team.name)
             : undefined;
 
+    function preselect(sameNamedTeam: CarryOverTeam | undefined): void {
+        if (isChoiceMadeByHand.current) {
+            return;
+        }
+
+        setChoice(sameNamedTeam === undefined ? 'new' : 'carry-over');
+        setTeamId(sameNamedTeam === undefined ? '' : String(sameNamedTeam.id));
+    }
+
     function changeAddress(event: ChangeEvent<HTMLInputElement>): void {
         setAddress(event.target.value);
 
         if ((event.nativeEvent as InputEvent).inputType === 'insertFromPaste') {
-            lookUp(event.target.value);
+            void lookUp(event.target.value);
+        } else if (!isLookedUp(event.target.value)) {
+            reset();
+            preselect(undefined);
         }
+    }
+
+    function leaveAddress(event: FocusEvent<HTMLInputElement>): void {
+        // Leaving the field to close the dialog is no request to look the team up.
+        if (
+            event.relatedTarget instanceof Element &&
+            event.relatedTarget.closest('[data-slot="dialog-close"]') !== null
+        ) {
+            return;
+        }
+
+        void lookUp(event.target.value);
     }
 
     return (
@@ -139,10 +160,13 @@ function AddTeamForm({
 
                 return (
                     <>
-                        <div className="grid gap-2">
-                            <Label htmlFor="federation-team-page-url">
+                        <Field
+                            className="gap-2"
+                            data-invalid={addressError !== undefined}
+                        >
+                            <FieldLabel htmlFor="federation-team-page-url">
                                 Stránka týmu na ceskyflorbal.cz
-                            </Label>
+                            </FieldLabel>
                             <Input
                                 id="federation-team-page-url"
                                 name="federation_team_page_url"
@@ -153,20 +177,17 @@ function AddTeamForm({
                                 placeholder="https://www.ceskyflorbal.cz/team/detail/overview/45019"
                                 value={address}
                                 onChange={changeAddress}
-                                onBlur={(event) => lookUp(event.target.value)}
+                                onBlur={leaveAddress}
                                 aria-invalid={addressError !== undefined}
                                 aria-describedby="federation-team-page-url-description"
                             />
-                            <p
-                                id="federation-team-page-url-description"
-                                className="text-sm text-muted-foreground"
-                            >
+                            <FieldDescription id="federation-team-page-url-description">
                                 Otevřete stránku týmu na ceskyflorbal.cz, na
                                 kterékoli záložce (Přehled, Zápasy, Soupiska…),
                                 a zkopírujte její adresu.
-                            </p>
-                            <InputError message={addressError} />
-                        </div>
+                            </FieldDescription>
+                            <FieldError>{addressError}</FieldError>
+                        </Field>
                         {lookup.status === 'loading' && (
                             <FederationTeamSummarySkeleton />
                         )}
@@ -177,9 +198,10 @@ function AddTeamForm({
                             <>
                                 <RadioGroup
                                     value={choice}
-                                    onValueChange={(value) =>
-                                        setChoice(value as Choice)
-                                    }
+                                    onValueChange={(value) => {
+                                        setChoice(value as Choice);
+                                        isChoiceMadeByHand.current = true;
+                                    }}
                                     className="grid gap-2 sm:grid-cols-2"
                                 >
                                     <ChoiceCard
@@ -219,7 +241,10 @@ function AddTeamForm({
                                         carryOverTeams={carryOverTeams}
                                         teamId={teamId}
                                         error={errors.team_id}
-                                        onChange={setTeamId}
+                                        onChange={(value) => {
+                                            setTeamId(value);
+                                            isChoiceMadeByHand.current = true;
+                                        }}
                                     />
                                 )}
                             </>
@@ -257,14 +282,34 @@ function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
     >({ federation_team_page_url: '' });
     const [lookup, setLookup] = useState<Lookup>({ status: 'idle' });
     const latestAddress = useRef<string | null>(null);
+    const pendingRequest = useRef<Promise<unknown>>(Promise.resolve());
 
-    function lookUp(address: string): void {
-        if (address.trim() === '' || address === latestAddress.current) {
+    useEffect(
+        () => () => {
+            latestAddress.current = null;
+            cancel();
+        },
+        [cancel],
+    );
+
+    function isLookedUp(address: string): boolean {
+        return address === latestAddress.current;
+    }
+
+    function reset(): void {
+        latestAddress.current = null;
+        cancel();
+        clearErrors();
+        setLookup({ status: 'idle' });
+    }
+
+    async function lookUp(address: string): Promise<void> {
+        if (address.trim() === '' || isLookedUp(address)) {
             return;
         }
 
         latestAddress.current = address;
-        const isLatest = () => latestAddress.current === address;
+        const isLatest = () => isLookedUp(address);
 
         function markUnavailable(message: string): void {
             if (isLatest()) {
@@ -275,10 +320,16 @@ function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
 
         cancel();
         clearErrors();
-        setData('federation_team_page_url', address);
         setLookup({ status: 'loading' });
+        // The cancelled request clears the abort controller when it settles, so starting before that would leave this request impossible to cancel.
+        await pendingRequest.current;
 
-        get(lookUpTeam.url(), {
+        if (!isLatest()) {
+            return;
+        }
+
+        setData('federation_team_page_url', address);
+        pendingRequest.current = get(lookUpTeam.url(), {
             onSuccess: (team) => {
                 if (isLatest()) {
                     setLookup({ status: 'found', team });
@@ -307,6 +358,8 @@ function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
                 ? errors.federation_team_page_url
                 : undefined,
         lookUp,
+        isLookedUp,
+        reset,
     };
 }
 
@@ -333,44 +386,46 @@ function sameNamedCarryOverTeam(
 
 function FederationTeamSummarySkeleton() {
     return (
-        <div
-            className="grid gap-2 rounded-lg border p-4"
+        <Card
+            className="gap-2 rounded-lg p-4 shadow-none"
             data-test="federation-team-summary-skeleton"
         >
             <Skeleton className="h-4 w-1/2" />
             <Skeleton className="h-4 w-2/3" />
             <Skeleton className="h-4 w-1/3" />
             <Skeleton className="h-4 w-1/4" />
-        </div>
+        </Card>
     );
 }
 
 function FederationTeamSummary({ team }: { team: FederationTeam }) {
     return (
-        <dl
-            className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded-lg border p-4 text-sm"
+        <Card
+            className="rounded-lg p-4 shadow-none"
             data-test="federation-team-summary"
         >
-            <dt className="text-muted-foreground">Tým</dt>
-            <dd className="font-medium">{team.name ?? '—'}</dd>
-            <dt className="text-muted-foreground">Soutěž</dt>
-            <dd>{team.competition ?? '—'}</dd>
-            <dt className="text-muted-foreground">Sezona</dt>
-            <dd>{team.season}</dd>
-            <dt className="text-muted-foreground">ID svazu</dt>
-            <dd>
-                <a
-                    href={team.overviewUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 underline underline-offset-4"
-                    data-test="federation-team-overview"
-                >
-                    {team.externalId}
-                    <ExternalLink className="size-3" />
-                </a>
-            </dd>
-        </dl>
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
+                <dt className="text-muted-foreground">Tým</dt>
+                <dd className="font-medium">{team.name ?? '—'}</dd>
+                <dt className="text-muted-foreground">Soutěž</dt>
+                <dd>{team.competition ?? '—'}</dd>
+                <dt className="text-muted-foreground">Sezona</dt>
+                <dd>{team.season}</dd>
+                <dt className="text-muted-foreground">ID svazu</dt>
+                <dd>
+                    <a
+                        href={team.overviewUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 underline underline-offset-4"
+                        data-test="federation-team-overview"
+                    >
+                        {team.externalId}
+                        <ExternalLink className="size-3" />
+                    </a>
+                </dd>
+            </dl>
+        </Card>
     );
 }
 
@@ -419,8 +474,8 @@ function NewTeamFields({
     const slug = slugify(name);
 
     return (
-        <div className="grid gap-2">
-            <Label htmlFor="new-team-name">Název týmu</Label>
+        <Field className="gap-2" data-invalid={error !== undefined}>
+            <FieldLabel htmlFor="new-team-name">Název týmu</FieldLabel>
             <Input
                 id="new-team-name"
                 name="name"
@@ -432,12 +487,9 @@ function NewTeamFields({
                 aria-invalid={error !== undefined}
                 aria-describedby="new-team-calendar-url"
             />
-            <InputError message={error} />
-            <div
-                id="new-team-calendar-url"
-                className="grid gap-1 text-sm text-muted-foreground"
-            >
-                <p>
+            <FieldError>{error}</FieldError>
+            <FieldDescription id="new-team-calendar-url" className="grid gap-1">
+                <span>
                     Adresa kalendáře:{' '}
                     <span
                         className="font-mono text-xs break-all text-foreground"
@@ -448,10 +500,10 @@ function NewTeamFields({
                             slug === '' ? 'nazev-tymu' : slug,
                         )}
                     </span>
-                </p>
-                <p>Adresu kalendáře později nepůjde změnit.</p>
-            </div>
-        </div>
+                </span>
+                <span>Adresu kalendáře později nepůjde změnit.</span>
+            </FieldDescription>
+        </Field>
     );
 }
 
@@ -467,8 +519,8 @@ function CarryOverTeamFields({
     onChange: (teamId: string) => void;
 }) {
     return (
-        <div className="grid gap-2">
-            <Label htmlFor="carry-over-team-id">Tým</Label>
+        <Field className="gap-2" data-invalid={error !== undefined}>
+            <FieldLabel htmlFor="carry-over-team-id">Tým</FieldLabel>
             <Select
                 name="team_id"
                 required
@@ -491,11 +543,11 @@ function CarryOverTeamFields({
                     ))}
                 </SelectContent>
             </Select>
-            <InputError message={error} />
-            <p className="text-sm text-muted-foreground">
+            <FieldError>{error}</FieldError>
+            <FieldDescription>
                 Název i adresa kalendáře zůstanou stejné, takže hráči nemusí
                 kalendář přidávat znovu.
-            </p>
-        </div>
+            </FieldDescription>
+        </Field>
     );
 }
