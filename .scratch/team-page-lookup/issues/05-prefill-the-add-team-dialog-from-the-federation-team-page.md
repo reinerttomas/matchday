@@ -4,7 +4,7 @@
 
 **Blocked by:** 04 — Look a team up by its federation team page
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] The "Nový tým" / "Existující tým" tabs go away. The dialog is one form, and its first field is the address, labelled "Stránka týmu na ceskyflorbal.cz" (`federation_team_page_url`).
 - [ ] The lookup is called with Inertia's `useHttp` (no page visit) when an address is pasted or the field loses focus, only when the address changed since the last lookup. A stale response for an earlier address is ignored.

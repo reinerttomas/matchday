@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\LookUpTeamRequest;
 use App\Services\Ceskyflorbal\CeskyflorbalClient;
+use App\Services\Ceskyflorbal\FederationTeamPage;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
@@ -17,11 +18,11 @@ use UnexpectedValueException;
 final readonly class TeamLookupController
 {
     /**
-     * Download the fixture list of the pasted federation team page and return the team's name, competition and season, so the "Přidat tým" dialog can prefill them.
+     * Download the fixture list of the pasted federation team page and return the team's name, competition, season and overview address, so the "Přidat tým" dialog can prefill them.
      *
      * @throws ValidationException when the page belongs to another season than the one the team is added to
      */
-    public function __invoke(LookUpTeamRequest $request, CeskyflorbalClient $ceskyflorbal): JsonResponse
+    public function __invoke(LookUpTeamRequest $request, CeskyflorbalClient $ceskyflorbal, FederationTeamPage $federationTeamPage): JsonResponse
     {
         $season = $request->season();
         $externalId = $request->externalId();
@@ -52,6 +53,7 @@ final readonly class TeamLookupController
             'name' => $page->teamName,
             'competition' => $page->competitionName,
             'season' => $page->seasonName,
+            'overviewUrl' => $federationTeamPage->overviewAddress($externalId),
         ]);
     }
 }

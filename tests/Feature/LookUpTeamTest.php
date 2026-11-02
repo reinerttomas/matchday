@@ -26,6 +26,7 @@ test('reads the team\'s name, competition and season from the federation team pa
             'name' => 'FBC Kutná Hora B',
             'competition' => 'PH a SČ liga mužů',
             'season' => '2026/2027',
+            'overviewUrl' => 'https://www.ceskyflorbal.cz/team/detail/overview/45019',
         ]);
 })->with([
     'overview' => 'https://www.ceskyflorbal.cz/team/detail/overview/45019',
@@ -56,6 +57,7 @@ test('leaves the name and competition empty while the federation team page lists
             'name' => null,
             'competition' => null,
             'season' => '2026/2027',
+            'overviewUrl' => 'https://www.ceskyflorbal.cz/team/detail/overview/45019',
         ]);
 });
 

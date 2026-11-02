@@ -5,17 +5,15 @@ import {
     Globe,
     MoreHorizontal,
     Pencil,
-    Plus,
-    TriangleAlert,
     Users,
 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { AddTeamDialog } from '@/components/add-team-dialog';
 import Heading from '@/components/heading';
 import { ImportStatusBadge } from '@/components/import-status-badge';
 import InputError from '@/components/input-error';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -25,7 +23,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
     DropdownMenu,
@@ -41,13 +38,6 @@ import {
 } from '@/components/ui/empty';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -58,15 +48,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useClipboard } from '@/hooks/use-clipboard';
-import { slugify } from '@/lib/utils';
-import { index, store, update } from '@/routes/teams';
+import { index, update } from '@/routes/teams';
 import { update as updateName } from '@/routes/teams/name';
 import type {
     CarryOverTeam,
@@ -142,244 +130,6 @@ function NoTeamsInSeason({ seasonName }: { seasonName: string }) {
                 </EmptyTitle>
             </EmptyHeader>
         </Empty>
-    );
-}
-
-function AddTeamDialog({
-    seasonName,
-    carryOverTeams,
-    calendarUrlTemplate,
-}: {
-    seasonName: string;
-    carryOverTeams: CarryOverTeam[];
-    calendarUrlTemplate: string;
-}) {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-                <Button className="self-start" data-test="add-team">
-                    <Plus />
-                    Přidat tým
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Přidat tým do sezony {seasonName}</DialogTitle>
-                    <DialogDescription>
-                        Hned po přidání se stáhne rozpis zápasů týmu. Soutěž se
-                        doplní z ceskyflorbal.cz.
-                    </DialogDescription>
-                </DialogHeader>
-                <Tabs defaultValue="new">
-                    <TabsList className="w-full">
-                        <TabsTrigger value="new" data-test="add-new-team">
-                            Nový tým
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="carry-over"
-                            disabled={carryOverTeams.length === 0}
-                            data-test="carry-over-team"
-                        >
-                            Existující tým
-                        </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="new">
-                        <NewTeamForm
-                            calendarUrlTemplate={calendarUrlTemplate}
-                            onSuccess={() => setIsOpen(false)}
-                        />
-                    </TabsContent>
-                    <TabsContent value="carry-over">
-                        <CarryOverTeamForm
-                            seasonName={seasonName}
-                            carryOverTeams={carryOverTeams}
-                            onSuccess={() => setIsOpen(false)}
-                        />
-                    </TabsContent>
-                </Tabs>
-            </DialogContent>
-        </Dialog>
-    );
-}
-
-function NewTeamForm({
-    calendarUrlTemplate,
-    onSuccess,
-}: {
-    calendarUrlTemplate: string;
-    onSuccess: () => void;
-}) {
-    const [name, setName] = useState('');
-    const slug = slugify(name);
-
-    return (
-        <Form
-            {...store.form()}
-            options={{ preserveScroll: true }}
-            onSuccess={onSuccess}
-            className="grid gap-4 pt-2"
-        >
-            {({ processing, errors }) => (
-                <>
-                    <div className="grid gap-2">
-                        <Label htmlFor="new-team-name">Název týmu</Label>
-                        <Input
-                            id="new-team-name"
-                            name="name"
-                            required
-                            autoFocus
-                            autoComplete="off"
-                            placeholder="FBC Kutná Hora B"
-                            value={name}
-                            onChange={(event) => setName(event.target.value)}
-                            aria-invalid={errors.name !== undefined}
-                            aria-describedby="new-team-calendar-url"
-                        />
-                        <p
-                            id="new-team-calendar-url"
-                            className="text-sm text-muted-foreground"
-                        >
-                            Adresa kalendáře:{' '}
-                            <span
-                                className="font-mono text-xs break-all text-foreground"
-                                data-test="calendar-url-preview"
-                            >
-                                {calendarUrlTemplate.replace(
-                                    ':slug',
-                                    slug === '' ? 'nazev-tymu' : slug,
-                                )}
-                            </span>
-                        </p>
-                        <InputError message={errors.name} />
-                    </div>
-                    <FederationTeamPageUrlField
-                        id="new-team-federation-team-page-url"
-                        error={errors.federation_team_page_url}
-                    />
-                    <Alert>
-                        <TriangleAlert />
-                        <AlertTitle>
-                            Adresa kalendáře později nepůjde změnit
-                        </AlertTitle>
-                        <AlertDescription>
-                            Vznikne z názvu týmu a hráči si ji přidají do svých
-                            kalendářů. Název i adresa zůstávají týmu i v dalších
-                            sezonách.
-                        </AlertDescription>
-                    </Alert>
-                    <AddTeamFooter processing={processing} />
-                </>
-            )}
-        </Form>
-    );
-}
-
-function CarryOverTeamForm({
-    seasonName,
-    carryOverTeams,
-    onSuccess,
-}: {
-    seasonName: string;
-    carryOverTeams: CarryOverTeam[];
-    onSuccess: () => void;
-}) {
-    return (
-        <Form
-            {...store.form()}
-            options={{ preserveScroll: true }}
-            onSuccess={onSuccess}
-            className="grid gap-4 pt-2"
-        >
-            {({ processing, errors }) => (
-                <>
-                    <div className="grid gap-2">
-                        <Label htmlFor="carry-over-team-id">Tým</Label>
-                        <Select name="team_id" required>
-                            <SelectTrigger
-                                id="carry-over-team-id"
-                                className="w-full"
-                                aria-invalid={errors.team_id !== undefined}
-                                data-test="carry-over-team-select"
-                            >
-                                <SelectValue placeholder="Vyberte tým" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {carryOverTeams.map((team) => (
-                                    <SelectItem
-                                        key={team.id}
-                                        value={String(team.id)}
-                                    >
-                                        {team.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <InputError message={errors.team_id} />
-                    </div>
-                    <FederationTeamPageUrlField
-                        id="carry-over-team-federation-team-page-url"
-                        error={errors.federation_team_page_url}
-                        description={`Svaz dává týmu každou sezonu novou stránku. Zadejte adresu stránky týmu pro sezonu ${seasonName}.`}
-                    />
-                    <p className="text-sm text-muted-foreground">
-                        Název i adresa kalendáře zůstanou stejné, takže hráči
-                        nemusí kalendář přidávat znovu.
-                    </p>
-                    <AddTeamFooter processing={processing} />
-                </>
-            )}
-        </Form>
-    );
-}
-
-function FederationTeamPageUrlField({
-    id,
-    error,
-    description = 'Otevřete stránku týmu na ceskyflorbal.cz, na kterékoli záložce (Přehled, Zápasy, Soupiska…), a zkopírujte její adresu.',
-}: {
-    id: string;
-    error: string | undefined;
-    description?: string;
-}) {
-    return (
-        <div className="grid gap-2">
-            <Label htmlFor={id}>Stránka týmu na ceskyflorbal.cz</Label>
-            <Input
-                id={id}
-                name="federation_team_page_url"
-                required
-                autoComplete="off"
-                inputMode="url"
-                placeholder="https://www.ceskyflorbal.cz/team/detail/overview/45019"
-                aria-invalid={error !== undefined}
-                aria-describedby={`${id}-description`}
-            />
-            <p
-                id={`${id}-description`}
-                className="text-sm text-muted-foreground"
-            >
-                {description}
-            </p>
-            <InputError message={error} />
-        </div>
-    );
-}
-
-function AddTeamFooter({ processing }: { processing: boolean }) {
-    return (
-        <DialogFooter>
-            <DialogClose asChild>
-                <Button type="button" variant="outline">
-                    Zrušit
-                </Button>
-            </DialogClose>
-            <Button type="submit" disabled={processing} data-test="store-team">
-                {processing && <Spinner />}
-                Přidat tým
-            </Button>
-        </DialogFooter>
     );
 }
 

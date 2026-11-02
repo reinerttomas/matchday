@@ -200,6 +200,17 @@ export type CarryOverTeam = {
     slug: string;
 };
 
+/**
+ * The team read from its federation team page by the "Přidat tým" dialog; name and competition are null while the page lists no fixtures.
+ */
+export type FederationTeam = {
+    externalId: number;
+    name: string | null;
+    competition: string | null;
+    season: string;
+    overviewUrl: string;
+};
+
 export type VenueListItem = {
     id: number;
     name: string;
