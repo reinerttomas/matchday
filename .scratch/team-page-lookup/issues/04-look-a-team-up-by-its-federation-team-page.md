@@ -3,6 +3,7 @@
 **What to build:** An admin-only JSON endpoint that, given the address of any tab of a **federation team page**, downloads the team's fixture list from ceskyflorbal.cz and returns the team's name in its proper spelling, its competition and its season, or tells why it can't. The "Přidat tým" dialog will call it in ticket 05; here it is verified through HTTP. See `.scratch/team-page-lookup/spec.md`.
 
 **Blocked by:**
+
 - 01 — Derive federation team page addresses from the ID and drop `source_url`
 - 03 — Parse a fixture list without a stored team season
 

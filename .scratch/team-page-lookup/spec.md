@@ -51,35 +51,35 @@ The app no longer stores a fixture list address. Every link to ceskyflorbal.cz (
 - **HTML parsing only, no AI.** The federation team page has stable markup and the fixture list parser already reads the team header. A language model would add an API key, cost, latency and non-deterministic output with no benefit.
 - **The fixture list is always the page downloaded.** Whatever tab the pasted address points to, the app takes the federation team ID from it and downloads the Zápasy tab built from that ID. Every tab carries the same team header (name in capitals, competition, season), and the Zápasy tab additionally carries the team's name in its proper spelling in each fixture row, which the existing parser already reads. No snapshot of the Přehled tab is needed.
 - **One module for federation team page addresses** replaces the current fixture list address module. Its interface:
-  - Read the federation team ID from an address of any tab (`/team/detail/{tab}/{id}`, scheme optional, `www.` optional, host must be ceskyflorbal.cz), or return null.
-  - Build the fixture list address from an ID.
-  - Build the overview address from an ID.
+    - Read the federation team ID from an address of any tab (`/team/detail/{tab}/{id}`, scheme optional, `www.` optional, host must be ceskyflorbal.cz), or return null.
+    - Build the fixture list address from an ID.
+    - Build the overview address from an ID.
 - **The `source_url` column of team seasons is dropped** in a migration. Everything that read it derives the address from `external_id` through the module above: the fixture list download in the client, the import-failed email, and the presenters for the Týmy page, the Zápasy page and the public team page. The props keep their current names for the fixture list address. The two admin presenters gain an overview address. Team season creation no longer takes a source address, and the factory, the demo seeder (`DemoSeeder`) and test support (`Tests\Support\Ceskyflorbal::kutnaHoraTeamSeason()`) stop setting it. Tests that read or fake `source_url` derive the address from the ID instead: `CurrentSeasonTest`, `Commands\ImportFixturesScheduleTest` (it fakes `$teamSeason->source_url`) and the Teams page browser test (it asserts the fixture list link's `href`).
 - **The fixture list parser must work without a stored team season.** Today it needs a team season to find the team's own link in a fixture row. It should instead take the federation team ID, so the lookup can parse a team that is not stored yet. The import keeps calling it with the team season's ID.
-  - The parser also uses the team season today for the season's start year, which it needs to put a year on fixture dates such as "NE, 4. 10.". It takes that year from the season in the page's team header instead (`parse($html, $externalId)`). The import is not affected: a page whose header shows another season aborts with `season_mismatch` before its fixture dates are used.
-  - The warning about an unknown fixture status logs the federation team ID (`external_id`) instead of `team_season_id`.
+    - The parser also uses the team season today for the season's start year, which it needs to put a year on fixture dates such as "NE, 4. 10.". It takes that year from the season in the page's team header instead (`parse($html, $externalId)`). The import is not affected: a page whose header shows another season aborts with `season_mismatch` before its fixture dates are used.
+    - The warning about an unknown fixture status logs the federation team ID (`external_id`) instead of `team_season_id`.
 - **A new admin-only JSON endpoint looks a team up** by address, under the existing authenticated admin routes. It is rate-limited with its own named limiter (a few requests per minute per user) and takes the address as a query parameter. It is called from the dialog with Inertia's `useHttp`, without a page visit. Behaviour:
-  - When the address is not a federation team page address, it returns a validation error on the address (same message as on save).
-  - When the ID is already used by a team season, it returns a validation error on the address (same message as on save).
-  - When the page cannot be downloaded or parsed (Cloudflare challenge, timeout, unexpected markup), it returns the "unavailable" response: status 502 Bad Gateway with `{ message }`, and logs a warning. It catches `ConnectionException`, `RequestException` (a challenge page often comes with a 403) and the parser's `UnexpectedValueException`. 502 follows what other Laravel apps return when a service they depend on fails (for example trypost, coolify, nmrxiv); 503 would claim our own app is down, and 4xx would blame the request.
-  - The named limiter allows 6 lookups a minute per user. Laravel's default 429 response, with its `Retry-After` header, is kept.
-  - When the season in the page header differs from the season the administrator is adding the team to (the admin's selected season), it returns a validation error on the address naming both seasons.
-  - Otherwise it returns `{ externalId, name, competition, season }`. `name` is the team's name from a fixture row, or null when the page lists no fixtures. `competition` comes from the page's fixture section header, or null when the page lists no fixtures (that header belongs to the fixture block; the team header spells the competition in capitals, so it is not used as a fallback). This matches the import, where the competition is nullable too. `season` is in our season naming ("2026/2027").
+    - When the address is not a federation team page address, it returns a validation error on the address (same message as on save).
+    - When the ID is already used by a team season, it returns a validation error on the address (same message as on save).
+    - When the page cannot be downloaded or parsed (Cloudflare challenge, timeout, unexpected markup), it returns the "unavailable" response: status 502 Bad Gateway with `{ message }`, and logs a warning. It catches `ConnectionException`, `RequestException` (a challenge page often comes with a 403) and the parser's `UnexpectedValueException`. 502 follows what other Laravel apps return when a service they depend on fails (for example trypost, coolify, nmrxiv); 503 would claim our own app is down, and 4xx would blame the request.
+    - The named limiter allows 6 lookups a minute per user. Laravel's default 429 response, with its `Retry-After` header, is kept.
+    - When the season in the page header differs from the season the administrator is adding the team to (the admin's selected season), it returns a validation error on the address naming both seasons.
+    - Otherwise it returns `{ externalId, name, competition, season }`. `name` is the team's name from a fixture row, or null when the page lists no fixtures. `competition` comes from the page's fixture section header, or null when the page lists no fixtures (that header belongs to the fixture block; the team header spells the competition in capitals, so it is not used as a fallback). This matches the import, where the competition is nullable too. `season` is in our season naming ("2026/2027").
 - **The dialog flow.** The lookup is triggered when an address is pasted or the field loses focus, and only when the address changed since the last lookup. A stale response for an earlier address is ignored. While it is in progress, the field shows a loading state. On success:
-  - New team: the name is prefilled only if the administrator has not typed or edited it.
-  - Carried-over team: the name is never touched.
-  - Both: competition and season are shown read-only under the field.
-  - Validation errors (422) show on the address field through `useHttp`'s `errors`.
-  - Every other failure shows as a Sonner toast (`toast.warning`), like the app's other notices, and never blocks saving. In `onHttpException`, a 429 shows "Příliš mnoho dotazů za sebou, zkuste to za chvíli.", and any other status shows "Český florbal teď neodpovídá. Název ani soutěž se nedoplní, vyplňte je ručně." `onNetworkError` shows the second message too. The dialog then treats the lookup as "unavailable" (see the layout below).
+    - New team: the name is prefilled only if the administrator has not typed or edited it.
+    - Carried-over team: the name is never touched.
+    - Both: competition and season are shown read-only under the field.
+    - Validation errors (422) show on the address field through `useHttp`'s `errors`.
+    - Every other failure shows as a Sonner toast (`toast.warning`), like the app's other notices, and never blocks saving. In `onHttpException`, a 429 shows "Příliš mnoho dotazů za sebou, zkuste to za chvíli.", and any other status shows "Český florbal teď neodpovídá. Název ani soutěž se nedoplní, vyplňte je ručně." `onNetworkError` shows the second message too. The dialog then treats the lookup as "unavailable" (see the layout below).
 - **The dialog layout** (chosen from a UI prototype, variant C "Návrh podle svazu"; the prototype lives on branch `prototype/add-team-dialog`, see `resources/js/components/add-team-dialog.prototype.tsx` there):
-  - The "Nový tým" / "Existující tým" tabs go away. The dialog is one form: the address field comes first, labelled "Stránka týmu na ceskyflorbal.cz".
-  - While the lookup runs, a skeleton stands in for the team summary.
-  - After a successful lookup, a bordered summary lists Tým, Soutěž, Sezona and ID svazu (the ID links to the Přehled tab). A missing name or competition shows "—".
-  - When the lookup is "unavailable" (a 429 included), no summary shows; the toast explains why, and the form continues below without it.
-  - After the lookup succeeds or comes back "unavailable", two selectable cards appear: "Nový tým" and "Tým z minulé sezony". The second is disabled when there are no carry-over teams. Choosing "Nový tým" shows the name field with the calendar address preview and a one-line note that the calendar address cannot be changed later. Choosing the other shows the carry-over team select and the note that the name and calendar address stay the same.
-  - When the federation's team name equals a carry-over team's name (ignoring case and surrounding or repeated whitespace), the dialog preselects "Tým z minulé sezony" with that team, titles the card "Pokračuje {team}" and explains "Stejný název jako tým z minulé sezony". The administrator can still switch to "Nový tým". The match is exact on purpose: a club often has several teams ("FBC Kutná Hora", "FBC Kutná Hora B"), and a prefix match would preselect the wrong one, while a renamed team simply gets no preselection.
-  - "Přidat tým" stays disabled until the lookup has succeeded or come back "unavailable", so the administrator always picks new or carry-over with the federation's data in view. On a validation error the cards don't show.
-  - The choice is sent as before: `team_id` for a carry-over team, `name` for a new team.
+    - The "Nový tým" / "Existující tým" tabs go away. The dialog is one form: the address field comes first, labelled "Stránka týmu na ceskyflorbal.cz".
+    - While the lookup runs, a skeleton stands in for the team summary.
+    - After a successful lookup, a bordered summary lists Tým, Soutěž, Sezona and ID svazu (the ID links to the Přehled tab). A missing name or competition shows "—".
+    - When the lookup is "unavailable" (a 429 included), no summary shows; the toast explains why, and the form continues below without it.
+    - After the lookup succeeds or comes back "unavailable", two selectable cards appear: "Nový tým" and "Tým z minulé sezony". The second is disabled when there are no carry-over teams. Choosing "Nový tým" shows the name field with the calendar address preview and a one-line note that the calendar address cannot be changed later. Choosing the other shows the carry-over team select and the note that the name and calendar address stay the same.
+    - When the federation's team name equals a carry-over team's name (ignoring case and surrounding or repeated whitespace), the dialog preselects "Tým z minulé sezony" with that team, titles the card "Pokračuje {team}" and explains "Stejný název jako tým z minulé sezony". The administrator can still switch to "Nový tým". The match is exact on purpose: a club often has several teams ("FBC Kutná Hora", "FBC Kutná Hora B"), and a prefix match would preselect the wrong one, while a renamed team simply gets no preselection.
+    - "Přidat tým" stays disabled until the lookup has succeeded or come back "unavailable", so the administrator always picks new or carry-over with the federation's data in view. On a validation error the cards don't show.
+    - The choice is sent as before: `team_id` for a carry-over team, `name` for a new team.
 - **Saving makes no network call.** The store request keeps its current validation (address format, now accepting any tab, and ID uniqueness) and stores `external_id` only. The season check is done by the lookup only, so an outage at ceskyflorbal.cz never blocks saving, and the first import validates the page anyway.
 - **The address field is named `federation_team_page_url`**, after the glossary term, in the dialog form, the store request, the lookup's query parameter and the key of its validation errors, and in the translation keys (`team_seasons.validation.federation_team_page_url_required`, `…_format`, `…_taken`). It replaces `source_url`, which no longer names anything stored. `team_page_url` is avoided because "team page" already means our public team page. The messages speak of the team's page, not its fixture list, for example "Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019." and "Tato stránka už patří týmu :team_season."
 - **Overview link** ("Přehled na Český florbal", Czech translation strings) next to the existing fixture list link on the Týmy page and on the team season's Zápasy page. The public team page is unchanged.
@@ -90,20 +90,20 @@ The app no longer stores a fixture list address. Every link to ceskyflorbal.cz (
 
 - Tests exercise external behaviour through HTTP: requests to admin routes and the JSON and Inertia props they return. They don't test the address module or the parser on their own, because the feature tests cover both. ceskyflorbal.cz is faked with `Http::fake` using the saved fixture list snapshot of team 45019 and the helpers in the test support class. There are no seeder tests.
 - **New: lookup endpoint feature test.** It covers:
-  - Prefilled name, competition and season from a Přehled address, a Zápasy address, and an address without scheme or with or without `www.`.
-  - The validation error for a non-federation address.
-  - The validation error for a season mismatch.
-  - The validation error for an ID already used by a team season.
-  - The "unavailable" response when the fake returns an error or a challenge page.
-  - A null name when the page lists no fixtures.
-  - Guests rejected.
-  - Rate limit enforced.
-  - The request goes to the Zápasy address whatever tab was pasted.
+    - Prefilled name, competition and season from a Přehled address, a Zápasy address, and an address without scheme or with or without `www.`.
+    - The validation error for a non-federation address.
+    - The validation error for a season mismatch.
+    - The validation error for an ID already used by a team season.
+    - The "unavailable" response when the fake returns an error or a challenge page.
+    - A null name when the page lists no fixtures.
+    - Guests rejected.
+    - Rate limit enforced.
+    - The request goes to the Zápasy address whatever tab was pasted.
 - **Existing: add-team-to-season feature test.** It is extended so that:
-  - A Přehled address is accepted on save.
-  - Only `external_id` is stored.
-  - Existing format and uniqueness errors still apply to any tab's address.
-  - Saving makes no request to ceskyflorbal.cz.
+    - A Přehled address is accepted on save.
+    - Only `external_id` is stored.
+    - Existing format and uniqueness errors still apply to any tab's address.
+    - Saving makes no request to ceskyflorbal.cz.
 - **Existing: Týmy, Zápasy and public team page tests.** They assert the fixture list address derived from the ID. The two admin pages also assert the overview address.
 - **Existing: import tests and the import-failed email test** keep passing with the address derived from the ID. This shows that dropping the column didn't break the import.
 - Prior art: the add-team-to-season test (form request validation through HTTP), the manual import and import-failed tests (`Http::fake` with the snapshot), and the Týmy page test (Inertia props).
