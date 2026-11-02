@@ -21,7 +21,7 @@ final readonly class FixtureListParser
      *
      * @throws UnexpectedValueException when the team header or a fixture row lacks markup the import cannot do without
      */
-    public function parse(string $html, int $externalId): FixtureListPageData
+    public function parse(string $html, int $teamExternalId): FixtureListPageData
     {
         $document = HTMLDocument::createFromString($html, LIBXML_NOERROR);
         $seasonName = $this->seasonName($this->text($document, 'h3.ProfileClub-header--city') ?? '');
@@ -30,11 +30,11 @@ final readonly class FixtureListParser
         $rows = [];
 
         foreach ($document->querySelectorAll('.Match') as $row) {
-            $rows[] = $this->parseRow($row, $externalId, $seasonStartYear);
+            $rows[] = $this->parseRow($row, $teamExternalId, $seasonStartYear);
         }
 
         // The page header spells the team name in capitals, so take it from the team's own link in a fixture row.
-        $teamName = $this->text($document, ".Match a[href=\"/team/detail/overview/{$externalId}\"] .Match-teamName");
+        $teamName = $this->text($document, ".Match a[href=\"/team/detail/overview/{$teamExternalId}\"] .Match-teamName");
 
         return new FixtureListPageData(
             seasonName: $seasonName,
@@ -63,13 +63,13 @@ final readonly class FixtureListParser
      */
     private function parseRow(Element $row, int $teamExternalId, int $seasonStartYear): FixtureListRowData
     {
-        $externalId = $this->idFromLink($row, 'a[href*="/match/detail/default/"]');
+        $fixtureExternalId = $this->idFromLink($row, 'a[href*="/match/detail/default/"]');
         $isHome = $this->idFromLink($row, '.Match-leftContent a[href*="/team/detail/overview/"]') === $teamExternalId;
         $score = $this->score($this->text($row, '.Match-score'));
         $startTime = $this->text($row, '.Match-startTime');
 
         return new FixtureListRowData(
-            externalId: $externalId,
+            externalId: $fixtureExternalId,
             round: $this->round($this->text($row, '.Match-round')),
             date: $this->date($this->requiredText($row, '.Match-date'), $seasonStartYear),
             showsStartTime: $startTime !== null,
@@ -77,7 +77,7 @@ final readonly class FixtureListParser
             isHome: $isHome,
             opponentName: $this->requiredText($row, $isHome ? '.Match-rightContent .Match-teamName' : '.Match-leftContent .Match-teamName'),
             venueName: $this->text($row, '.Match-place'),
-            status: $this->status($row, $teamExternalId, $externalId),
+            status: $this->status($row, $teamExternalId, $fixtureExternalId),
             isRescheduled: $row->querySelector('.Tooltip--warning') !== null,
             homeScore: $score[0] ?? null,
             awayScore: $score[1] ?? null,
@@ -149,7 +149,7 @@ final readonly class FixtureListParser
      *
      * Markup for postponed and cancelled fixtures has not been seen yet, so any other row keeps the stored status.
      */
-    private function status(Element $row, int $teamExternalId, int $externalId): ?FixtureStatus
+    private function status(Element $row, int $teamExternalId, int $fixtureExternalId): ?FixtureStatus
     {
         $text = $this->text($row, '.Match-status');
         $showsVenue = $row->querySelector('.Match-place') !== null;
@@ -163,7 +163,7 @@ final readonly class FixtureListParser
         if ($status === null) {
             Log::warning('Unknown fixture status on the fixture list page.', [
                 'team_external_id' => $teamExternalId,
-                'external_id' => $externalId,
+                'external_id' => $fixtureExternalId,
                 'status' => $text,
             ]);
         }

@@ -23,37 +23,35 @@ final readonly class FederationTeamPage
     /**
      * Read the federation's team ID from the address of any tab of a team's page on ceskyflorbal.cz, or null when the address is not one.
      */
-    public function teamId(string $address): ?int
+    public function teamExternalId(string $address): ?int
     {
         // An address copied from the browser's address bar often comes without its scheme.
-        $url = parse_url(preg_match('#^https?://#i', $address) === 1 ? $address : "https://{$address}");
+        $url = parse_url(Str::isMatch('#^https?://#i', $address) ? $address : "https://{$address}");
 
         if ($url === false || ! isset($url['host']) || $this->withoutWww($url['host']) !== $this->withoutWww($this->host())) {
             return null;
         }
 
         // Every tab (overview, matches, roster, …) sits at /team/detail/{tab}/{id}.
-        if (preg_match('#^/team/detail/[a-z]+(?:-[a-z]+)*/([1-9]\d{0,17})/?$#i', $url['path'] ?? '', $matches) !== 1) {
-            return null;
-        }
+        $teamExternalId = Str::match('#^/team/detail/[a-z]+(?:-[a-z]+)*/([1-9]\d{0,17})/?$#i', $url['path'] ?? '');
 
-        return (int) $matches[1];
+        return $teamExternalId === '' ? null : (int) $teamExternalId;
     }
 
     /**
      * Get the address of the team's fixture list (the Zápasy tab), in the form the import downloads.
      */
-    public function fixtureListAddress(int $teamId): string
+    public function fixtureListAddress(int $teamExternalId): string
     {
-        return "{$this->ceskyflorbalUrl}/team/detail/matches/{$teamId}";
+        return "{$this->ceskyflorbalUrl}/team/detail/matches/{$teamExternalId}";
     }
 
     /**
      * Get the address of the team's overview (the Přehled tab).
      */
-    public function overviewAddress(int $teamId): string
+    public function overviewAddress(int $teamExternalId): string
     {
-        return "{$this->ceskyflorbalUrl}/team/detail/overview/{$teamId}";
+        return "{$this->ceskyflorbalUrl}/team/detail/overview/{$teamExternalId}";
     }
 
     /**

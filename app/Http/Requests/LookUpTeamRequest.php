@@ -19,23 +19,16 @@ final class LookUpTeamRequest extends FormRequest
     use FederationTeamPageUrlValidationRules;
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(FederationTeamPage $federationTeamPage): array
     {
-        // Answers like the store request while there is no season to add a team to.
-        $this->season();
-
         return [
             'federation_team_page_url' => $this->federationTeamPageUrlRules($federationTeamPage),
         ];
     }
 
     /**
-     * Get the custom messages for the validator errors.
-     *
      * @return array<string, string>
      */
     public function messages(): array
@@ -52,10 +45,10 @@ final class LookUpTeamRequest extends FormRequest
     }
 
     /**
-     * Get the federation's team ID from the address of the federation team page.
+     * Answer like the store request while there is no season to add a team to.
      */
-    public function externalId(): int
+    protected function prepareForValidation(): void
     {
-        return (int) $this->container->make(FederationTeamPage::class)->teamId($this->string('federation_team_page_url')->toString());
+        abort_if($this->container->make(AdminSelection::class)->season() === null, 404);
     }
 }

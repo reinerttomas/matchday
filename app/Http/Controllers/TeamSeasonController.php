@@ -45,7 +45,7 @@ final readonly class TeamSeasonController
         $season = $request->season();
 
         $teamSeason = $createTeamSeason->handle($request->team(), $season, [
-            'external_id' => $request->externalId(),
+            'external_id' => $request->teamExternalId(),
         ]);
 
         Inertia::flash('toast', [

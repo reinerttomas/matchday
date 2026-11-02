@@ -31,9 +31,9 @@ final readonly class CeskyflorbalClient
     /**
      * Download and parse the fixture list page of the team with the federation's team ID.
      */
-    public function fixtureList(int $teamId): FixtureListPageData
+    public function fixtureList(int $teamExternalId): FixtureListPageData
     {
-        return $this->fixtureListParser->parse($this->download($this->federationTeamPage->fixtureListAddress($teamId)), $teamId);
+        return $this->fixtureListParser->parse($this->download($this->federationTeamPage->fixtureListAddress($teamExternalId)), $teamExternalId);
     }
 
     /**

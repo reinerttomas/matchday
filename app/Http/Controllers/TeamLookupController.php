@@ -25,14 +25,14 @@ final readonly class TeamLookupController
     public function __invoke(LookUpTeamRequest $request, CeskyflorbalClient $ceskyflorbal, FederationTeamPage $federationTeamPage): JsonResponse
     {
         $season = $request->season();
-        $externalId = $request->externalId();
+        $teamExternalId = $request->teamExternalId();
 
         try {
-            $page = $ceskyflorbal->fixtureList($externalId);
+            $page = $ceskyflorbal->fixtureList($teamExternalId);
         } catch (ConnectionException|RequestException|UnexpectedValueException $exception) {
             // The dialog lets the administrator fill the team in by hand, and the first import reads the page again.
             Log::warning('Looking a team up on ceskyflorbal.cz failed.', [
-                'external_id' => $externalId,
+                'external_id' => $teamExternalId,
                 'error' => $exception->getMessage(),
             ]);
 
@@ -49,11 +49,11 @@ final readonly class TeamLookupController
         }
 
         return response()->json([
-            'externalId' => $externalId,
+            'externalId' => $teamExternalId,
             'name' => $page->teamName,
             'competition' => $page->competitionName,
             'season' => $page->seasonName,
-            'overviewUrl' => $federationTeamPage->overviewAddress($externalId),
+            'overviewUrl' => $federationTeamPage->overviewAddress($teamExternalId),
         ]);
     }
 }

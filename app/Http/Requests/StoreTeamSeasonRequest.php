@@ -100,12 +100,4 @@ final class StoreTeamSeasonRequest extends FormRequest
 
         return new Team(['name' => $name, 'slug' => Str::slug($name)]);
     }
-
-    /**
-     * Get the federation's team ID from the address of the federation team page.
-     */
-    public function externalId(): int
-    {
-        return (int) $this->container->make(FederationTeamPage::class)->teamId($this->string('federation_team_page_url')->toString());
-    }
 }
