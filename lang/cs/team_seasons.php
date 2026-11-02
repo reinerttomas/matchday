@@ -12,9 +12,9 @@ return [
     ],
 
     'validation' => [
-        'source_url_required' => 'Zadejte adresu rozpisu zápasů týmu na ceskyflorbal.cz.',
-        'source_url_format' => 'Adresa musí vést na rozpis zápasů týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/matches/45019.',
-        'source_url_taken' => 'Tento rozpis už patří týmu :team_season.',
+        'federation_team_page_url_required' => 'Zadejte adresu stránky týmu na ceskyflorbal.cz.',
+        'federation_team_page_url_format' => 'Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019.',
+        'federation_team_page_url_taken' => 'Tato stránka už patří týmu :team_season.',
         'team_unknown' => 'Vybraný tým neexistuje.',
         'team_in_season' => 'Tento tým už v sezoně :season je.',
     ],

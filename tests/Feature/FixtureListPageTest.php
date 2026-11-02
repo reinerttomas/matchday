@@ -100,7 +100,7 @@ test('links the team season\'s fixture list on ceskyflorbal.cz', function () {
     $response = $this->get('/fixtures');
 
     $response->assertInertia(fn (Assert $page) => $page
-        ->where('fixtureList.sourceUrl', $teamSeason->source_url)
+        ->where('fixtureList.sourceUrl', "https://www.ceskyflorbal.cz/team/detail/matches/{$teamSeason->external_id}")
         ->etc());
 });
 

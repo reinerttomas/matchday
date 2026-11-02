@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Enums\ImportStatus;
 use App\Models\Import;
 use App\Models\TeamSeason;
+use App\Services\Ceskyflorbal\FederationTeamPage;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -25,6 +26,7 @@ final readonly class TeamSeasonListPresenter
         private string $timezone,
         private CalendarLinks $calendarLinks,
         private FixtureFormatter $fixtureFormatter,
+        private FederationTeamPage $federationTeamPage,
     ) {}
 
     /**
@@ -59,7 +61,7 @@ final readonly class TeamSeasonListPresenter
             'lastImport' => $teamSeason->lastImport === null ? null : $this->lastImport($teamSeason->lastImport),
             'calendarUrl' => $this->calendarLinks->address($teamSeason->team),
             'publicPageUrl' => route('public-team-page', $teamSeason->team),
-            'sourceUrl' => $teamSeason->source_url,
+            'sourceUrl' => $this->federationTeamPage->fixtureListAddress($teamSeason->external_id),
         ];
     }
 

@@ -33,7 +33,7 @@ test('lists the selected season\'s team seasons by name with what the administra
         ->create([
             'name' => 'FBC Kutná Hora B',
             'competition_name' => '2. liga mužů, skupina 3',
-            'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/42001',
+            'external_id' => 42001,
         ]);
     TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora A']))->for($season)->create();
     TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora C']))->for(Season::factory()->state(['name' => '2025/2026']))->create();

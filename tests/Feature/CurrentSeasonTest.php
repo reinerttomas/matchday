@@ -75,10 +75,7 @@ test('switches the calendar and the public page to the team season of the new cu
 
 test('makes scheduled imports cover the team seasons of the new current season only', function () {
     TeamSeason::factory()->for(Season::factory()->current()->state(['name' => '2025/2026']))->create();
-    $nextTeamSeason = TeamSeason::factory()->for(Season::factory()->state(['name' => '2026/2027']))->notImported()->create([
-        'external_id' => 45019,
-        'source_url' => Ceskyflorbal::FIXTURE_LIST_URL,
-    ]);
+    $nextTeamSeason = TeamSeason::factory()->for(Season::factory()->state(['name' => '2026/2027']))->notImported()->create(['external_id' => 45019]);
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
 
     $this->post("/seasons/{$nextTeamSeason->season_id}/current");

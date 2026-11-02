@@ -21,6 +21,7 @@ final readonly class CeskyflorbalClient
      */
     public function __construct(
         private FixtureListParser $fixtureListParser,
+        private FederationTeamPage $federationTeamPage,
         private MatchDetailParser $matchDetailParser,
         #[Config('services.ceskyflorbal.request_pause_milliseconds')]
         private int $requestPauseMilliseconds,
@@ -33,7 +34,7 @@ final readonly class CeskyflorbalClient
      */
     public function fixtureList(TeamSeason $teamSeason): FixtureListPageData
     {
-        return $this->fixtureListParser->parse($this->download($teamSeason->source_url), $teamSeason);
+        return $this->fixtureListParser->parse($this->download($this->federationTeamPage->fixtureListAddress($teamSeason->external_id)), $teamSeason);
     }
 
     /**

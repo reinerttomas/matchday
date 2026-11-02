@@ -22,7 +22,6 @@ function kutnaHoraTeamSeason(): TeamSeason
         ->for(Season::factory()->current()->state(['name' => '2026/2027']))
         ->create([
             'external_id' => 45019,
-            'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
             'name' => 'FBC Kutná Hora B',
             'competition_name' => '2. liga mužů, skupina 3',
         ]);

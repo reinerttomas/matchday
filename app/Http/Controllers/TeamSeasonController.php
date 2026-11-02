@@ -12,7 +12,6 @@ use App\Models\Team;
 use App\Models\TeamSeason;
 use App\Services\AdminSelection;
 use App\Services\CarryOverTeamListPresenter;
-use App\Services\Ceskyflorbal\FixtureListAddress;
 use App\Services\TeamSeasonListPresenter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -41,14 +40,12 @@ final readonly class TeamSeasonController
     /**
      * Add a brand-new team or a team from a previous season to the selected season, start its first import, and return to the page it was added on.
      */
-    public function store(StoreTeamSeasonRequest $request, FixtureListAddress $fixtureListAddress, CreateTeamSeason $createTeamSeason): RedirectResponse
+    public function store(StoreTeamSeasonRequest $request, CreateTeamSeason $createTeamSeason): RedirectResponse
     {
         $season = $request->season();
-        $externalId = $request->externalId();
 
         $teamSeason = $createTeamSeason->handle($request->team(), $season, [
-            'external_id' => $externalId,
-            'source_url' => $fixtureListAddress->for($externalId),
+            'external_id' => $request->externalId(),
         ]);
 
         Inertia::flash('toast', [

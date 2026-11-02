@@ -48,10 +48,7 @@ final class Ceskyflorbal
             ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
             ->for(Season::factory()->current()->state(['name' => '2026/2027']))
             ->notImported()
-            ->create([
-                'external_id' => 45019,
-                'source_url' => self::FIXTURE_LIST_URL,
-            ]);
+            ->create(['external_id' => 45019]);
     }
 
     /**

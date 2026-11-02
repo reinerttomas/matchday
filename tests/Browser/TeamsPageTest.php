@@ -72,7 +72,7 @@ test('links the team actions to the public page and the fixture list on ceskyflo
         ->click('@team-season-actions')
         ->assertAttribute('@open-public-page', 'href', route('public-team-page', 'kutna-hora-b'))
         ->assertAttribute('@open-public-page', 'target', '_blank')
-        ->assertAttribute('@open-source', 'href', $teamSeason->source_url)
+        ->assertAttribute('@open-source', 'href', "https://www.ceskyflorbal.cz/team/detail/matches/{$teamSeason->external_id}")
         ->assertAttribute('@open-source', 'target', '_blank')
         ->assertNoJavaScriptErrors();
 });
@@ -87,7 +87,7 @@ test('previews the calendar address derived from a new team\'s name while it is 
         ->assertSeeIn('@calendar-url-preview', route('calendar', 'nazev-tymu'))
         ->type('name', 'FBC Kutná Hora B')
         ->assertSeeIn('@calendar-url-preview', route('calendar', 'fbc-kutna-hora-b'))
-        ->fill('source_url', 'https://www.ceskyflorbal.cz/team/detail/matches/45019')
+        ->fill('federation_team_page_url', 'https://www.ceskyflorbal.cz/team/detail/matches/45019')
         ->click('@store-team')
         ->assertSee('Tým FBC Kutná Hora B je přidaný do sezony 2026/2027.')
         ->assertMissing('@store-team')
@@ -112,7 +112,7 @@ test('carries a team over from a previous season chosen in the dialog', function
         ->click('@carry-over-team-select')
         ->assertSeeIn('[role="listbox"]', 'FBC Kutná Hora B')
         ->click('[role="option"]')
-        ->fill('source_url', 'https://www.ceskyflorbal.cz/team/detail/matches/45019')
+        ->fill('federation_team_page_url', 'https://www.ceskyflorbal.cz/team/detail/matches/45019')
         ->click('@store-team')
         ->assertSee('Tým FBC Kutná Hora B je přidaný do sezony 2026/2027.')
         ->assertMissing('@store-team')

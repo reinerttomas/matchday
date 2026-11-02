@@ -16,7 +16,7 @@ function kutnaHoraTeamSeasonFactory(): TeamSeasonFactory
         ->for(Season::factory()->state(['name' => '2026/2027']))
         ->state([
             'name' => 'FBC Kutná Hora B',
-            'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+            'external_id' => 45019,
         ]);
 }
 

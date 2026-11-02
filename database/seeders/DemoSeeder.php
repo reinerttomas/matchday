@@ -40,7 +40,6 @@ final class DemoSeeder extends Seeder
         $this->seedPastTeamSeason(
             TeamSeason::factory()->for($team)->for($pastSeason)->create([
                 'external_id' => 42058,
-                'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/42058',
                 'name' => $teamName,
                 'competition_name' => 'PH a SČ liga mužů',
             ]),
@@ -50,7 +49,6 @@ final class DemoSeeder extends Seeder
         $this->seedCurrentTeamSeason(
             TeamSeason::factory()->for($team)->for($currentSeason)->create([
                 'external_id' => 45019,
-                'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
                 'name' => $teamName,
                 'competition_name' => 'PH a SČ liga mužů',
             ]),

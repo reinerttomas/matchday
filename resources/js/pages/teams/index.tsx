@@ -254,9 +254,9 @@ function NewTeamForm({
                         </p>
                         <InputError message={errors.name} />
                     </div>
-                    <SourceUrlField
-                        id="new-team-source-url"
-                        error={errors.source_url}
+                    <FederationTeamPageUrlField
+                        id="new-team-federation-team-page-url"
+                        error={errors.federation_team_page_url}
                     />
                     <Alert>
                         <TriangleAlert />
@@ -318,10 +318,10 @@ function CarryOverTeamForm({
                         </Select>
                         <InputError message={errors.team_id} />
                     </div>
-                    <SourceUrlField
-                        id="carry-over-team-source-url"
-                        error={errors.source_url}
-                        description={`Svaz dává týmu každou sezonu nový rozpis. Zadejte adresu rozpisu pro sezonu ${seasonName}.`}
+                    <FederationTeamPageUrlField
+                        id="carry-over-team-federation-team-page-url"
+                        error={errors.federation_team_page_url}
+                        description={`Svaz dává týmu každou sezonu novou stránku. Zadejte adresu stránky týmu pro sezonu ${seasonName}.`}
                     />
                     <p className="text-sm text-muted-foreground">
                         Název i adresa kalendáře zůstanou stejné, takže hráči
@@ -334,10 +334,10 @@ function CarryOverTeamForm({
     );
 }
 
-function SourceUrlField({
+function FederationTeamPageUrlField({
     id,
     error,
-    description = 'Otevřete rozpis zápasů týmu na ceskyflorbal.cz a zkopírujte adresu stránky.',
+    description = 'Otevřete stránku týmu na ceskyflorbal.cz, na kterékoli záložce (Přehled, Zápasy, Soupiska…), a zkopírujte její adresu.',
 }: {
     id: string;
     error: string | undefined;
@@ -345,14 +345,14 @@ function SourceUrlField({
 }) {
     return (
         <div className="grid gap-2">
-            <Label htmlFor={id}>Adresa rozpisu zápasů</Label>
+            <Label htmlFor={id}>Stránka týmu na ceskyflorbal.cz</Label>
             <Input
                 id={id}
-                name="source_url"
+                name="federation_team_page_url"
                 required
                 autoComplete="off"
                 inputMode="url"
-                placeholder="https://www.ceskyflorbal.cz/team/detail/matches/45019"
+                placeholder="https://www.ceskyflorbal.cz/team/detail/overview/45019"
                 aria-invalid={error !== undefined}
                 aria-describedby={`${id}-description`}
             />

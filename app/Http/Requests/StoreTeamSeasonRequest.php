@@ -9,7 +9,7 @@ use App\Models\Season;
 use App\Models\Team;
 use App\Models\TeamSeason;
 use App\Services\AdminSelection;
-use App\Services\Ceskyflorbal\FixtureListAddress;
+use App\Services\Ceskyflorbal\FederationTeamPage;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,7 +28,7 @@ final class StoreTeamSeasonRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(FixtureListAddress $fixtureListAddress): array
+    public function rules(FederationTeamPage $federationTeamPage): array
     {
         return [
             'team_id' => [
@@ -58,15 +58,15 @@ final class StoreTeamSeasonRequest extends FormRequest
                     }
                 },
             ],
-            'source_url' => [
+            'federation_team_page_url' => [
                 'bail',
                 'required',
                 'string',
-                function (string $attribute, string $value, Closure $fail) use ($fixtureListAddress): void {
-                    $teamId = $fixtureListAddress->teamId($value);
+                function (string $attribute, string $value, Closure $fail) use ($federationTeamPage): void {
+                    $teamId = $federationTeamPage->teamId($value);
 
                     if ($teamId === null) {
-                        $fail(__('team_seasons.validation.source_url_format'));
+                        $fail(__('team_seasons.validation.federation_team_page_url_format'));
 
                         return;
                     }
@@ -75,7 +75,7 @@ final class StoreTeamSeasonRequest extends FormRequest
                     $teamSeason = TeamSeason::query()->with(['team', 'season'])->where('external_id', $teamId)->first();
 
                     if ($teamSeason !== null) {
-                        $fail(__('team_seasons.validation.source_url_taken', ['team_season' => $teamSeason->displayNameWithSeason()]));
+                        $fail(__('team_seasons.validation.federation_team_page_url_taken', ['team_season' => $teamSeason->displayNameWithSeason()]));
                     }
                 },
             ],
@@ -94,8 +94,8 @@ final class StoreTeamSeasonRequest extends FormRequest
             'team_id.exists' => __('team_seasons.validation.team_unknown'),
             'team_id.unique' => __('team_seasons.validation.team_in_season', ['season' => $this->season()->name]),
             ...$this->teamNameMessages(),
-            'source_url.required' => __('team_seasons.validation.source_url_required'),
-            'source_url.string' => __('team_seasons.validation.source_url_format'),
+            'federation_team_page_url.required' => __('team_seasons.validation.federation_team_page_url_required'),
+            'federation_team_page_url.string' => __('team_seasons.validation.federation_team_page_url_format'),
         ];
     }
 
@@ -122,10 +122,10 @@ final class StoreTeamSeasonRequest extends FormRequest
     }
 
     /**
-     * Get the federation's team ID from the fixture list address.
+     * Get the federation's team ID from the address of the federation team page.
      */
     public function externalId(): int
     {
-        return (int) $this->container->make(FixtureListAddress::class)->teamId($this->string('source_url')->toString());
+        return (int) $this->container->make(FederationTeamPage::class)->teamId($this->string('federation_team_page_url')->toString());
     }
 }

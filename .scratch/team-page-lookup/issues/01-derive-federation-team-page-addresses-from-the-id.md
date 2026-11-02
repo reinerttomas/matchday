@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] One module for federation team page addresses replaces the fixture list address module. It reads the federation team ID from an address of any tab (`/team/detail/{tab}/{id}`, scheme optional, `www.` optional, host must be ceskyflorbal.cz) or returns null, builds the fixture list (Zápasy) address from an ID, and builds the overview (Přehled) address from an ID. Avoid "overview" or "team detail" in names for the whole page; "overview" is fine for the Přehled tab.
 - [ ] A migration drops `source_url` from team seasons. Its `down()` adds the column back, filled from `external_id`.

@@ -7,7 +7,10 @@ namespace App\Services\Ceskyflorbal;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Support\Str;
 
-final readonly class FixtureListAddress
+/**
+ * The addresses of a team season's page on ceskyflorbal.cz, all of them derived from the federation's team ID.
+ */
+final readonly class FederationTeamPage
 {
     /**
      * Create a new instance.
@@ -18,7 +21,7 @@ final readonly class FixtureListAddress
     ) {}
 
     /**
-     * Read the federation's team ID from the address of a team's fixture list on ceskyflorbal.cz, or null when the address is not one.
+     * Read the federation's team ID from the address of any tab of a team's page on ceskyflorbal.cz, or null when the address is not one.
      */
     public function teamId(string $address): ?int
     {
@@ -29,7 +32,8 @@ final readonly class FixtureListAddress
             return null;
         }
 
-        if (preg_match('#^/team/detail/matches/([1-9]\d{0,17})/?$#', $url['path'] ?? '', $matches) !== 1) {
+        // Every tab (overview, matches, roster, …) sits at /team/detail/{tab}/{id}.
+        if (preg_match('#^/team/detail/[a-z]+(?:-[a-z]+)*/([1-9]\d{0,17})/?$#i', $url['path'] ?? '', $matches) !== 1) {
             return null;
         }
 
@@ -37,11 +41,19 @@ final readonly class FixtureListAddress
     }
 
     /**
-     * Get the address of the fixture list of the federation's team, in the form the import downloads.
+     * Get the address of the team's fixture list (the Zápasy tab), in the form the import downloads.
      */
-    public function for(int $teamId): string
+    public function fixtureListAddress(int $teamId): string
     {
         return "{$this->ceskyflorbalUrl}/team/detail/matches/{$teamId}";
+    }
+
+    /**
+     * Get the address of the team's overview (the Přehled tab).
+     */
+    public function overviewAddress(int $teamId): string
+    {
+        return "{$this->ceskyflorbalUrl}/team/detail/overview/{$teamId}";
     }
 
     /**
