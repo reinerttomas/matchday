@@ -73,6 +73,16 @@ final class Ceskyflorbal
     }
 
     /**
+     * The live fixture list page of FBC Kutná Hora B in 2026/2027 without its fixture section, as before the federation publishes the fixtures.
+     */
+    public static function fixtureListSnapshotWithoutFixtures(): string
+    {
+        return Str::of(self::fixtureListSnapshot())
+            ->replaceMatches('#(<section class="Matches-body--League" id="snippet--matches">).*?(</section>)#s', '${1}${2}')
+            ->toString();
+    }
+
+    /**
      * The fixture list snapshot, or the given fixture list page, with the start time of one fixture changed; 00:00 shows a TBD time.
      */
     public static function fixtureListSnapshotWithTime(int $externalId, string $time, ?string $fixtureListPage = null): string

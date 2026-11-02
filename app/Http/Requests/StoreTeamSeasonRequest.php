@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Concerns\FederationTeamPageUrlValidationRules;
 use App\Concerns\TeamNameValidationRules;
 use App\Models\Season;
 use App\Models\Team;
-use App\Models\TeamSeason;
 use App\Services\AdminSelection;
 use App\Services\Ceskyflorbal\FederationTeamPage;
 use Closure;
@@ -21,6 +21,7 @@ use Illuminate\Validation\Rule;
  */
 final class StoreTeamSeasonRequest extends FormRequest
 {
+    use FederationTeamPageUrlValidationRules;
     use TeamNameValidationRules;
 
     /**
@@ -58,27 +59,7 @@ final class StoreTeamSeasonRequest extends FormRequest
                     }
                 },
             ],
-            'federation_team_page_url' => [
-                'bail',
-                'required',
-                'string',
-                function (string $attribute, string $value, Closure $fail) use ($federationTeamPage): void {
-                    $teamId = $federationTeamPage->teamId($value);
-
-                    if ($teamId === null) {
-                        $fail(__('team_seasons.validation.federation_team_page_url_format'));
-
-                        return;
-                    }
-
-                    // The federation gives a team a new ID every season, so an ID already in use usually means the previous season's address was left unchanged.
-                    $teamSeason = TeamSeason::query()->with(['team', 'season'])->where('external_id', $teamId)->first();
-
-                    if ($teamSeason !== null) {
-                        $fail(__('team_seasons.validation.federation_team_page_url_taken', ['team_season' => $teamSeason->displayNameWithSeason()]));
-                    }
-                },
-            ],
+            'federation_team_page_url' => $this->federationTeamPageUrlRules($federationTeamPage),
         ];
     }
 
@@ -94,8 +75,7 @@ final class StoreTeamSeasonRequest extends FormRequest
             'team_id.exists' => __('team_seasons.validation.team_unknown'),
             'team_id.unique' => __('team_seasons.validation.team_in_season', ['season' => $this->season()->name]),
             ...$this->teamNameMessages(),
-            'federation_team_page_url.required' => __('team_seasons.validation.federation_team_page_url_required'),
-            'federation_team_page_url.string' => __('team_seasons.validation.federation_team_page_url_format'),
+            ...$this->federationTeamPageUrlMessages(),
         ];
     }
 

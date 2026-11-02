@@ -118,7 +118,7 @@ final readonly class ImportTeamSeason
     private function downloadAndApply(TeamSeason $teamSeason, Import $import): Import
     {
         try {
-            $page = $this->ceskyflorbal->fixtureList($teamSeason);
+            $page = $this->ceskyflorbal->fixtureList($teamSeason->external_id);
         } catch (RequestException $exception) {
             return $this->finishWithoutApplying($import, ImportStatus::Error, $this->httpErrorReason($exception->response->status()));
         } catch (ConnectionException $exception) {

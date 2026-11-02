@@ -73,5 +73,10 @@ final class AppServiceProvider extends ServiceProvider
         RateLimiter::for('team-page-events', function (Request $request) {
             return Limit::perMinute(30)->by($request->ip());
         });
+
+        // Repeated lookups could make the federation's bot protection block the scheduled imports, which come from the same server.
+        RateLimiter::for('team-lookups', function (Request $request) {
+            return Limit::perMinute(6)->by($request->user()?->getAuthIdentifier());
+        });
     }
 }

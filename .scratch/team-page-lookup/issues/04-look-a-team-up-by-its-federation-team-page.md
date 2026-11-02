@@ -7,7 +7,7 @@
 - 01 — Derive federation team page addresses from the ID and drop `source_url`
 - 03 — Parse a fixture list without a stored team season
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] A GET route under the authenticated admin routes takes the address in the `federation_team_page_url` query parameter. Guests are rejected.
 - [ ] A named rate limiter allows 6 lookups a minute per user. Laravel's default 429 response, with its `Retry-After` header, is kept.
