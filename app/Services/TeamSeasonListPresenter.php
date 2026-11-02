@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 /**
  * @phpstan-type ImportFailureProps array{status: string, statusLabel: string, reason: string|null}
  * @phpstan-type LastImportProps array{startedAt: string, failure: ImportFailureProps|null}
- * @phpstan-type TeamSeasonProps array{id: int, teamId: int, name: string, competition: string|null, slug: string, autoImportEnabled: bool, lastImport: LastImportProps|null, calendarUrl: string, publicPageUrl: string, sourceUrl: string}
+ * @phpstan-type TeamSeasonProps array{id: int, teamId: int, name: string, competition: string|null, slug: string, autoImportEnabled: bool, lastImport: LastImportProps|null, calendarUrl: string, publicPageUrl: string, sourceUrl: string, overviewUrl: string}
  */
 final readonly class TeamSeasonListPresenter
 {
@@ -62,6 +62,7 @@ final readonly class TeamSeasonListPresenter
             'calendarUrl' => $this->calendarLinks->address($teamSeason->team),
             'publicPageUrl' => route('public-team-page', $teamSeason->team),
             'sourceUrl' => $this->federationTeamPage->fixtureListAddress($teamSeason->external_id),
+            'overviewUrl' => $this->federationTeamPage->overviewAddress($teamSeason->external_id),
         ];
     }
 

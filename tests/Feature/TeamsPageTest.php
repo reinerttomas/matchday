@@ -55,6 +55,7 @@ test('lists the selected season\'s team seasons by name with what the administra
             'calendarUrl' => 'https://matchday.cz/calendar/kutna-hora-b.ics',
             'publicPageUrl' => 'https://matchday.cz/t/kutna-hora-b',
             'sourceUrl' => 'https://www.ceskyflorbal.cz/team/detail/matches/42001',
+            'overviewUrl' => 'https://www.ceskyflorbal.cz/team/detail/overview/42001',
         ]));
 });
 

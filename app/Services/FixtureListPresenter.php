@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  * @phpstan-type BadgeProps array{kind: string, label: string}
  * @phpstan-type FixtureProps array{id: int, day: string, round: string|null, time: string|null, isHome: bool, homeTeam: string, awayTeam: string, venue: string|null, status: string, badges: list<BadgeProps>, score: string|null, revisions: list<list<RevisionPart>>}
  * @phpstan-type ImportFailureProps array{status: string, reason: string|null}
- * @phpstan-type FixtureListProps array{sourceUrl: string, period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFinished: string|null, lastImportFailure: ImportFailureProps|null, fixtures: list<FixtureProps>}
+ * @phpstan-type FixtureListProps array{sourceUrl: string, overviewUrl: string, period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFinished: string|null, lastImportFailure: ImportFailureProps|null, fixtures: list<FixtureProps>}
  */
 final readonly class FixtureListPresenter
 {
@@ -73,6 +73,7 @@ final readonly class FixtureListPresenter
 
         return [
             'sourceUrl' => $this->federationTeamPage->fixtureListAddress($teamSeason->external_id),
+            'overviewUrl' => $this->federationTeamPage->overviewAddress($teamSeason->external_id),
             'period' => $showsWholeSeason ? 'season' : 'upcoming',
             'upcomingCount' => $upcomingFixtures->count(),
             'seasonCount' => $fixtures->count(),
