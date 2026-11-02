@@ -105,6 +105,7 @@ export type ImportFailure = {
 
 export type FixtureList = {
     sourceUrl: string;
+    overviewUrl: string;
     period: FixtureListPeriod;
     upcomingCount: number;
     seasonCount: number;
@@ -183,6 +184,7 @@ export type TeamSeasonListItem = {
     calendarUrl: string;
     publicPageUrl: string;
     sourceUrl: string;
+    overviewUrl: string;
 };
 
 export type SeasonListItem = {

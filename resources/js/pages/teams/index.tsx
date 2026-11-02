@@ -576,6 +576,17 @@ function TeamSeasonActions({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
                             Otevřít rozpis na ceskyflorbal.cz
                         </a>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <a
+                            href={teamSeason.overviewUrl}
+                            data-test="open-overview"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <ExternalLink />
+                            Přehled na Český florbal
+                        </a>
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
             <Dialog open={isAddressShown} onOpenChange={setIsAddressShown}>

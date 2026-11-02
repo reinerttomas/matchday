@@ -170,16 +170,28 @@ function ImportedFixtureList({ fixtureList }: { fixtureList: FixtureList }) {
         >
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <PeriodTabs fixtureList={fixtureList} />
-                <Button variant="outline" asChild>
-                    <a
-                        href={fixtureList.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        Otevřít na ceskyflorbal.cz
-                        <ExternalLink />
-                    </a>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" asChild>
+                        <a
+                            href={fixtureList.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Otevřít na ceskyflorbal.cz
+                            <ExternalLink />
+                        </a>
+                    </Button>
+                    <Button variant="outline" asChild>
+                        <a
+                            href={fixtureList.overviewUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Přehled na Český florbal
+                            <ExternalLink />
+                        </a>
+                    </Button>
+                </div>
             </div>
             <TabsContent value={fixtureList.period}>
                 {fixtureList.fixtures.length === 0 ? (

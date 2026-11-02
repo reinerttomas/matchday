@@ -77,6 +77,17 @@ test('links the team actions to the public page and the fixture list on ceskyflo
         ->assertNoJavaScriptErrors();
 });
 
+test('links the team actions to the team\'s overview on ceskyflorbal.cz in a new tab', function () {
+    $teamSeason = teamSeasonOnTeamsPageInBrowser();
+
+    visit('/teams')
+        ->click('@team-season-actions')
+        ->assertSee('Přehled na Český florbal')
+        ->assertAttribute('@open-overview', 'href', "https://www.ceskyflorbal.cz/team/detail/overview/{$teamSeason->external_id}")
+        ->assertAttribute('@open-overview', 'target', '_blank')
+        ->assertNoJavaScriptErrors();
+});
+
 test('previews the calendar address derived from a new team\'s name while it is typed, then adds the team', function () {
     $season = Season::factory()->current()->create(['name' => '2026/2027']);
     Queue::fake([ImportFixtureList::class]);

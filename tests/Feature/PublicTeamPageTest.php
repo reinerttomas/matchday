@@ -240,6 +240,16 @@ test('names the data source and the time of the last successful import in Prague
         ->etc());
 });
 
+test('doesn\'t link the team\'s overview on ceskyflorbal.cz', function () {
+    kutnaHoraTeamSeason();
+
+    $response = $this->get('/t/kutna-hora-b');
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->missing('teamSeason.overviewUrl')
+        ->etc());
+});
+
 test('has no last import time before the first successful import', function () {
     $teamSeason = kutnaHoraTeamSeason();
     Import::factory()->for($teamSeason)->error()->create();

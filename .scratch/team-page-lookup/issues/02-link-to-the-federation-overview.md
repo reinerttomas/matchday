@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — Derive federation team page addresses from the ID and drop `source_url`
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 - [ ] The Týmy page and Zápasy page presenters return an overview address (`https://www.ceskyflorbal.cz/team/detail/overview/{external_id}`) beside the fixture list address. The public team page presenter does not.
 - [ ] Both admin pages show "Přehled na Český florbal" next to the existing fixture list link, opening in a new tab, built from the existing shadcn components and matching how the fixture list link is shown there (on the Týmy page that is the row's actions). The label comes from Czech translation strings.

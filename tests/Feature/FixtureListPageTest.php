@@ -104,6 +104,16 @@ test('links the team season\'s fixture list on ceskyflorbal.cz', function () {
         ->etc());
 });
 
+test('links the team season\'s overview on ceskyflorbal.cz', function () {
+    $teamSeason = importedTeamSeason();
+
+    $response = $this->get('/fixtures');
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('fixtureList.overviewUrl', "https://www.ceskyflorbal.cz/team/detail/overview/{$teamSeason->external_id}")
+        ->etc());
+});
+
 test('describes an ordinary scheduled home fixture without a badge', function () {
     $fixture = Fixture::factory()->for(importedTeamSeason())->home()
         ->for(Venue::factory()->state(['name' => 'Sportovní hala Kutná Hora']))
