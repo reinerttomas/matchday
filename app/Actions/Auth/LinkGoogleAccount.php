@@ -36,8 +36,7 @@ final readonly class LinkGoogleAccount
             return null;
         }
 
-        $user->google_id = $googleId;
-        $user->save();
+        $user->update(['google_id' => $googleId]);
 
         if (! $user->hasVerifiedEmail()) {
             $user->markEmailAsVerified();

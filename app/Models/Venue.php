@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property int $external_id
- * @property string $name
- * @property string|null $address
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property-read int $id
+ * @property-read int $external_id
+ * @property-read string $name
+ * @property-read string|null $address
+ * @property-read Carbon|null $created_at
+ * @property-read Carbon|null $updated_at
  * @property-read Collection<int, Fixture> $fixtures
  */
 #[Fillable(['external_id', 'name', 'address'])]

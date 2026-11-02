@@ -15,12 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property int $team_id
- * @property Carbon $date
- * @property string $user_agent
- * @property string $user_agent_hash
- * @property int $count
+ * @property-read int $id
+ * @property-read int $team_id
+ * @property-read Carbon $date
+ * @property-read string $user_agent
+ * @property-read string $user_agent_hash
+ * @property-read int $count
  * @property-read Team $team
  */
 #[Fillable(['team_id', 'date', 'user_agent', 'user_agent_hash', 'count'])]

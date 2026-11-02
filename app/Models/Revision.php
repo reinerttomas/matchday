@@ -13,13 +13,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property int $fixture_id
- * @property int $import_id
- * @property RevisionField|null $field
- * @property string|null $old_value
- * @property string|null $new_value
- * @property Carbon $created_at
+ * @property-read int $id
+ * @property-read int $fixture_id
+ * @property-read int $import_id
+ * @property-read RevisionField|null $field
+ * @property-read string|null $old_value
+ * @property-read string|null $new_value
+ * @property-read Carbon $created_at
  * @property-read Fixture $fixture
  * @property-read Import $import
  */

@@ -17,18 +17,18 @@ use Laravel\Fortify\PasskeyAuthenticatable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 /**
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string|null $google_id
- * @property Carbon|null $email_verified_at
- * @property string $password
- * @property string|null $two_factor_secret
- * @property string|null $two_factor_recovery_codes
- * @property Carbon|null $two_factor_confirmed_at
- * @property string|null $remember_token
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read string $email
+ * @property-read string|null $google_id
+ * @property-read Carbon|null $email_verified_at
+ * @property-read string $password
+ * @property-read string|null $two_factor_secret
+ * @property-read string|null $two_factor_recovery_codes
+ * @property-read Carbon|null $two_factor_confirmed_at
+ * @property-read string|null $remember_token
+ * @property-read Carbon|null $created_at
+ * @property-read Carbon|null $updated_at
  */
 #[Fillable(['name', 'email', 'google_id', 'password'])]
 #[Hidden(['google_id', 'password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]

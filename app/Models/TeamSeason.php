@@ -18,16 +18,16 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property int $team_id
- * @property int $season_id
- * @property int $external_id
- * @property string $source_url
- * @property string|null $name
- * @property string|null $competition_name
- * @property bool $auto_import_enabled
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property-read int $id
+ * @property-read int $team_id
+ * @property-read int $season_id
+ * @property-read int $external_id
+ * @property-read string $source_url
+ * @property-read string|null $name
+ * @property-read string|null $competition_name
+ * @property-read bool $auto_import_enabled
+ * @property-read Carbon|null $created_at
+ * @property-read Carbon|null $updated_at
  * @property-read Team $team
  * @property-read Season $season
  * @property-read Collection<int, Fixture> $fixtures
