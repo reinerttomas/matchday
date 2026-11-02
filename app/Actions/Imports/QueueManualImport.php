@@ -25,6 +25,6 @@ final readonly class QueueManualImport
         // Marked before dispatching, because a synchronous queue runs the job, which clears the mark, during dispatch.
         $this->importProgress->markQueued($teamSeason);
 
-        ImportFixtureList::dispatch($teamSeason);
+        dispatch(new ImportFixtureList($teamSeason));
     }
 }

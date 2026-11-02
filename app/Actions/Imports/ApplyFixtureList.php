@@ -79,11 +79,8 @@ final readonly class ApplyFixtureList
             'home_score' => $row->homeScore,
             'away_score' => $row->awayScore,
             'missing_count' => 0,
+            ...($row->showsStartTime ? ['time' => $row->time] : []),
         ]);
-
-        if ($row->showsStartTime) {
-            $fixture->time = $row->time;
-        }
 
         if ($matchDetail !== null) {
             $venue = $this->venue($matchDetail);
@@ -106,11 +103,7 @@ final readonly class ApplyFixtureList
     {
         $valuesBefore = $fixture->revisableValues();
 
-        $fixture->missing_count++;
-
-        if ($fixture->missing_count >= 2) {
-            $fixture->status = FixtureStatus::Cancelled;
-        }
+        $fixture->countAsMissing();
 
         $this->saveWithRevisions($fixture, $valuesBefore, $import, $isInitialImport);
     }
@@ -125,7 +118,7 @@ final readonly class ApplyFixtureList
         $revisions = $isInitialImport ? [] : $this->revisions($valuesBefore, $fixture->revisableValues());
 
         if ($fixture->exists && $revisions !== []) {
-            $fixture->sequence++;
+            $fixture->moveToNextSequence();
         }
 
         $fixture->save();
@@ -143,9 +136,11 @@ final readonly class ApplyFixtureList
     {
         $venue = Venue::query()->firstOrNew(['external_id' => $matchDetail->venueExternalId]);
 
-        $venue->name = $matchDetail->venueName;
-        // Administrators correct addresses by hand, so only a missing one is taken from the page.
-        $venue->address ??= $matchDetail->venueAddress;
+        $venue->fill([
+            'name' => $matchDetail->venueName,
+            // Administrators correct addresses by hand, so only a missing one is taken from the page.
+            'address' => $venue->address ?? $matchDetail->venueAddress,
+        ]);
         $venue->save();
 
         return $venue;

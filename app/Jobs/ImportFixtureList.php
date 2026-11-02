@@ -27,7 +27,7 @@ final class ImportFixtureList implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public TeamSeason $teamSeason) {}
+    public function __construct(public readonly TeamSeason $teamSeason) {}
 
     /**
      * Execute the job.

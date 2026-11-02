@@ -13,11 +13,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property string $name
- * @property bool $is_current
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property-read int $id
+ * @property-read string $name
+ * @property-read bool $is_current
+ * @property-read Carbon|null $created_at
+ * @property-read Carbon|null $updated_at
  * @property-read Collection<int, TeamSeason> $teamSeasons
  */
 #[Fillable(['name', 'is_current'])]

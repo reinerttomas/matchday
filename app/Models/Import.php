@@ -19,15 +19,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property int $team_season_id
- * @property ImportTrigger $trigger
- * @property ImportStatus $status
- * @property Carbon $started_at
- * @property Carbon|null $finished_at
- * @property int|null $fixtures_found
- * @property string|null $error
- * @property Carbon|null $notified_at
+ * @property-read int $id
+ * @property-read int $team_season_id
+ * @property-read ImportTrigger $trigger
+ * @property-read ImportStatus $status
+ * @property-read Carbon $started_at
+ * @property-read Carbon|null $finished_at
+ * @property-read int|null $fixtures_found
+ * @property-read string|null $error
+ * @property-read Carbon|null $notified_at
  * @property-read TeamSeason $teamSeason
  * @property-read Collection<int, Revision> $revisions
  */

@@ -16,23 +16,23 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
- * @property int $id
- * @property int $team_season_id
- * @property int $external_id
- * @property int|null $round
- * @property bool $is_home
- * @property string $opponent_name
- * @property int|null $venue_id
- * @property Carbon $date
- * @property string|null $time
- * @property FixtureStatus $status
- * @property bool $is_rescheduled
- * @property int|null $home_score
- * @property int|null $away_score
- * @property int $sequence
- * @property int $missing_count
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property-read int $id
+ * @property-read int $team_season_id
+ * @property-read int $external_id
+ * @property-read int|null $round
+ * @property-read bool $is_home
+ * @property-read string $opponent_name
+ * @property-read int|null $venue_id
+ * @property-read Carbon $date
+ * @property-read string|null $time
+ * @property-read FixtureStatus $status
+ * @property-read bool $is_rescheduled
+ * @property-read int|null $home_score
+ * @property-read int|null $away_score
+ * @property-read int $sequence
+ * @property-read int $missing_count
+ * @property-read Carbon|null $created_at
+ * @property-read Carbon|null $updated_at
  * @property-read TeamSeason $teamSeason
  * @property-read Venue|null $venue
  * @property-read Collection<int, Revision> $revisions
@@ -116,6 +116,26 @@ final class Fixture extends Model
         return $this->is_rescheduled
             ? __('fixtures.rounds.rescheduled', ['round' => $this->round])
             : __('fixtures.rounds.default', ['round' => $this->round]);
+    }
+
+    /**
+     * Count the fixture as missing from one more fixture list, cancelling it once it is missing from two, so a one-off glitch at the source cancels nothing.
+     */
+    public function countAsMissing(): void
+    {
+        $this->setAttribute('missing_count', $this->missing_count + 1);
+
+        if ($this->missing_count >= 2) {
+            $this->setAttribute('status', FixtureStatus::Cancelled);
+        }
+    }
+
+    /**
+     * Move the fixture to its next sequence, so calendar clients take the changed event over the copy they hold.
+     */
+    public function moveToNextSequence(): void
+    {
+        $this->setAttribute('sequence', $this->sequence + 1);
     }
 
     /**
