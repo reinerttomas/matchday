@@ -56,47 +56,47 @@ Domain vocabulary follows `CONTEXT.md`: Administrator, Team, Team season, Season
 - **Schema — notification subscriptions.** New table holding one row per administrator × team pair: user, team (unique together, both cascade on delete), a nullable `unsubscribed_at` timestamp, and timestamps. `unsubscribed_at` null means subscribed; set means unsubscribed since that moment. Rows are never deleted when unsubscribing.
 - **Schema — import failure notifications.** New boolean on users, `notify_import_failures`, default `true`.
 - **Rows always exist for every pair.** A missing row means "not subscribed", so the app keeps the set complete:
-  - One idempotent queued job subscribes every administrator to every team for which no row exists yet, using Eloquent (`firstOrCreate` per pair). It never touches existing rows, so unsubscriptions survive. It is safe to run any number of times.
-  - The job is dispatched after commit when a user is created (the user creation action used by the `user:create` command) and when a brand-new team is created together with its first team season. Carrying an existing team over to a new season does not dispatch it.
-  - The migration backfills rows for all existing users × teams directly, not via the queue.
-  - The database seeder creates its administrator so that the rows exist (through the same action, or by running the job).
-  - The window before the job runs is harmless: a new team's first import is the initial import and announces nothing; a new administrator has nothing pending.
+    - One idempotent queued job subscribes every administrator to every team for which no row exists yet, using Eloquent (`firstOrCreate` per pair). It never touches existing rows, so unsubscriptions survive. It is safe to run any number of times.
+    - The job is dispatched after commit when a user is created (the user creation action used by the `user:create` command) and when a brand-new team is created together with its first team season. Carrying an existing team over to a new season does not dispatch it.
+    - The migration backfills rows for all existing users × teams directly, not via the queue.
+    - The database seeder creates its administrator so that the rows exist (through the same action, or by running the job).
+    - The window before the job runs is harmless: a new team's first import is the initial import and announces nothing; a new administrator has nothing pending.
 - **Models.** A `NotificationSubscription` model with relationships from `User` and `Team`; a way to query a team's subscribed administrators (rows with `unsubscribed_at` null).
 - **Sending.** The import action stops emailing every user:
-  - Change summary (`FixtureListRevised`): recipients are the administrators subscribed to the imported team season's team.
-  - Import failure (`ImportFailed`): recipients are the administrators with `notify_import_failures` on.
-  - Still one mail addressed to all recipients at once; nothing is sent when the recipient list is empty.
+    - Change summary (`FixtureListRevised`): recipients are the administrators subscribed to the imported team season's team.
+    - Import failure (`ImportFailed`): recipients are the administrators with `notify_import_failures` on.
+    - Still one mail addressed to all recipients at once; nothing is sent when the recipient list is empty.
 - **Logging.** Finishing an import without applying logs every outcome: error as `Log::error`, aborted as `Log::warning`, with team season ID, import ID and reason. The existing connection-failure warning is folded into this so a connection failure is logged once.
 - **Routes and controllers** (under the existing authenticated, verified settings group):
-  - `GET settings/notifications` — renders the Inertia page with the `notify_import_failures` value and the current season's teams (ID, name, subscribed flag), sorted by name.
-  - An endpoint to set the import-failure switch for the signed-in administrator.
-  - An endpoint to subscribe or unsubscribe the signed-in administrator to a team: unsubscribing sets `unsubscribed_at` to now, subscribing clears it. The team is bound by route; the row affected is always the signed-in user's, so no other administrator's preference can be changed. Unknown team → 404.
-  - Each responds with a redirect back and a success toast, matching existing settings controllers.
+    - `GET settings/notifications` — renders the Inertia page with the `notify_import_failures` value and the current season's teams (ID, name, subscribed flag), sorted by name.
+    - An endpoint to set the import-failure switch for the signed-in administrator.
+    - An endpoint to subscribe or unsubscribe the signed-in administrator to a team: unsubscribing sets `unsubscribed_at` to now, subscribing clears it. The team is bound by route; the row affected is always the signed-in user's, so no other administrator's preference can be changed. Unknown team → 404.
+    - Each responds with a redirect back and a success toast, matching existing settings controllers.
 - **Frontend.** New settings page "Upozornění" added to the settings navigation next to Profile, Security and Appearance, with the usual small `Heading` ("Upozornění" / "Vyberte, jaké e-maily vám mají chodit"). Layout chosen in a UI prototype (variant A): two plain sections built from shadcn `FieldGroup` / `FieldSet` / `FieldLegend` / `Field orientation="horizontal"` / `FieldSeparator`, no cards, no table:
-  - Section "Chyby importu": one row — label "Posílat e-mail, když import selže", description "Platí pro všechny týmy, i ty, jejichž změny neodebíráte.", `Switch` on the right.
-  - `FieldSeparator`.
-  - Section "Změny v rozpisu zápasů" with description "Shrnutí změn, které pak pošlete do WhatsAppu týmu.": one row per team — label is the team name, description is the current team season's competition (omitted when unknown), `Switch` on the right.
-  - Each switch submits immediately (Wayfinder route functions, Inertia), no save button; the server's flash toast confirms. Texts in Czech.
+    - Section "Chyby importu": one row — label "Posílat e-mail, když import selže", description "Platí pro všechny týmy, i ty, jejichž změny neodebíráte.", `Switch` on the right.
+    - `FieldSeparator`.
+    - Section "Změny v rozpisu zápasů" with description "Shrnutí změn, které pak pošlete do WhatsAppu týmu.": one row per team — label is the team name, description is the current team season's competition (omitted when unknown), `Switch` on the right.
+    - Each switch submits immediately (Wayfinder route functions, Inertia), no save button; the server's flash toast confirms. Texts in Czech.
 - **Glossary.** `CONTEXT.md` already defines Administrator, Calendar feed, Notification subscription and Import failure notification; no ADR.
 
 ## Testing Decisions
 
 - Tests exercise external behaviour only — which emails go to whom, what the page shows, what the endpoints change — never the job, model internals or query shape.
 - **Sending (seam: `fixtures:import` with faked HTTP and `Mail::fake()`).** Prior art: `ImportFixturesRevisedMailTest`, `ImportFixturesFailuresTest`, `Tests\Support\Ceskyflorbal`.
-  - The change summary goes only to subscribed administrators; an unsubscribed administrator does not receive it.
-  - No mail when nobody is subscribed.
-  - Import failure goes only to administrators with `notify_import_failures` on, regardless of notification subscriptions; no mail when nobody has it on.
-  - Error and aborted imports are logged with team season, import and reason (`Log::spy` / expectations); a connection failure is logged once.
-  - Existing tests that create users via the factory must give them notification subscriptions (e.g. a factory state or helper) so they keep expressing "every user receives it".
+    - The change summary goes only to subscribed administrators; an unsubscribed administrator does not receive it.
+    - No mail when nobody is subscribed.
+    - Import failure goes only to administrators with `notify_import_failures` on, regardless of notification subscriptions; no mail when nobody has it on.
+    - Error and aborted imports are logged with team season, import and reason (`Log::spy` / expectations); a connection failure is logged once.
+    - Existing tests that create users via the factory must give them notification subscriptions (e.g. a factory state or helper) so they keep expressing "every user receives it".
 - **Settings page (seam: HTTP feature tests).** Prior art: `tests/Feature/Settings/ProfileUpdateTest.php`.
-  - Guests are redirected to login.
-  - The page lists only the current season's teams, sorted by name, with the correct subscribed flags and import-failure flag.
-  - Unsubscribing sets the administrator's row as unsubscribed; subscribing again clears it; another administrator's row is untouched.
-  - Toggling the import-failure switch updates only the signed-in administrator.
+    - Guests are redirected to login.
+    - The page lists only the current season's teams, sorted by name, with the correct subscribed flags and import-failure flag.
+    - Unsubscribing sets the administrator's row as unsubscribed; subscribing again clears it; another administrator's row is untouched.
+    - Toggling the import-failure switch updates only the signed-in administrator.
 - **Creating administrators and teams (seam: `user:create` and `POST teams`; the queue is `sync` in tests).** Prior art: `CreateUserCommandTest`, `AddTeamToSeasonTest`.
-  - A new administrator is subscribed to every existing team.
-  - A new team is subscribed by every existing administrator.
-  - Carrying a team over to a new season keeps existing unsubscriptions.
+    - A new administrator is subscribed to every existing team.
+    - A new team is subscribed by every existing administrator.
+    - Carrying a team over to a new season keeps existing unsubscriptions.
 - No browser tests, no direct job or model unit tests, no migration or seeder tests (verify the backfill and seeder with `migrate:fresh --seed`).
 
 ## Out of Scope

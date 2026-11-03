@@ -4,12 +4,12 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] A new administrator created via `user:create` is subscribed to every existing team.
-- [ ] A new team created via `POST teams` is subscribed by every existing administrator.
-- [ ] Carrying a team over to a new season keeps existing unsubscriptions (an unsubscribed row stays unsubscribed).
-- [ ] The migration backfills rows for existing users × teams directly; `migrate:fresh --seed` leaves the seeded administrator subscribed to the seeded teams (verify manually, no seeder/migration tests).
-- [ ] A factory state or test helper lets existing tests give users notification subscriptions.
-- [ ] Tests exercise external behaviour only (prior art: `CreateUserCommandTest`, `AddTeamToSeasonTest`); no direct job or model unit tests.
-- [ ] `composer ci:check` passes.
+- [x] A new administrator created via `user:create` is subscribed to every existing team.
+- [x] A new team created via `POST teams` is subscribed by every existing administrator.
+- [x] Carrying a team over to a new season keeps existing unsubscriptions (an unsubscribed row stays unsubscribed).
+- [x] The migration backfills rows for existing users × teams directly; `migrate:fresh --seed` leaves the seeded administrator subscribed to the seeded teams (verify manually, no seeder/migration tests).
+- [x] A factory state or test helper lets existing tests give users notification subscriptions.
+- [x] Tests exercise external behaviour only (prior art: `CreateUserCommandTest`, `AddTeamToSeasonTest`); no direct job or model unit tests.
+- [x] `composer ci:check` passes.
