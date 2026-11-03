@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
-import { Badge } from '@/components/ui/badge';
+import { CategoryBadge } from '@/components/category-badge';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -93,9 +93,7 @@ export function AdminSelectionSwitcher() {
                                 value={String(option.id)}
                             >
                                 {option.name}
-                                <Badge variant="outline">
-                                    {option.category.label}
-                                </Badge>
+                                <CategoryBadge category={option.category} />
                             </SelectItem>
                         ))}
                     </SelectContent>

@@ -10,10 +10,11 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { AddTeamDialog } from '@/components/add-team-dialog';
+import { CategoryBadge } from '@/components/category-badge';
+import { CategorySelect } from '@/components/category-select';
 import Heading from '@/components/heading';
 import { ImportStatusBadge } from '@/components/import-status-badge';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -38,13 +39,6 @@ import {
 } from '@/components/ui/empty';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -181,9 +175,9 @@ function TeamSeasonTable({
                             <TableCell className="whitespace-normal">
                                 <div className="flex flex-wrap items-center gap-2 font-medium">
                                     {teamSeason.name}
-                                    <Badge variant="outline">
-                                        {teamSeason.category.label}
-                                    </Badge>
+                                    <CategoryBadge
+                                        category={teamSeason.category}
+                                    />
                                 </div>
                                 <div className="mt-1 text-xs text-muted-foreground sm:hidden">
                                     <LastImport
@@ -453,30 +447,13 @@ function EditTeamForm({
                             <FieldLabel htmlFor={`${id}-category`}>
                                 Kategorie
                             </FieldLabel>
-                            <Select
-                                name="category"
-                                required
+                            <CategorySelect
+                                id={`${id}-category`}
+                                categories={categories}
                                 defaultValue={teamSeason.category.value}
-                            >
-                                <SelectTrigger
-                                    id={`${id}-category`}
-                                    className="w-full"
-                                    aria-invalid={errors.category !== undefined}
-                                    data-test="team-category-select"
-                                >
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {categories.map((category) => (
-                                        <SelectItem
-                                            key={category.value}
-                                            value={category.value}
-                                        >
-                                            {category.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                isInvalid={errors.category !== undefined}
+                                data-test="team-category-select"
+                            />
                             <FieldError>{errors.category}</FieldError>
                         </Field>
                     </div>

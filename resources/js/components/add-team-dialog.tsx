@@ -3,7 +3,8 @@ import { ExternalLink, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, FocusEvent, ReactNode } from 'react';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
+import { CategoryBadge } from '@/components/category-badge';
+import { CategorySelect } from '@/components/category-select';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -274,15 +275,12 @@ function AddTeamForm({
                                                 <>
                                                     Pokračuje{' '}
                                                     {carryOverTeam.name}
-                                                    <Badge
-                                                        variant="outline"
-                                                        data-test="carry-over-team-category"
-                                                    >
-                                                        {
-                                                            carryOverTeam
-                                                                .category.label
+                                                    <CategoryBadge
+                                                        category={
+                                                            carryOverTeam.category
                                                         }
-                                                    </Badge>
+                                                        data-test="carry-over-team-category"
+                                                    />
                                                 </>
                                             )
                                         }
@@ -579,28 +577,15 @@ function NameAndCategoryFields({
                     <FieldLabel htmlFor="new-team-category">
                         Kategorie
                     </FieldLabel>
-                    <Select
-                        name="category"
-                        required
+                    <CategorySelect
+                        id="new-team-category"
+                        categories={categories}
                         value={category}
                         onValueChange={onCategoryChange}
-                    >
-                        <SelectTrigger
-                            id="new-team-category"
-                            className="w-full"
-                            aria-invalid={categoryError !== undefined}
-                            data-test="new-team-category-select"
-                        >
-                            <SelectValue placeholder="Vyberte kategorii" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {categories.map((item) => (
-                                <SelectItem key={item.value} value={item.value}>
-                                    {item.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                        isInvalid={categoryError !== undefined}
+                        placeholder="Vyberte kategorii"
+                        data-test="new-team-category-select"
+                    />
                     <FieldError>{categoryError}</FieldError>
                 </Field>
             </div>
@@ -707,9 +692,7 @@ function CarryOverTeamFields({
                     {carryOverTeams.map((team) => (
                         <SelectItem key={team.id} value={String(team.id)}>
                             {team.name}
-                            <Badge variant="outline">
-                                {team.category.label}
-                            </Badge>
+                            <CategoryBadge category={team.category} />
                         </SelectItem>
                     ))}
                 </SelectContent>

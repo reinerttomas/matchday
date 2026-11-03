@@ -1,7 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { Users } from 'lucide-react';
 import Heading from '@/components/heading';
-import { Badge } from '@/components/ui/badge';
+import { CategoryBadge } from '@/components/category-badge';
 import {
     Empty,
     EmptyHeader,
@@ -129,9 +129,9 @@ export default function Notifications({ notifyImportFailures, teams }: Props) {
                                                 htmlFor={`team-${team.id}`}
                                             >
                                                 {team.name}
-                                                <Badge variant="outline">
-                                                    {team.category.label}
-                                                </Badge>
+                                                <CategoryBadge
+                                                    category={team.category}
+                                                />
                                             </FieldLabel>
                                             {team.competition && (
                                                 <FieldDescription>
