@@ -10,7 +10,7 @@ paths:
 
 ## Single-purpose Action classes
 
-Put domain writes in `final readonly` classes under `app/Actions/{Domain}`, named verb + resource without an `Action` suffix, with a single public method `handle()`. No base class. An operation shared by several callers is still an action — a controller, a job, a command and another action call it the same way — so it does not need a service to hold it.
+Put domain writes in `final readonly` classes under `app/Actions/{Domain}`, named verb + resource without an `Action` suffix, with a single public method `handle()`. No base class. An operation shared by several callers is still an action — a controller, a job, a command and another action call it the same way — so it does not need a service to hold it. Work that only a queued job runs stays in the job; see `jobs.md`.
 
 ## Inject actions and pass runtime data to handle
 

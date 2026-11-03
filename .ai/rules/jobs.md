@@ -15,6 +15,12 @@ The constructor takes the model itself as a promoted `public readonly` property,
 
 Declare a job's queue settings with the attributes from `Illuminate\Queue\Attributes` — `#[Tries]`, `#[Backoff]`, `#[Timeout]`, `#[MaxExceptions]`, `#[FailOnTimeout]`, `#[UniqueFor]`, `#[DeleteWhenMissingModels]`, `#[Queue]`, `#[Connection]` — instead of a property such as `public $tries` or a method such as `backoff()`, so all of them read at a glance above the class. Import the attribute with `use`, never write it fully qualified. A method stays only for a value computed at runtime (`retryUntil()`, a backoff that depends on the job's data), and then without the attribute: Laravel reads the method over it, so the attribute would be dead.
 
+## Keep the logic in the job until something else runs it
+
+A job whose work nothing else runs holds that work in its own `handle()`, as `SubscribeAdministratorsToTeams` does. An action that only the job calls is a middle man. Extract the work into an action once a second caller runs it synchronously: a controller, a console command or another action. `ImportFixtureList` hands over to `ImportTeamSeason` because `fixtures:import` runs the same import.
+
+A seeder is not such a caller. It builds its data with factories, including rows the app would otherwise create in a job, rather than running the job's work.
+
 ## Example
 
 ```php

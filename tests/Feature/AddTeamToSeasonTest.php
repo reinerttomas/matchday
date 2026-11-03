@@ -68,6 +68,20 @@ test('adds a new team named by the administrator to the selected season with a s
     Queue::assertPushed(ImportFixtureList::class, fn (ImportFixtureList $job): bool => $job->teamSeason->is($teamSeason));
 });
 
+test('subscribes every administrator to a new team', function () {
+    seasonToAddTeamsTo();
+    $colleague = User::factory()->create();
+    Queue::fake([ImportFixtureList::class]);
+
+    $this->post('/teams', [
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'name' => 'FBC Kutná Hora B',
+    ])->assertSessionHasNoErrors();
+
+    expect(Team::query()->sole()->subscribedUsers->modelKeys())
+        ->toEqualCanonicalizing([auth()->id(), $colleague->id]);
+});
+
 test('derives a new team\'s slug from its name even when a slug is sent', function () {
     seasonToAddTeamsTo();
     Queue::fake([ImportFixtureList::class]);
@@ -136,6 +150,21 @@ test('carries a team over from a previous season with a new team season and the 
         ->competition_name->toBeNull();
     expect($team->teamSeasons()->where('external_id', 40001)->sole()->name)->toBe('FBC Kutná Hora B');
     Queue::assertPushed(ImportFixtureList::class, fn (ImportFixtureList $job): bool => $job->teamSeason->is($teamSeason));
+});
+
+test('carrying a team over keeps the notification subscriptions of its administrators', function () {
+    seasonToAddTeamsTo();
+    $team = teamFromPreviousSeason();
+    $this->actingAs(User::factory()->unsubscribedFrom($team)->create());
+    $subscribed = User::factory()->subscribedTo($team)->create();
+    Queue::fake([ImportFixtureList::class]);
+
+    $this->post('/teams', [
+        'team_id' => $team->id,
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+    ])->assertSessionHasNoErrors();
+
+    expect($team->subscribedUsers->modelKeys())->toBe([$subscribed->id]);
 });
 
 test('carries a team over without its name or slug even when they are sent', function () {

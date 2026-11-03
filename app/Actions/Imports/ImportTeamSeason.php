@@ -15,11 +15,13 @@ use App\Services\Ceskyflorbal\CeskyflorbalClient;
 use App\Services\Ceskyflorbal\FixtureListPageData;
 use App\Services\Ceskyflorbal\MatchDetailPageData;
 use App\Services\ChangeSummaryWriter;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -39,7 +41,7 @@ final readonly class ImportTeamSeason
     /**
      * Download the team season's fixture list and the match detail pages it needs from ceskyflorbal.cz and apply them, recording the run as an import.
      *
-     * Returns null without importing while another import of the team season is running. A fixture list that fails to download or read ends the import as error, and one that looks broken aborts it; either way no data changes and every user is emailed the reason. Any other failure also ends the import as error before it is rethrown. An ok import whose revisions make a change summary emails it to every user.
+     * Returns null without importing while another import of the team season is running. A fixture list that fails to download or read ends the import as error, and one that looks broken aborts it; either way no data changes and the administrators who receive import failure notifications are emailed the reason. Any other failure also ends the import as error before it is rethrown. An ok import whose revisions make a change summary emails it to the administrators subscribed to the team.
      */
     public function handle(TeamSeason $teamSeason, ImportTrigger $trigger): ?Import
     {
@@ -120,22 +122,22 @@ final readonly class ImportTeamSeason
         try {
             $page = $this->ceskyflorbal->fixtureList($teamSeason->external_id);
         } catch (RequestException $exception) {
-            return $this->finishWithoutApplying($import, ImportStatus::Error, $this->httpErrorReason($exception->response->status()));
+            return $this->failDownload($import, $exception, $this->httpErrorReason($exception->response->status()));
         } catch (ConnectionException $exception) {
-            Log::warning('Connecting to ceskyflorbal.cz failed.', [
-                'team_season_id' => $teamSeason->id,
-                'error' => $exception->getMessage(),
-            ]);
-
-            return $this->finishWithoutApplying($import, ImportStatus::Error, __('imports.errors.connection'));
+            return $this->failDownload($import, $exception, __('imports.errors.connection'));
         } catch (UnexpectedValueException $exception) {
-            return $this->finishWithoutApplying($import, ImportStatus::Error, __('imports.errors.unreadable_fixture_list', ['message' => $exception->getMessage()]));
+            return $this->failDownload($import, $exception, __('imports.errors.unreadable_fixture_list', ['message' => $exception->getMessage()]));
         }
 
         $abortReason = $this->abortReason($teamSeason, $page);
 
         if ($abortReason !== null) {
-            return $this->finishWithoutApplying($import, ImportStatus::Aborted, $abortReason, count($page->rows));
+            $import = $this->finishWithoutApplying($import, ImportStatus::Aborted, $abortReason, count($page->rows));
+
+            // A page that looks broken is a degradation of the source, which a later import recovers from on its own.
+            Log::warning('The import was aborted without applying the fixture list.', $this->logContext($import));
+
+            return $import;
         }
 
         // Downloaded before the fixture list is applied, so its transaction never holds the database locked while the paced requests wait.
@@ -215,7 +217,51 @@ final readonly class ImportTeamSeason
     }
 
     /**
-     * Finish an import that changed no data, and email every user the reason.
+     * End the import as error because its fixture list failed to download or read, and tell Nightwatch.
+     *
+     * A lost connection, a 429 or a 5xx may pass on a later import, so it is a warning. Anything else, such as a 403, a 404 or a page the parser can't read, fails the same way until someone fixes it, so it is reported to Nightwatch's issues.
+     */
+    private function failDownload(Import $import, Throwable $exception, string $reason): Import
+    {
+        $import = $this->finishWithoutApplying($import, ImportStatus::Error, $reason);
+
+        if ($this->canPassLater($exception)) {
+            Log::warning('Downloading the fixture list failed, so the import ends as error until a later one passes.', [
+                ...$this->logContext($import),
+                'error' => $exception->getMessage(),
+            ]);
+        } else {
+            Context::scope(fn () => report($exception), $this->logContext($import));
+        }
+
+        return $import;
+    }
+
+    /**
+     * Whether a later attempt may download the fixture list without anyone changing anything.
+     */
+    private function canPassLater(Throwable $exception): bool
+    {
+        return $exception instanceof ConnectionException
+            || ($exception instanceof RequestException && ($exception->response->status() === 429 || $exception->response->serverError()));
+    }
+
+    /**
+     * What a log about an import that changed no data carries.
+     *
+     * @return array{team_season_id: int, import_id: int, reason: string|null}
+     */
+    private function logContext(Import $import): array
+    {
+        return [
+            'team_season_id' => $import->team_season_id,
+            'import_id' => $import->id,
+            'reason' => $import->error,
+        ];
+    }
+
+    /**
+     * Finish an import that changed no data, and email the reason to the administrators who receive import failure notifications.
      */
     private function finishWithoutApplying(Import $import, ImportStatus $status, string $reason, ?int $fixturesFound = null): Import
     {
@@ -226,13 +272,13 @@ final readonly class ImportTeamSeason
             'error' => $reason,
         ]);
 
-        $this->emailEveryUser(new ImportFailed($import));
+        $this->email(User::query()->where('notify_import_failures', true)->get(), new ImportFailed($import));
 
         return $import;
     }
 
     /**
-     * Email every user the change summary of an ok import, unless none of its revisions is worth telling the team.
+     * Email the administrators subscribed to the team the change summary of an ok import, unless none of its revisions is worth telling the team.
      *
      * The initial import records no revisions, so its additions are never announced.
      */
@@ -246,19 +292,19 @@ final readonly class ImportTeamSeason
 
         $whatsAppUrl = $this->changeSummaryWriter->whatsAppUrl($summary);
 
-        $this->emailEveryUser(new FixtureListRevised($import, $summary, $whatsAppUrl));
+        $this->email($import->teamSeason->team->subscribedUsers, new FixtureListRevised($import, $summary, $whatsAppUrl));
     }
 
     /**
-     * Send one mail addressed to every user at once, or nothing when there are no users.
+     * Send one mail addressed to all recipients at once, or nothing when there are none.
+     *
+     * @param  Collection<int, User>  $recipients
      */
-    private function emailEveryUser(Mailable $mail): void
+    private function email(Collection $recipients, Mailable $mail): void
     {
-        $users = User::query()->get();
-
         // A mail without recipients would be rejected by the mail provider.
-        if ($users->isNotEmpty()) {
-            Mail::to($users)->send($mail);
+        if ($recipients->isNotEmpty()) {
+            Mail::to($recipients)->send($mail);
         }
     }
 

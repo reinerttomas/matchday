@@ -8,10 +8,12 @@ use App\Enums\FixtureStatus;
 use App\Enums\RevisionField;
 use App\Models\Fixture;
 use App\Models\Import;
+use App\Models\NotificationSubscription;
 use App\Models\Revision;
 use App\Models\Season;
 use App\Models\Team;
 use App\Models\TeamSeason;
+use App\Models\User;
 use App\Models\Venue;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -32,6 +34,9 @@ final class DemoSeeder extends Seeder
     {
         $teamName = 'FBC Kutná Hora B';
         $team = Team::factory()->create(['name' => $teamName]);
+
+        // Every administrator is subscribed to every team, as the app keeps it outside the seeder.
+        User::query()->each(fn (User $user): NotificationSubscription => NotificationSubscription::factory()->for($user)->for($team)->create());
         $pastSeason = Season::factory()->create(['name' => '2025/2026']);
         $currentSeason = Season::factory()->current()->create(['name' => '2026/2027']);
 

@@ -8,7 +8,9 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
@@ -27,15 +29,25 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property-read string|null $two_factor_recovery_codes
  * @property-read Carbon|null $two_factor_confirmed_at
  * @property-read string|null $remember_token
+ * @property-read bool $notify_import_failures
  * @property-read Carbon|null $created_at
  * @property-read Carbon|null $updated_at
+ * @property-read Collection<int, NotificationSubscription> $notificationSubscriptions
  */
-#[Fillable(['name', 'email', 'google_id', 'password'])]
+#[Fillable(['name', 'email', 'google_id', 'password', 'notify_import_failures'])]
 #[Hidden(['google_id', 'password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 final class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /**
+     * @return HasMany<NotificationSubscription, $this>
+     */
+    public function notificationSubscriptions(): HasMany
+    {
+        return $this->hasMany(NotificationSubscription::class);
+    }
 
     /**
      * Address emailed notifications to the user's name and email, as the "To" header otherwise carries only the email.
@@ -58,6 +70,7 @@ final class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'notify_import_failures' => 'boolean',
         ];
     }
 }

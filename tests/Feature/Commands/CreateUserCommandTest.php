@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -36,4 +37,20 @@ test('user is not created when the input is invalid', function () {
         ->assertFailed();
 
     expect(User::query()->count())->toBe(1);
+});
+
+test('a new administrator is subscribed to every existing team', function () {
+    $teams = Team::factory()->count(2)->create();
+
+    artisan('user:create')
+        ->expectsQuestion('Name', 'Test Player')
+        ->expectsQuestion('Email', 'player@example.com')
+        ->expectsQuestion('Password', 'password')
+        ->expectsQuestion('Confirm password', 'password')
+        ->assertSuccessful();
+
+    $user = User::query()->sole();
+    foreach ($teams as $team) {
+        expect($team->subscribedUsers()->sole()->is($user))->toBeTrue();
+    }
 });
