@@ -4,13 +4,13 @@
 
 **Blocked by:** 01 — Keep every administrator subscribed to every team
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] Guests are redirected to login.
-- [ ] The page lists only the current season's teams, sorted by name, each with its competition (omitted when unknown) and the correct subscribed flag, plus the import-failure flag.
-- [ ] Unsubscribing marks the administrator's row unsubscribed; subscribing again clears it; another administrator's row is untouched.
-- [ ] Toggling the import-failure switch updates only the signed-in administrator.
-- [ ] Responses redirect back with a success toast, matching existing settings controllers.
-- [ ] UI built from shadcn `FieldGroup` / `FieldSet` / `FieldLegend` / `Field orientation="horizontal"` / `FieldSeparator` and `Switch`, Wayfinder route functions, Czech texts as in the spec. Use pnpm.
-- [ ] HTTP feature tests (prior art: `tests/Feature/Settings/ProfileUpdateTest.php`); no browser tests.
-- [ ] `composer ci:check` passes.
+- [x] Guests are redirected to login.
+- [x] The page lists only the current season's teams, sorted by name, each with its competition (omitted when unknown) and the correct subscribed flag, plus the import-failure flag.
+- [x] Unsubscribing marks the administrator's row unsubscribed; subscribing again clears it; another administrator's row is untouched.
+- [x] Toggling the import-failure switch updates only the signed-in administrator.
+- [x] Responses redirect back with a success toast, matching existing settings controllers.
+- [x] UI built from shadcn `FieldGroup` / `FieldSet` / `FieldLegend` / `Field orientation="horizontal"` / `FieldSeparator` and `Switch`, Wayfinder route functions, Czech texts as in the spec. Use pnpm.
+- [x] HTTP feature tests (prior art: `tests/Feature/Settings/ProfileUpdateTest.php`); no browser tests.
+- [x] `composer ci:check` passes.

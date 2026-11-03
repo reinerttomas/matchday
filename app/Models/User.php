@@ -34,7 +34,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property-read Carbon|null $updated_at
  * @property-read Collection<int, NotificationSubscription> $notificationSubscriptions
  */
-#[Fillable(['name', 'email', 'google_id', 'password'])]
+#[Fillable(['name', 'email', 'google_id', 'password', 'notify_import_failures'])]
 #[Hidden(['google_id', 'password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 final class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
