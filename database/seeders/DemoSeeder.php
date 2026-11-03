@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Enums\Category;
 use App\Enums\FixtureStatus;
 use App\Enums\RevisionField;
 use App\Models\Fixture;
@@ -34,7 +33,7 @@ final class DemoSeeder extends Seeder
     public function run(): void
     {
         $teamName = 'FBC Kutná Hora B';
-        $team = Team::factory()->create(['name' => $teamName, 'category' => Category::Men]);
+        $team = Team::factory()->create(['name' => $teamName]);
 
         // Every administrator is subscribed to every team, as the app keeps it outside the seeder.
         User::query()->each(fn (User $user): NotificationSubscription => NotificationSubscription::factory()->for($user)->for($team)->create());
