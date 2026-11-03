@@ -122,12 +122,7 @@ final readonly class ImportTeamSeason
         } catch (RequestException $exception) {
             return $this->finishWithoutApplying($import, ImportStatus::Error, $this->httpErrorReason($exception->response->status()));
         } catch (ConnectionException $exception) {
-            Log::warning('Connecting to ceskyflorbal.cz failed.', [
-                'team_season_id' => $teamSeason->id,
-                'error' => $exception->getMessage(),
-            ]);
-
-            return $this->finishWithoutApplying($import, ImportStatus::Error, __('imports.errors.connection'));
+            return $this->finishWithoutApplying($import, ImportStatus::Error, __('imports.errors.connection'), logContext: ['error' => $exception->getMessage()]);
         } catch (UnexpectedValueException $exception) {
             return $this->finishWithoutApplying($import, ImportStatus::Error, __('imports.errors.unreadable_fixture_list', ['message' => $exception->getMessage()]));
         }
@@ -215,9 +210,11 @@ final readonly class ImportTeamSeason
     }
 
     /**
-     * Finish an import that changed no data, and email every user the reason.
+     * Finish an import that changed no data, log it so Nightwatch sees every such import, and email every user the reason.
+     *
+     * @param  array<string, mixed>  $logContext  details for the log beyond the reason, such as the message of the exception behind it
      */
-    private function finishWithoutApplying(Import $import, ImportStatus $status, string $reason, ?int $fixturesFound = null): Import
+    private function finishWithoutApplying(Import $import, ImportStatus $status, string $reason, ?int $fixturesFound = null, array $logContext = []): Import
     {
         $import->update([
             'status' => $status,
@@ -225,6 +222,19 @@ final readonly class ImportTeamSeason
             'fixtures_found' => $fixturesFound,
             'error' => $reason,
         ]);
+
+        $context = [
+            'team_season_id' => $import->team_season_id,
+            'import_id' => $import->id,
+            'reason' => $reason,
+            ...$logContext,
+        ];
+
+        if ($status === ImportStatus::Aborted) {
+            Log::warning('The import was aborted without applying the fixture list.', $context);
+        } else {
+            Log::error('The import finished as error without applying the fixture list.', $context);
+        }
 
         $this->emailEveryUser(new ImportFailed($import));
 

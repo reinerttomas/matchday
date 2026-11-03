@@ -289,3 +289,50 @@ test('leaves a finished fixture without a venue until a later import when its ma
             && $context['external_id'] === 1306729)
         ->twice();
 });
+
+test('logs an import that ends as error with its team season, import and reason', function () {
+    $teamSeason = importedKutnaHoraTeamSeason();
+    Ceskyflorbal::fake(Http::response('Forbidden', 403));
+    Log::spy();
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
+
+    Log::shouldHaveReceived('error')
+        ->withArgs(fn (string $message, array $context): bool => $message === 'The import finished as error without applying the fixture list.'
+            && $context['team_season_id'] === $teamSeason->id
+            && $context['import_id'] === latestImport()->id
+            && $context['reason'] === 'HTTP 403 – požadavek zablokován')
+        ->once();
+});
+
+test('logs an aborted import as a warning with its team season, import and reason', function () {
+    $teamSeason = importedKutnaHoraTeamSeason();
+    Ceskyflorbal::fake(Http::response(fixtureListSnapshotWithFirstRows(0)));
+    Log::spy();
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
+
+    Log::shouldHaveReceived('warning')
+        ->withArgs(fn (string $message, array $context): bool => $message === 'The import was aborted without applying the fixture list.'
+            && $context['team_season_id'] === $teamSeason->id
+            && $context['import_id'] === latestImport()->id
+            && $context['reason'] === 'Parser vrátil 0 zápasů (minule 24)')
+        ->once();
+    Log::shouldNotHaveReceived('error');
+});
+
+test('logs a failed connection to ceskyflorbal.cz once', function () {
+    $teamSeason = importedKutnaHoraTeamSeason();
+    Ceskyflorbal::fake(Http::failedConnection());
+    Log::spy();
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
+
+    Log::shouldHaveReceived('error')
+        ->withArgs(fn (string $message, array $context): bool => $message === 'The import finished as error without applying the fixture list.'
+            && $context['team_season_id'] === $teamSeason->id
+            && $context['import_id'] === latestImport()->id
+            && $context['reason'] === 'Nepodařilo se spojit s ceskyflorbal.cz')
+        ->once();
+    Log::shouldNotHaveReceived('warning');
+});
