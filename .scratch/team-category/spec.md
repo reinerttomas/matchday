@@ -98,3 +98,5 @@ A team gets a **category**: the age and gender group it plays in (men, women, ju
 ## Comments
 
 **2026-11-03 – UI prototype verdict.** Question: how should the category look on /teams (table, "Přidat tým", "Upravit tým")? Three variants were prototyped: A (badge next to the name + select beside the name field), B (own column + chips toggle for all categories), C (table grouped by category + select inside the federation summary card). **Variant A chosen.** The prototype is the primary source and lives on the throwaway branch `prototype/team-category-ui` (commit 3af3cf2, `?variant=A` on /teams); it is not to be merged.
+
+**2026-11-03 – Follow-up after implementation.** The public team page shows the category badge beside the team's name in its heading, since same-named teams otherwise share a heading. Editing a team is `PATCH /teams/{team}` (`teams.update`); the auto-import switch, which belongs to the team season, moved to `PATCH /team-seasons/{teamSeason}` (`team-seasons.update`).

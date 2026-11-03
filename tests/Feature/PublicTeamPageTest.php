@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\Season;
@@ -47,6 +48,20 @@ test('shows the team season of the current season to a guest', function () {
         ->where('season', '2026/2027')
         ->where('teamSeason.name', 'FBC Kutná Hora B')
         ->where('teamSeason.competition', '2. liga mužů, skupina 3')
+        ->etc());
+});
+
+test('names the team\'s category next to its name, so same-named teams can be told apart', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC VHST Kutná Hora', 'slug' => 'fbc-vhst-kutna-hora-zeny', 'category' => Category::Women]))
+        ->for(Season::factory()->current())
+        ->create(['name' => 'FBC VHST Kutná Hora']);
+
+    $response = $this->get('/t/fbc-vhst-kutna-hora-zeny');
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->where('teamSeason.name', 'FBC VHST Kutná Hora')
+        ->where('teamSeason.category', ['value' => 'zeny', 'label' => 'ženy'])
         ->etc());
 });
 

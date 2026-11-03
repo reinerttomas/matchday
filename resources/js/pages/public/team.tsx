@@ -4,6 +4,7 @@ import { CalendarClock, CalendarOff, MapPin } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import CalendarSubscription from '@/components/calendar-subscription';
+import { CategoryBadge } from '@/components/category-badge';
 import InAppBrowserNotice from '@/components/in-app-browser-notice';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ import { recordTeamPageEvent } from '@/lib/team-page-events';
 import type {
     CalendarLinks,
     MatchDay,
+    TeamCategory,
     TeamPageFixture,
     TeamPageTeamSeason,
 } from '@/types';
@@ -50,6 +52,7 @@ export default function Team({ slug, season, teamSeason, calendar }: Props) {
                         .filter(Boolean)
                         .join(' · ')}
                     title={teamSeason?.name ?? 'Rozpis zápasů'}
+                    category={teamSeason?.category ?? null}
                 />
                 <main className="mx-auto grid w-full max-w-5xl gap-10 px-4 py-10 lg:grid-cols-[1fr_18rem]">
                     {/* First in the source so a phone shows how to subscribe before the schedule. */}
@@ -92,7 +95,15 @@ export default function Team({ slug, season, teamSeason, calendar }: Props) {
     );
 }
 
-function Hero({ eyebrow, title }: { eyebrow: string; title: string }) {
+function Hero({
+    eyebrow,
+    title,
+    category,
+}: {
+    eyebrow: string;
+    title: string;
+    category: TeamCategory | null;
+}) {
     return (
         <header className="bg-linear-to-br from-blue-700 via-blue-600 to-sky-500 text-white dark:from-blue-950 dark:via-blue-900 dark:to-sky-900">
             <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-10 sm:py-16">
@@ -101,9 +112,19 @@ function Hero({ eyebrow, title }: { eyebrow: string; title: string }) {
                         {eyebrow}
                     </p>
                 )}
-                <h1 className="text-4xl font-black tracking-tight break-words sm:text-5xl">
-                    {title}
-                </h1>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <h1 className="min-w-0 text-4xl font-black tracking-tight break-words sm:text-5xl">
+                        {title}
+                    </h1>
+                    {/* Same-named teams differ only by category, so it stands right by the name. */}
+                    {category !== null && (
+                        <CategoryBadge
+                            category={category}
+                            className="border-white/60 px-3 py-1 text-base text-white"
+                            data-test="team-category"
+                        />
+                    )}
+                </div>
             </div>
         </header>
     );
