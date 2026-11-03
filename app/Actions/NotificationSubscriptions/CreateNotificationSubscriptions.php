@@ -7,7 +7,6 @@ namespace App\Actions\NotificationSubscriptions;
 use App\Models\NotificationSubscription;
 use App\Models\Team;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 
 final readonly class CreateNotificationSubscriptions
 {
@@ -19,12 +18,9 @@ final readonly class CreateNotificationSubscriptions
     public function handle(): void
     {
         User::query()->each(function (User $user): void {
-            Team::query()
-                ->whereDoesntHave('notificationSubscriptions', fn (Builder $query): Builder => $query->whereBelongsTo($user))
-                ->each(fn (Team $team): NotificationSubscription => NotificationSubscription::query()->firstOrCreate([
-                    'user_id' => $user->id,
-                    'team_id' => $team->id,
-                ]));
+            Team::query()->each(fn (Team $team): NotificationSubscription => $user->notificationSubscriptions()->firstOrCreate([
+                'team_id' => $team->id,
+            ]));
         });
     }
 }

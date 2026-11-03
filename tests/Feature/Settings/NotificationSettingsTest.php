@@ -65,6 +65,16 @@ test('unsubscribes the administrator from a team\'s change summaries without tou
         ->and($colleague->notificationSubscriptions()->sole()->unsubscribed_at)->toBeNull();
 });
 
+test('unsubscribing an unsubscribed administrator again keeps the date they first unsubscribed', function () {
+    $team = Team::factory()->create();
+    $user = User::factory()->unsubscribedFrom($team)->create();
+    $unsubscribedAt = $user->notificationSubscriptions()->sole()->unsubscribed_at;
+
+    $this->actingAs($user)->put("/settings/notifications/teams/{$team->id}", ['subscribed' => false]);
+
+    expect($user->notificationSubscriptions()->sole()->unsubscribed_at)->toEqual($unsubscribedAt);
+});
+
 test('subscribes the administrator to a team\'s change summaries again', function () {
     $team = Team::factory()->create(['name' => 'FBC Kutná Hora B']);
     $user = User::factory()->unsubscribedFrom($team)->create();

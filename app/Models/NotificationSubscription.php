@@ -46,6 +46,24 @@ final class NotificationSubscription extends Model
     }
 
     /**
+     * Stop sending the team's change summaries to the administrator; an administrator already unsubscribed keeps the date they first unsubscribed.
+     */
+    public function unsubscribe(): void
+    {
+        if ($this->unsubscribed_at === null) {
+            $this->setAttribute('unsubscribed_at', now());
+        }
+    }
+
+    /**
+     * Send the team's change summaries to the administrator again, forgetting when they unsubscribed.
+     */
+    public function resubscribe(): void
+    {
+        $this->setAttribute('unsubscribed_at', null);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array
