@@ -7,7 +7,7 @@
 **Status:** resolved
 
 - [ ] One module for federation team page addresses replaces the fixture list address module. It reads the federation team ID from an address of any tab (`/team/detail/{tab}/{id}`, scheme optional, `www.` optional, host must be ceskyflorbal.cz) or returns null, builds the fixture list (Zápasy) address from an ID, and builds the overview (Přehled) address from an ID. Avoid "overview" or "team detail" in names for the whole page; "overview" is fine for the Přehled tab.
-- [ ] A migration drops `source_url` from team seasons. Its `down()` adds the column back, filled from `external_id`.
+- [ ] A migration drops `source_url` from team seasons. Like every migration here, it is one-way (no `down()`).
 - [ ] Everything that read `source_url` derives the fixture list address from `external_id`: the client's fixture list download, the import-failed email, and the presenters for the Týmy page, the Zápasy page and the public team page. Props keep their current names (`sourceUrl`).
 - [ ] The form field, the store request and the translation keys are renamed from `source_url` to `federation_team_page_url` (`team_seasons.validation.federation_team_page_url_required`, `…_format`, `…_taken`). The messages speak of the team's page: "Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019." and "Tato stránka už patří týmu :team_season." The dialog's field label, placeholder and help text say the same: any tab of the team's page works.
 - [ ] Team season creation takes only `external_id`. The factory, the demo seeder and the test support's Kutná Hora team season stop setting `source_url`.
