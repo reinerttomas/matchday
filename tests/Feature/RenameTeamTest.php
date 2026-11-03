@@ -78,7 +78,7 @@ test('serves the calendar under the new name at the same address', function () {
     // Lines longer than 75 octets are folded onto continuation lines that start with a space.
     $calendar = str_replace("\r\n ", '', (string) $this->get('/calendar/kutna-hora-b.ics')->assertOk()->getContent());
     expect($calendar)
-        ->toContain('X-WR-CALNAME:FBC Sokol Kutná Hora B')
+        ->toContain('X-WR-CALNAME:FBC Sokol Kutná Hora B (muži)')
         ->toContain('SUMMARY:FBC Sokol Kutná Hora B – Tatran Střešovice C');
 });
 

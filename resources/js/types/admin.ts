@@ -6,9 +6,18 @@ export type SelectableSeason = {
     isCurrent: boolean;
 };
 
+/**
+ * The age and gender group a team plays in, shown as a badge next to its name.
+ */
+export type TeamCategory = {
+    value: string;
+    label: string;
+};
+
 export type SelectableTeamSeason = {
     id: number;
     name: string;
+    category: TeamCategory;
     teamSlug: string;
 };
 
@@ -173,16 +182,11 @@ export type TeamSeasonLastImport = {
     failure: TeamSeasonImportFailure | null;
 };
 
-export type CategoryOption = {
-    value: string;
-    label: string;
-};
-
 export type TeamSeasonListItem = {
     id: number;
     teamId: number;
     name: string;
-    category: CategoryOption;
+    category: TeamCategory;
     competition: string | null;
     slug: string;
     autoImportEnabled: boolean;
@@ -207,12 +211,17 @@ export type CarryOverTeam = {
 };
 
 /**
- * The team read from its federation team page by the "Přidat tým" dialog; name and competition are null while the page lists no fixtures.
+ * The team read from its federation team page by the "Přidat tým" dialog; name, competition and the category guessed from it are null while the page lists no fixtures.
+ *
+ * carryOverTeamId is the one team from a previous season with the same federation name and category (the guessed one, or the one passed
+ * to the lookup as `category`), or null when none or several match.
  */
 export type FederationTeam = {
     externalId: number;
     name: string | null;
     competition: string | null;
+    category: { value: string; label: string } | null;
+    carryOverTeamId: number | null;
     season: string;
     overviewUrl: string;
 };

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Models\NotificationSubscription;
 use App\Models\Season;
 use App\Models\Team;
@@ -19,7 +20,7 @@ test('lists the current season\'s teams by name with the administrator\'s notifi
     $previous = Season::factory()->create();
     $kutnaHoraB = Team::factory()->create(['name' => 'FBC Kutná Hora B']);
     $kutnaHoraA = Team::factory()->create(['name' => 'FBC Kutná Hora A']);
-    $carriedOver = Team::factory()->create(['name' => 'FBC Kolín']);
+    $carriedOver = Team::factory()->create(['name' => 'FBC Kolín', 'category' => Category::Youths]);
     $retired = Team::factory()->create(['name' => 'FBC Čáslav']);
     TeamSeason::factory()->for($kutnaHoraB)->for($current)->create(['competition_name' => 'Divize mužů']);
     TeamSeason::factory()->for($kutnaHoraA)->for($current)->notImported()->create();
@@ -35,9 +36,9 @@ test('lists the current season\'s teams by name with the administrator\'s notifi
         ->component('settings/notifications')
         ->where('notifyImportFailures', true)
         ->where('teams', [
-            ['id' => $carriedOver->id, 'name' => 'FBC Kolín', 'competition' => 'Liga dorostu', 'subscribed' => false],
-            ['id' => $kutnaHoraA->id, 'name' => 'FBC Kutná Hora A', 'competition' => null, 'subscribed' => false],
-            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'competition' => 'Divize mužů', 'subscribed' => true],
+            ['id' => $carriedOver->id, 'name' => 'FBC Kolín', 'category' => ['value' => 'dorostenci', 'label' => 'dorostenci'], 'competition' => 'Liga dorostu', 'subscribed' => false],
+            ['id' => $kutnaHoraA->id, 'name' => 'FBC Kutná Hora A', 'category' => ['value' => 'muzi', 'label' => 'muži'], 'competition' => null, 'subscribed' => false],
+            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'category' => ['value' => 'muzi', 'label' => 'muži'], 'competition' => 'Divize mužů', 'subscribed' => true],
         ]));
 });
 

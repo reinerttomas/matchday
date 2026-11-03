@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Models\Season;
 use App\Models\Team;
 use App\Models\TeamSeason;
@@ -38,7 +39,7 @@ test('shares the seasons newest first and the team seasons of the selected seaso
     $current = Season::factory()->current()->create(['name' => '2026/2027']);
     $next = Season::factory()->create(['name' => '2027/2028']);
     $kutnaHoraB = TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora B']))->for($current)->create();
-    $notImported = TeamSeason::factory()->for($current)->for(Team::factory()->state(['name' => 'FBC Kutná Hora A', 'slug' => 'kutna-hora-a']))->notImported()->create();
+    $notImported = TeamSeason::factory()->for($current)->for(Team::factory()->state(['name' => 'FBC Kutná Hora A', 'category' => Category::Women, 'slug' => 'kutna-hora-a']))->notImported()->create();
     TeamSeason::factory()->for($kutnaHoraB->team)->for($previous)->create();
 
     $this->get('/imports')->assertInertia(fn (Assert $page) => $page
@@ -48,8 +49,8 @@ test('shares the seasons newest first and the team seasons of the selected seaso
             ['id' => $previous->id, 'name' => '2025/2026', 'isCurrent' => false],
         ])
         ->where('adminSelection.teamSeasons', [
-            ['id' => $notImported->id, 'name' => 'FBC Kutná Hora A', 'teamSlug' => 'kutna-hora-a'],
-            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'teamSlug' => $kutnaHoraB->team->slug],
+            ['id' => $notImported->id, 'name' => 'FBC Kutná Hora A', 'category' => ['value' => 'zeny', 'label' => 'ženy'], 'teamSlug' => 'kutna-hora-a'],
+            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'category' => ['value' => 'muzi', 'label' => 'muži'], 'teamSlug' => $kutnaHoraB->team->slug],
         ])
         ->etc());
 });

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Models\Season;
 use App\Models\Team;
 use App\Models\TeamSeason;
@@ -10,6 +11,16 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Tests\Support\Ceskyflorbal;
+
+/**
+ * The lookup address of the federation team page the snapshot was saved from, with any other query parameters.
+ *
+ * @param  array<string, mixed>  $parameters
+ */
+function lookupUrl(array $parameters = []): string
+{
+    return '/teams/lookup?'.http_build_query(['federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/overview/45019', ...$parameters]);
+}
 
 beforeEach(function () {
     $this->actingAs(User::factory()->create());
@@ -25,6 +36,8 @@ test('reads the team\'s name, competition and season from the federation team pa
             'externalId' => 45019,
             'name' => 'FBC Kutná Hora B',
             'competition' => 'PH a SČ liga mužů',
+            'category' => ['value' => 'muzi', 'label' => 'muži'],
+            'carryOverTeamId' => null,
             'season' => '2026/2027',
             'overviewUrl' => 'https://www.ceskyflorbal.cz/team/detail/overview/45019',
         ]);
@@ -56,9 +69,134 @@ test('leaves the name and competition empty while the federation team page lists
             'externalId' => 45019,
             'name' => null,
             'competition' => null,
+            'category' => null,
+            'carryOverTeamId' => null,
             'season' => '2026/2027',
             'overviewUrl' => 'https://www.ceskyflorbal.cz/team/detail/overview/45019',
         ]);
+});
+
+test('guesses the team\'s category from the competition it plays', function (string $competition, array $category) {
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshotOf('FBC VHST Kutná Hora', $competition));
+
+    $this->getJson(lookupUrl())
+        ->assertOk()
+        ->assertJsonPath('competition', $competition)
+        ->assertJsonPath('category', $category);
+})->with([
+    'women' => ['1. liga žen', ['value' => 'zeny', 'label' => 'ženy']],
+    'juniors' => ['2. liga juniorů - skupina 3', ['value' => 'juniori', 'label' => 'junioři']],
+    'older girls' => ['Liga starších žákyň - skupina A', ['value' => 'starsi-zakyne', 'label' => 'starší žákyně']],
+    'no category word' => ['Národní liga', ['value' => 'muzi', 'label' => 'muži']],
+]);
+
+test('picks the team to carry over by the name the federation gave it last season, even when the team was renamed', function () {
+    $previousSeason = Season::factory()->create(['name' => '2025/2026']);
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    $team = Team::factory()->create(['name' => 'Kutná Hora béčko', 'category' => Category::Men]);
+    TeamSeason::factory()->for($team)->for($previousSeason)->create(['name' => '  fbc   KUTNÁ hora b ', 'competition_name' => 'PH a SČ liga mužů']);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshot());
+
+    $this->getJson(lookupUrl())
+        ->assertOk()
+        ->assertJsonPath('carryOverTeamId', $team->id);
+});
+
+test('picks the women\'s team to carry over between a same-named men\'s and women\'s team', function () {
+    $previousSeason = Season::factory()->create(['name' => '2025/2026']);
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    $men = Team::factory()->create(['name' => 'FBC VHST Kutná Hora', 'slug' => 'fbc-vhst-kutna-hora', 'category' => Category::Men]);
+    $women = Team::factory()->create(['name' => 'FBC VHST Kutná Hora', 'slug' => 'fbc-vhst-kutna-hora-zeny', 'category' => Category::Women]);
+    TeamSeason::factory()->for($men)->for($previousSeason)->create(['name' => 'FBC VHST Kutná Hora', 'competition_name' => 'Národní liga']);
+    TeamSeason::factory()->for($women)->for($previousSeason)->create(['name' => 'FBC VHST Kutná Hora', 'competition_name' => '1. liga žen']);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshotOf('FBC VHST Kutná Hora', '1. liga žen'));
+
+    $this->getJson(lookupUrl())
+        ->assertOk()
+        ->assertJsonPath('category.value', 'zeny')
+        ->assertJsonPath('carryOverTeamId', $women->id);
+});
+
+test('picks no team to carry over when two teams of the same category share the federation name', function () {
+    $previousSeason = Season::factory()->create(['name' => '2025/2026']);
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    foreach (['Kutná Hora B', 'Kutná Hora béčko'] as $name) {
+        TeamSeason::factory()
+            ->for(Team::factory()->state(['name' => $name, 'category' => Category::Men]))
+            ->for($previousSeason)
+            ->create(['name' => 'FBC Kutná Hora B']);
+    }
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshot());
+
+    $this->getJson(lookupUrl())
+        ->assertOk()
+        ->assertJsonPath('carryOverTeamId', null);
+});
+
+test('picks no team to carry over by a federation name it had only before its latest team season', function () {
+    $olderSeason = Season::factory()->create(['name' => '2024/2025']);
+    $previousSeason = Season::factory()->create(['name' => '2025/2026']);
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    $team = Team::factory()->create(['name' => 'FBC Kutná Hora B', 'category' => Category::Men]);
+    TeamSeason::factory()->for($team)->for($previousSeason)->create(['name' => 'FBC Kutná Hora C']);
+    TeamSeason::factory()->for($team)->for($olderSeason)->create(['name' => 'FBC Kutná Hora B']);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshot());
+
+    $this->getJson(lookupUrl())
+        ->assertOk()
+        ->assertJsonPath('carryOverTeamId', null);
+});
+
+test('picks no team to carry over that already plays the season the team is added to', function () {
+    $currentSeason = Season::factory()->current()->create(['name' => '2026/2027']);
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'category' => Category::Men]))
+        ->for($currentSeason)
+        ->create(['name' => 'FBC Kutná Hora B', 'external_id' => 45020]);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshot());
+
+    $this->getJson(lookupUrl())
+        ->assertOk()
+        ->assertJsonPath('carryOverTeamId', null);
+});
+
+test('picks the team to carry over by the category the administrator chose instead of the guess, which it still answers', function () {
+    $previousSeason = Season::factory()->create(['name' => '2025/2026']);
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    $men = Team::factory()->create(['name' => 'FBC VHST Kutná Hora', 'slug' => 'fbc-vhst-kutna-hora', 'category' => Category::Men]);
+    $women = Team::factory()->create(['name' => 'FBC VHST Kutná Hora', 'slug' => 'fbc-vhst-kutna-hora-zeny', 'category' => Category::Women]);
+    TeamSeason::factory()->for($men)->for($previousSeason)->create(['name' => 'FBC VHST Kutná Hora']);
+    TeamSeason::factory()->for($women)->for($previousSeason)->create(['name' => 'FBC VHST Kutná Hora']);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshotOf('FBC VHST Kutná Hora', 'Národní liga'));
+
+    $this->getJson(lookupUrl(['category' => 'zeny']))
+        ->assertOk()
+        ->assertJsonPath('category', ['value' => 'muzi', 'label' => 'muži'])
+        ->assertJsonPath('carryOverTeamId', $women->id);
+});
+
+test('guesses no category and picks no team to carry over while the page lists no fixtures, whatever the chosen category', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['category' => Category::Men]))
+        ->for(Season::factory()->state(['name' => '2025/2026']))
+        ->create();
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshotWithoutFixtures());
+
+    $this->getJson(lookupUrl(['category' => 'muzi']))
+        ->assertOk()
+        ->assertJsonPath('category', null)
+        ->assertJsonPath('carryOverTeamId', null);
+});
+
+test('rejects a category that is not one of the categories without downloading anything', function () {
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    Http::preventStrayRequests();
+
+    $this->getJson(lookupUrl(['category' => 'veterani']))
+        ->assertUnprocessable()
+        ->assertOnlyJsonValidationErrors(['category' => 'Vyberte kategorii ze seznamu.']);
 });
 
 test('rejects an address that is not a federation team page without downloading anything', function (?string $address, string $message) {

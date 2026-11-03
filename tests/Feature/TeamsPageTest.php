@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Models\Import;
 use App\Models\Season;
 use App\Models\Team;
@@ -29,10 +30,10 @@ test('lists the selected season\'s team seasons by name with what the administra
     $season = seasonOnTeamsPage();
     $teamSeason = TeamSeason::factory()
         ->for($season)
-        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'category' => Category::Juniors, 'slug' => 'kutna-hora-b']))
         ->create([
             'name' => 'FBC Kutná Hora B',
-            'competition_name' => '2. liga mužů, skupina 3',
+            'competition_name' => '2. liga juniorů, skupina 3',
             'external_id' => 42001,
         ]);
     TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora A']))->for($season)->create();
@@ -48,8 +49,8 @@ test('lists the selected season\'s team seasons by name with what the administra
             'id' => $teamSeason->id,
             'teamId' => $teamSeason->team_id,
             'name' => 'FBC Kutná Hora B',
-            'category' => ['value' => 'muzi', 'label' => 'muži'],
-            'competition' => '2. liga mužů, skupina 3',
+            'category' => ['value' => 'juniori', 'label' => 'junioři'],
+            'competition' => '2. liga juniorů, skupina 3',
             'slug' => 'kutna-hora-b',
             'autoImportEnabled' => true,
             'lastImport' => null,

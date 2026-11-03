@@ -14,8 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 /**
  * @phpstan-type ImportFailureProps array{status: string, statusLabel: string, reason: string|null}
  * @phpstan-type LastImportProps array{startedAt: string, failure: ImportFailureProps|null}
- * @phpstan-type CategoryProps array{value: string, label: string}
- * @phpstan-type TeamSeasonProps array{id: int, teamId: int, name: string, category: CategoryProps, competition: string|null, slug: string, autoImportEnabled: bool, lastImport: LastImportProps|null, calendarUrl: string, publicPageUrl: string, sourceUrl: string, overviewUrl: string}
+ * @phpstan-type TeamSeasonProps array{id: int, teamId: int, name: string, category: array{value: string, label: string}, competition: string|null, slug: string, autoImportEnabled: bool, lastImport: LastImportProps|null, calendarUrl: string, publicPageUrl: string, sourceUrl: string, overviewUrl: string}
  */
 final readonly class TeamSeasonListPresenter
 {

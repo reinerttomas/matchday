@@ -13,6 +13,7 @@ import { AddTeamDialog } from '@/components/add-team-dialog';
 import Heading from '@/components/heading';
 import { ImportStatusBadge } from '@/components/import-status-badge';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -64,7 +65,7 @@ import { index, update } from '@/routes/teams';
 import { update as updateName } from '@/routes/teams/name';
 import type {
     CarryOverTeam,
-    CategoryOption,
+    TeamCategory,
     TeamSeasonLastImport,
     TeamSeasonListItem,
 } from '@/types';
@@ -72,7 +73,7 @@ import type {
 type Props = {
     teamSeasons: TeamSeasonListItem[] | null;
     carryOverTeams: CarryOverTeam[];
-    categories: CategoryOption[];
+    categories: TeamCategory[];
     calendarUrlTemplate: string;
 };
 
@@ -150,7 +151,7 @@ function TeamSeasonTable({
     categories,
 }: {
     teamSeasons: TeamSeasonListItem[];
-    categories: CategoryOption[];
+    categories: TeamCategory[];
 }) {
     return (
         <div className="rounded-lg border">
@@ -177,8 +178,11 @@ function TeamSeasonTable({
                     {teamSeasons.map((teamSeason) => (
                         <TableRow key={teamSeason.id}>
                             <TableCell className="whitespace-normal">
-                                <div className="font-medium">
+                                <div className="flex flex-wrap items-center gap-2 font-medium">
                                     {teamSeason.name}
+                                    <Badge variant="outline">
+                                        {teamSeason.category.label}
+                                    </Badge>
                                 </div>
                                 <div className="mt-1 text-xs text-muted-foreground sm:hidden">
                                     <LastImport
@@ -285,7 +289,7 @@ function TeamSeasonActions({
     categories,
 }: {
     teamSeason: TeamSeasonListItem;
-    categories: CategoryOption[];
+    categories: TeamCategory[];
 }) {
     const [, copy] = useClipboard();
     const [isAddressShown, setIsAddressShown] = useState(false);
@@ -400,7 +404,7 @@ function EditTeamForm({
     onSuccess,
 }: {
     teamSeason: TeamSeasonListItem;
-    categories: CategoryOption[];
+    categories: TeamCategory[];
     onSuccess: () => void;
 }) {
     const id = `team-${teamSeason.teamId}`;

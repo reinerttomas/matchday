@@ -60,7 +60,7 @@ test('offers subscribe links derived from the team\'s permanent calendar address
             'address' => 'https://matchday.cz/calendar/kutna-hora-b.ics',
             'google' => 'https://calendar.google.com/calendar/r?cid=webcal%3A%2F%2Fmatchday.cz%2Fcalendar%2Fkutna-hora-b.ics',
             'webcal' => 'webcal://matchday.cz/calendar/kutna-hora-b.ics',
-            'outlook' => 'https://outlook.live.com/calendar/0/addfromweb?url=https%3A%2F%2Fmatchday.cz%2Fcalendar%2Fkutna-hora-b.ics&name=FBC%20Kutn%C3%A1%20Hora%20B',
+            'outlook' => 'https://outlook.live.com/calendar/0/addfromweb?url=https%3A%2F%2Fmatchday.cz%2Fcalendar%2Fkutna-hora-b.ics&name=FBC%20Kutn%C3%A1%20Hora%20B%20%28mu%C5%BEi%29',
         ])
         ->etc());
 });
@@ -285,6 +285,6 @@ test('names the current season when the team has no team season in it', function
         ->component('public/team')
         ->where('season', '2026/2027')
         ->where('teamSeason', null)
-        ->where('calendar.outlook', fn (string $outlook): bool => str_ends_with($outlook, '&name=FBC%20Kutn%C3%A1%20Hora%20B'))
+        ->where('calendar.outlook', fn (string $outlook): bool => str_ends_with($outlook, '&name=FBC%20Kutn%C3%A1%20Hora%20B%20%28mu%C5%BEi%29'))
         ->etc());
 });

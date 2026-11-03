@@ -75,11 +75,11 @@ final class Team extends Model
     }
 
     /**
-     * Name the team's calendar after the team.
+     * Name the team's calendar after the team and its category, such as "FBC VHST Kutná Hora (ženy)", so two subscribed calendars of same-named teams can be told apart.
      */
     public function calendarName(): string
     {
-        return $this->name;
+        return "{$this->name} ({$this->category->label()})";
     }
 
     /**
