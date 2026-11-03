@@ -4,6 +4,21 @@ declare(strict_types=1);
 
 return [
 
+    'categories' => [
+        'muzi' => 'muži',
+        'zeny' => 'ženy',
+        'juniori' => 'junioři',
+        'juniorky' => 'juniorky',
+        'dorostenci' => 'dorostenci',
+        'dorostenky' => 'dorostenky',
+        'starsi-zaci' => 'starší žáci',
+        'starsi-zakyne' => 'starší žákyně',
+        'mladsi-zaci' => 'mladší žáci',
+        'mladsi-zakyne' => 'mladší žákyně',
+        'elevove' => 'elévové',
+        'pripravka' => 'přípravka',
+    ],
+
     'renamed' => 'Tým je přejmenovaný na :team. Adresa kalendáře zůstává stejná.',
 
     'validation' => [

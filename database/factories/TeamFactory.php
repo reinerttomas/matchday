@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\Category;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -22,6 +23,7 @@ final class TeamFactory extends Factory
     {
         return [
             'name' => 'FBC '.fake()->unique()->city(),
+            'category' => Category::Men,
             'slug' => fn (array $attributes): string => Str::slug($attributes['name']),
         ];
     }

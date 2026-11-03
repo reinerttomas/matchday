@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\Category;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,6 +18,7 @@ use Illuminate\Support\Carbon;
 /**
  * @property-read int $id
  * @property-read string $name
+ * @property-read Category $category
  * @property-read string $slug
  * @property-read Carbon|null $created_at
  * @property-read Carbon|null $updated_at
@@ -25,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, NotificationSubscription> $notificationSubscriptions
  * @property-read Collection<int, User> $subscribedUsers
  */
-#[Fillable(['name', 'slug'])]
+#[Fillable(['name', 'category', 'slug'])]
 final class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -78,5 +80,17 @@ final class Team extends Model
     public function calendarName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'category' => Category::class,
+        ];
     }
 }
