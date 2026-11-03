@@ -180,6 +180,8 @@ test('records the page view and a tap on the subscribe button on a phone', funct
         ->create();
 
     $page = visit('/t/kutna-hora-b')->on()->pixel8()->withUserAgent(CHROME_ANDROID)->assertSee('Zápasy do kalendáře');
+    // The page view and the first tap are separate beacons; tapping before the app answers the first races their inserts.
+    $page->assertScript(answeredBeacons(1), 1);
     // Keeps the test off calendar.google.com; the page's own click handler runs after this one.
     $page->script('window.addEventListener("click", (event) => event.preventDefault(), { capture: true })');
 
@@ -197,6 +199,8 @@ test('records taps on both calendars and on the address on an iPhone', function 
         ->create();
 
     $page = visit('/t/kutna-hora-b')->on()->iPhone15()->withUserAgent(SAFARI_IPHONE)->assertSee('Zápasy do kalendáře');
+    // The page view and the first tap are separate beacons; tapping before the app answers the first races their inserts.
+    $page->assertScript(answeredBeacons(1), 1);
     // Keeps the test on the page; the page's own click handlers run after this one.
     $page->script('window.addEventListener("click", (event) => event.preventDefault(), { capture: true })');
     $page->script('Object.defineProperty(navigator.clipboard, "writeText", { value: async () => {} })');
@@ -219,6 +223,8 @@ test('offers to open the page in the default browser from Messenger on Android, 
         ->create();
 
     $page = visit('/t/kutna-hora-b?utm_source=messenger')->on()->mobile()->withUserAgent(MESSENGER_ANDROID);
+    // The page view and the first tap are separate beacons; tapping before the app answers the first races their inserts.
+    $page->assertScript(answeredBeacons(1), 1);
     // Keeps the test inside the page; the page's own click handler runs after this one.
     $page->script('window.addEventListener("click", (event) => event.preventDefault(), { capture: true })');
 
