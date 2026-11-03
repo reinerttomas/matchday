@@ -4,10 +4,10 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] An import ending as error is logged with `Log::error` with team season ID, import ID and reason.
-- [ ] An import ending as aborted is logged with `Log::warning` with the same context.
-- [ ] A failed connection to ceskyflorbal.cz is logged exactly once.
-- [ ] Tested through `fixtures:import` with faked HTTP and `Log::spy` / expectations (prior art: `ImportFixturesFailuresTest`).
-- [ ] `composer ci:check` passes.
+- [x] An import ending as error is logged with `Log::error` with team season ID, import ID and reason.
+- [x] An import ending as aborted is logged with `Log::warning` with the same context.
+- [x] A failed connection to ceskyflorbal.cz is logged exactly once.
+- [x] Tested through `fixtures:import` with faked HTTP and `Log::spy` / expectations (prior art: `ImportFixturesFailuresTest`).
+- [x] `composer ci:check` passes.
