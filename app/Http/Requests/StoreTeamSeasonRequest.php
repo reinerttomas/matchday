@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Concerns\CategoryValidationRules;
 use App\Concerns\FederationTeamPageUrlValidationRules;
 use App\Concerns\TeamNameValidationRules;
 use App\Enums\Category;
@@ -23,6 +24,7 @@ use LogicException;
  */
 final class StoreTeamSeasonRequest extends FormRequest
 {
+    use CategoryValidationRules;
     use FederationTeamPageUrlValidationRules;
     use TeamNameValidationRules;
 
@@ -69,7 +71,7 @@ final class StoreTeamSeasonRequest extends FormRequest
                 },
             ],
             // A team carried over keeps its category, as it keeps its name and slug.
-            'category' => [Rule::excludeIf($this->filled('team_id')), 'required', Rule::enum(Category::class)],
+            'category' => [Rule::excludeIf($this->filled('team_id')), 'required', ...$this->categoryRules()],
             'federation_team_page_url' => $this->federationTeamPageUrlRules($federationTeamPage),
         ];
     }
@@ -86,8 +88,7 @@ final class StoreTeamSeasonRequest extends FormRequest
             'team_id.exists' => __('team_seasons.validation.team_unknown'),
             'team_id.unique' => __('team_seasons.validation.team_in_season', ['season' => $this->season()->name]),
             ...$this->teamNameMessages(),
-            'category.required' => __('teams.validation.category_required'),
-            'category.enum' => __('teams.validation.category_invalid'),
+            ...$this->categoryMessages(),
             ...$this->federationTeamPageUrlMessages(),
         ];
     }

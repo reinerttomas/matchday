@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Concerns\CategoryValidationRules;
 use App\Concerns\FederationTeamPageUrlValidationRules;
 use App\Enums\Category;
 use App\Models\Season;
@@ -11,7 +12,6 @@ use App\Services\AdminSelection;
 use App\Services\Ceskyflorbal\FederationTeamPage;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 /**
  * Looks up the team a federation team page belongs to, before the team is added to the selected season.
@@ -20,6 +20,7 @@ use Illuminate\Validation\Rule;
  */
 final class LookUpTeamRequest extends FormRequest
 {
+    use CategoryValidationRules;
     use FederationTeamPageUrlValidationRules;
 
     /**
@@ -29,7 +30,7 @@ final class LookUpTeamRequest extends FormRequest
     {
         return [
             'federation_team_page_url' => $this->federationTeamPageUrlRules($federationTeamPage),
-            'category' => ['nullable', Rule::enum(Category::class)],
+            'category' => ['nullable', ...$this->categoryRules()],
         ];
     }
 
@@ -40,7 +41,7 @@ final class LookUpTeamRequest extends FormRequest
     {
         return [
             ...$this->federationTeamPageUrlMessages(),
-            'category' => __('teams.validation.category_invalid'),
+            ...$this->categoryMessages(),
         ];
     }
 
