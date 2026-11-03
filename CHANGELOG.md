@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/reinerttomas/matchday/compare/v0.6.0...v0.6.1) (2026-11-03)
+
+
+### Bug Fixes
+
+* wait for the page view before the first tap in the beacon browser tests ([#17](https://github.com/reinerttomas/matchday/issues/17)) ([18477fc](https://github.com/reinerttomas/matchday/commit/18477fc6dfbc0a95db65b1eba76fc7db8abb1367))
+
 ## [0.6.0](https://github.com/reinerttomas/matchday/compare/v0.5.1...v0.6.0) (2026-11-03)
 
 
