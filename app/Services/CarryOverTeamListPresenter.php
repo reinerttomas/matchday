@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Category;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * @phpstan-type CarryOverTeamProps array{id: int, name: string, category: array{value: string, label: string}, slug: string}
+ * @phpstan-import-type CategoryProps from Category
+ *
+ * @phpstan-type CarryOverTeamProps array{id: int, name: string, category: CategoryProps, slug: string}
  */
 final readonly class CarryOverTeamListPresenter
 {
@@ -37,7 +40,7 @@ final readonly class CarryOverTeamListPresenter
         return [
             'id' => $team->id,
             'name' => $team->name,
-            'category' => ['value' => $team->category->value, 'label' => $team->category->label()],
+            'category' => $team->category->props(),
             'slug' => $team->slug,
         ];
     }

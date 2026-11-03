@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Category;
 use App\Models\Season;
 use App\Models\TeamSeason;
 use Closure;
@@ -12,8 +13,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 /**
+ * @phpstan-import-type CategoryProps from Category
+ *
  * @phpstan-type SeasonProps array{id: int, name: string, isCurrent: bool}
- * @phpstan-type TeamSeasonProps array{id: int, name: string, category: array{value: string, label: string}, teamSlug: string}
+ * @phpstan-type TeamSeasonProps array{id: int, name: string, category: CategoryProps, teamSlug: string}
  * @phpstan-type SelectionProps array{season: SeasonProps|null, teamSeason: TeamSeasonProps|null, seasons: list<SeasonProps>, teamSeasons: list<TeamSeasonProps>}
  */
 final readonly class AdminSelection
@@ -178,7 +181,7 @@ final readonly class AdminSelection
         return [
             'id' => $teamSeason->id,
             'name' => $teamSeason->displayName(),
-            'category' => ['value' => $teamSeason->team->category->value, 'label' => $teamSeason->team->category->label()],
+            'category' => $teamSeason->team->category->props(),
             'teamSlug' => $teamSeason->team->slug,
         ];
     }

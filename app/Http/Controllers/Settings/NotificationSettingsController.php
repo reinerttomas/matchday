@@ -30,7 +30,7 @@ final readonly class NotificationSettingsController
             'teams' => $teams->map(fn (Team $team): array => [
                 'id' => $team->id,
                 'name' => $team->name,
-                'category' => ['value' => $team->category->value, 'label' => $team->category->label()],
+                'category' => $team->category->props(),
                 'competition' => $team->currentTeamSeason?->competition_name,
                 'subscribed' => (bool) $team->getAttribute('subscribed'),
             ])->all(),

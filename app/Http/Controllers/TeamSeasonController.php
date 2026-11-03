@@ -33,8 +33,7 @@ final readonly class TeamSeasonController
             'carryOverTeams' => $season === null ? [] : $carryOverTeamListPresenter->present(Team::query()
                 ->whereDoesntHave('teamSeasons', fn (Builder $teamSeasons): Builder => $teamSeasons->whereBelongsTo($season))
                 ->get()),
-            // The team's category is picked from this list when the team is added or edited.
-            'categories' => array_map(fn (Category $category): array => ['value' => $category->value, 'label' => $category->label()], Category::cases()),
+            'categories' => collect(Category::cases())->map(fn (Category $category): array => $category->props())->all(),
             // The form previews a new team's calendar address, derived from its name, while the name is typed.
             'calendarUrlTemplate' => route('calendar', ['team' => ':slug']),
         ]);

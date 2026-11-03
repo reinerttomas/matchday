@@ -58,7 +58,7 @@ final readonly class TeamLookupController
             'externalId' => $teamExternalId,
             'name' => $page->teamName,
             'competition' => $page->competitionName,
-            'category' => $guessedCategory === null ? null : ['value' => $guessedCategory->value, 'label' => $guessedCategory->label()],
+            'category' => $guessedCategory?->props(),
             'carryOverTeamId' => $page->teamName === null || $category === null
                 ? null
                 : $carryOverTeamMatcher->match($season, $page->teamName, $category)?->id,

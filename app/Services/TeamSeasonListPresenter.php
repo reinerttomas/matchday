@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Category;
 use App\Enums\ImportStatus;
 use App\Models\Import;
 use App\Models\TeamSeason;
@@ -12,9 +13,11 @@ use Illuminate\Container\Attributes\Config;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
+ * @phpstan-import-type CategoryProps from Category
+ *
  * @phpstan-type ImportFailureProps array{status: string, statusLabel: string, reason: string|null}
  * @phpstan-type LastImportProps array{startedAt: string, failure: ImportFailureProps|null}
- * @phpstan-type TeamSeasonProps array{id: int, teamId: int, name: string, category: array{value: string, label: string}, competition: string|null, slug: string, autoImportEnabled: bool, lastImport: LastImportProps|null, calendarUrl: string, publicPageUrl: string, sourceUrl: string, overviewUrl: string}
+ * @phpstan-type TeamSeasonProps array{id: int, teamId: int, name: string, category: CategoryProps, competition: string|null, slug: string, autoImportEnabled: bool, lastImport: LastImportProps|null, calendarUrl: string, publicPageUrl: string, sourceUrl: string, overviewUrl: string}
  */
 final readonly class TeamSeasonListPresenter
 {
@@ -55,7 +58,7 @@ final readonly class TeamSeasonListPresenter
             'id' => $teamSeason->id,
             'teamId' => $teamSeason->team_id,
             'name' => $teamSeason->displayName(),
-            'category' => ['value' => $teamSeason->team->category->value, 'label' => $teamSeason->team->category->label()],
+            'category' => $teamSeason->team->category->props(),
             'competition' => $teamSeason->competition_name,
             'slug' => $teamSeason->team->slug,
             'autoImportEnabled' => $teamSeason->auto_import_enabled,
