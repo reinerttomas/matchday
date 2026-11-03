@@ -76,19 +76,39 @@ test('leaves the name and competition empty while the federation team page lists
         ]);
 });
 
-test('guesses the team\'s category from the competition it plays', function (string $competition, array $category) {
+test('guesses the team\'s category from the competition it plays', function (string $competition, Category $category) {
     Season::factory()->current()->create(['name' => '2026/2027']);
     Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshotOf('FBC VHST Kutná Hora', $competition));
 
     $this->getJson(lookupUrl())
         ->assertOk()
         ->assertJsonPath('competition', $competition)
-        ->assertJsonPath('category', $category);
+        ->assertJsonPath('category', ['value' => $category->value, 'label' => $category->label()]);
 })->with([
-    'women' => ['1. liga žen', ['value' => 'zeny', 'label' => 'ženy']],
-    'juniors' => ['2. liga juniorů - skupina 3', ['value' => 'juniori', 'label' => 'junioři']],
-    'older girls' => ['Liga starších žákyň - skupina A', ['value' => 'starsi-zakyne', 'label' => 'starší žákyně']],
-    'no category word' => ['Národní liga', ['value' => 'muzi', 'label' => 'muži']],
+    'women' => ['1. liga žen', Category::Women],
+    'women, nominative' => ['Ženy - Divize 4', Category::Women],
+    'juniors' => ['2. liga juniorů - skupina 3', Category::Juniors],
+    'juniors, nominative' => ['Junioři - Pohár', Category::Juniors],
+    'junior women' => ['Extraliga juniorek', Category::JuniorWomen],
+    'junior women, nominative' => ['Juniorky - Regionální liga', Category::JuniorWomen],
+    'youths' => ['1. liga dorostenců', Category::Youths],
+    'youths, nominative' => ['Dorostenci - Regionální liga', Category::Youths],
+    'youth women' => ['Liga dorostenek', Category::YouthWomen],
+    'youth women, nominative' => ['Dorostenky - Pohár', Category::YouthWomen],
+    'older boys' => ['Liga starších žáků - skupina B', Category::OlderBoys],
+    'older boys, nominative' => ['Starší žáci - Regionální liga', Category::OlderBoys],
+    'older girls' => ['Liga starších žákyň - skupina A', Category::OlderGirls],
+    'older girls, nominative' => ['Starší žákyně - Pohár', Category::OlderGirls],
+    'younger boys' => ['Liga mladších žáků - skupina C', Category::YoungerBoys],
+    'younger boys, nominative' => ['Mladší žáci - Regionální liga', Category::YoungerBoys],
+    'younger girls' => ['Liga mladších žákyň', Category::YoungerGirls],
+    'younger girls, nominative' => ['Mladší žákyně - Pohár', Category::YoungerGirls],
+    'elves' => ['Turnaj elévů', Category::Elves],
+    'elves, nominative' => ['Elévové - Regionální liga', Category::Elves],
+    'preparatory, plural genitive' => ['Turnaj přípravek', Category::Preparatory],
+    'preparatory, singular genitive' => ['Turnaj přípravky', Category::Preparatory],
+    'preparatory, nominative' => ['Přípravka - Pohár', Category::Preparatory],
+    'no category word' => ['Národní liga', Category::Men],
 ]);
 
 test('picks the team to carry over by the name the federation gave it last season, even when the team was renamed', function () {
