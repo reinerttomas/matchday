@@ -20,6 +20,11 @@ set_env APP_URL "https://$SITE.test"
 set_env DB_CONNECTION sqlite
 set_env DB_DATABASE "$PWD/database/database.sqlite"
 
+# Vite looks for the Herd certificate under the directory name, not the site name, so point it at the site's certificate.
+certificates="$HOME/Library/Application Support/Herd/config/valet/Certificates"
+set_env VITE_DEV_SERVER_KEY "\"$certificates/$SITE.test.key\""
+set_env VITE_DEV_SERVER_CERT "\"$certificates/$SITE.test.crt\""
+
 # Its own SQLite database, seeded only when it is created.
 if [ ! -f database/database.sqlite ]; then
   touch database/database.sqlite
