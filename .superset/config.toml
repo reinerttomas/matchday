@@ -1,0 +1,9 @@
+[setup]
+run = ["./.superset/setup.sh"]
+
+[terminals.vite]
+run = "pnpm dev"
+default = true
+
+[archive]
+run = ["./.superset/archive.sh"]
