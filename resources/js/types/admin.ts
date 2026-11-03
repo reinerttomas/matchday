@@ -6,9 +6,18 @@ export type SelectableSeason = {
     isCurrent: boolean;
 };
 
+/**
+ * The age and gender group a team plays in, shown as a badge next to its name.
+ */
+export type TeamCategory = {
+    value: string;
+    label: string;
+};
+
 export type SelectableTeamSeason = {
     id: number;
     name: string;
+    category: TeamCategory;
     teamSlug: string;
 };
 
@@ -177,6 +186,7 @@ export type TeamSeasonListItem = {
     id: number;
     teamId: number;
     name: string;
+    category: TeamCategory;
     competition: string | null;
     slug: string;
     autoImportEnabled: boolean;

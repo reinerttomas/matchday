@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 /**
  * @phpstan-type SeasonProps array{id: int, name: string, isCurrent: bool}
- * @phpstan-type TeamSeasonProps array{id: int, name: string, teamSlug: string}
+ * @phpstan-type TeamSeasonProps array{id: int, name: string, category: array{value: string, label: string}, teamSlug: string}
  * @phpstan-type SelectionProps array{season: SeasonProps|null, teamSeason: TeamSeasonProps|null, seasons: list<SeasonProps>, teamSeasons: list<TeamSeasonProps>}
  */
 final readonly class AdminSelection
@@ -175,6 +175,11 @@ final readonly class AdminSelection
      */
     private function teamSeasonProps(TeamSeason $teamSeason): array
     {
-        return ['id' => $teamSeason->id, 'name' => $teamSeason->displayName(), 'teamSlug' => $teamSeason->team->slug];
+        return [
+            'id' => $teamSeason->id,
+            'name' => $teamSeason->displayName(),
+            'category' => ['value' => $teamSeason->team->category->value, 'label' => $teamSeason->team->category->label()],
+            'teamSlug' => $teamSeason->team->slug,
+        ];
     }
 }

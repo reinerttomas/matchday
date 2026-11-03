@@ -14,6 +14,7 @@ import Heading from '@/components/heading';
 import { ImportStatusBadge } from '@/components/import-status-badge';
 import InputError from '@/components/input-error';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -163,8 +164,11 @@ function TeamSeasonTable({
                     {teamSeasons.map((teamSeason) => (
                         <TableRow key={teamSeason.id}>
                             <TableCell className="whitespace-normal">
-                                <div className="font-medium">
+                                <div className="flex flex-wrap items-center gap-2 font-medium">
                                     {teamSeason.name}
+                                    <Badge variant="outline">
+                                        {teamSeason.category.label}
+                                    </Badge>
                                 </div>
                                 <div className="mt-1 text-xs text-muted-foreground sm:hidden">
                                     <LastImport

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Jobs\ImportFixtureList;
 use App\Models\Season;
 use App\Models\Team;
@@ -42,6 +43,18 @@ function teamSeasonOnTeamsPageInBrowser(): TeamSeason
         ->for(Season::factory()->current()->state(['name' => '2026/2027']))
         ->create(['name' => 'FBC Kutná Hora B']);
 }
+
+test('shows the team\'s category as a badge next to its name', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC VHST Kutná Hora', 'category' => Category::Women]))
+        ->for(Season::factory()->current())
+        ->create(['name' => 'FBC VHST Kutná Hora']);
+
+    visit('/teams')
+        ->assertSeeIn('tbody tr:first-child td:first-child', 'FBC VHST Kutná Hora')
+        ->assertSeeIn('tbody tr:first-child td:first-child [data-slot="badge"]', 'ženy')
+        ->assertNoJavaScriptErrors();
+});
 
 test('switches off a team season\'s auto import from its switch', function () {
     $teamSeason = teamSeasonOnTeamsPageInBrowser();
