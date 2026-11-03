@@ -15,6 +15,7 @@ use App\Services\Ceskyflorbal\CeskyflorbalClient;
 use App\Services\Ceskyflorbal\FixtureListPageData;
 use App\Services\Ceskyflorbal\MatchDetailPageData;
 use App\Services\ChangeSummaryWriter;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\HttpClientException;
 use Illuminate\Http\Client\RequestException;
@@ -236,13 +237,13 @@ final readonly class ImportTeamSeason
             Log::error('The import finished as error without applying the fixture list.', $context);
         }
 
-        $this->emailEveryUser(new ImportFailed($import));
+        $this->email(User::query()->where('notify_import_failures', true)->get(), new ImportFailed($import));
 
         return $import;
     }
 
     /**
-     * Email every user the change summary of an ok import, unless none of its revisions is worth telling the team.
+     * Email the administrators subscribed to the team the change summary of an ok import, unless none of its revisions is worth telling the team.
      *
      * The initial import records no revisions, so its additions are never announced.
      */
@@ -256,19 +257,19 @@ final readonly class ImportTeamSeason
 
         $whatsAppUrl = $this->changeSummaryWriter->whatsAppUrl($summary);
 
-        $this->emailEveryUser(new FixtureListRevised($import, $summary, $whatsAppUrl));
+        $this->email($import->teamSeason->team->subscribedUsers()->get(), new FixtureListRevised($import, $summary, $whatsAppUrl));
     }
 
     /**
-     * Send one mail addressed to every user at once, or nothing when there are no users.
+     * Send one mail addressed to all recipients at once, or nothing when there are none.
+     *
+     * @param  Collection<int, User>  $recipients
      */
-    private function emailEveryUser(Mailable $mail): void
+    private function email(Collection $recipients, Mailable $mail): void
     {
-        $users = User::query()->get();
-
         // A mail without recipients would be rejected by the mail provider.
-        if ($users->isNotEmpty()) {
-            Mail::to($users)->send($mail);
+        if ($recipients->isNotEmpty()) {
+            Mail::to($recipients)->send($mail);
         }
     }
 

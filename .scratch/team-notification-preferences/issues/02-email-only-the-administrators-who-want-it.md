@@ -4,11 +4,11 @@
 
 **Blocked by:** 01 — Keep every administrator subscribed to every team
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] The change summary goes only to subscribed administrators; an unsubscribed administrator does not receive it; its content and WhatsApp link are unchanged.
-- [ ] No change summary mail when nobody is subscribed.
-- [ ] The import failure mail goes only to administrators with `notify_import_failures` on, regardless of subscriptions; none when nobody has it on.
-- [ ] The initial import still announces nothing.
-- [ ] Tested through `fixtures:import` with faked HTTP and `Mail::fake()` (prior art: `ImportFixturesRevisedMailTest`, `ImportFixturesFailuresTest`, `Tests\Support\Ceskyflorbal`).
-- [ ] `composer ci:check` passes.
+- [x] The change summary goes only to subscribed administrators; an unsubscribed administrator does not receive it; its content and WhatsApp link are unchanged.
+- [x] No change summary mail when nobody is subscribed.
+- [x] The import failure mail goes only to administrators with `notify_import_failures` on, regardless of subscriptions; none when nobody has it on.
+- [x] The initial import still announces nothing.
+- [x] Tested through `fixtures:import` with faked HTTP and `Mail::fake()` (prior art: `ImportFixturesRevisedMailTest`, `ImportFixturesFailuresTest`, `Tests\Support\Ceskyflorbal`).
+- [x] `composer ci:check` passes.

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Mail\FixtureListRevised;
 use App\Models\Import;
+use App\Models\Team;
 use App\Models\User;
 use App\Services\ChangeSummaryWriter;
 use Illuminate\Support\Facades\Http;
@@ -12,9 +13,11 @@ use Tests\Support\Ceskyflorbal;
 
 use function Pest\Laravel\artisan;
 
-test('emails every user the change summary of an import that recorded revisions', function () {
+test('emails the subscribed administrators the change summary of an import that recorded revisions', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
-    User::factory()->count(2)->sequence(['email' => 'petr@example.com'], ['email' => 'jana@example.com'])->create();
+    User::factory()->subscribedTo($teamSeason->team)->count(2)->sequence(['email' => 'petr@example.com'], ['email' => 'jana@example.com'])->create();
+    User::factory()->unsubscribedFrom($teamSeason->team)->create(['email' => 'eva@example.com']);
+    User::factory()->subscribedTo(Team::factory()->create())->create(['email' => 'karel@example.com']);
     $snapshot = Ceskyflorbal::fixtureListSnapshotWithTime(1306757, '16:30');
 
     $import = Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot);
@@ -28,8 +31,9 @@ test('emails every user the change summary of an import that recorded revisions'
     Mail::assertOutgoingCount(1);
 });
 
-test('emails nobody about an import that recorded revisions when there are no users', function () {
+test('emails nobody about an import that recorded revisions when nobody is subscribed to the team', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
+    User::factory()->unsubscribedFrom($teamSeason->team)->create();
     $snapshot = Ceskyflorbal::fixtureListSnapshotWithTime(1306757, '16:30');
 
     $import = Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), $snapshot);
@@ -40,7 +44,7 @@ test('emails nobody about an import that recorded revisions when there are no us
 
 test('emails nobody about the initial import', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
-    User::factory()->create();
+    User::factory()->subscribedTo($teamSeason->team)->create();
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertSuccessful();
@@ -51,7 +55,7 @@ test('emails nobody about the initial import', function () {
 
 test('emails nobody about an import that recorded no revisions', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
-    User::factory()->create();
+    User::factory()->subscribedTo($teamSeason->team)->create();
 
     Ceskyflorbal::importTwice($teamSeason, Ceskyflorbal::fixtureListSnapshot(), Ceskyflorbal::fixtureListSnapshot());
 
@@ -60,7 +64,7 @@ test('emails nobody about an import that recorded no revisions', function () {
 
 test('emails nobody about an import whose only revision clears the rescheduled flag', function () {
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
-    User::factory()->create();
+    User::factory()->subscribedTo($teamSeason->team)->create();
     $snapshot = str_replace(
         '<span aria-label="odložené utkání 17.10.2026" class="Tooltip Tooltip--warning u-mr-0 Tooltip--container"></span>',
         '',

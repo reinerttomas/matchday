@@ -64,11 +64,11 @@ function latestImport(): Import
 }
 
 /**
- * Assert that one mail about the import, addressed to every user, is all that was emailed.
+ * Assert that one mail about the import, addressed to every administrator who wants import failure notifications, is all that was emailed.
  */
 function assertAdministratorsEmailedAbout(Import $import): void
 {
-    $userEmails = User::query()->pluck('email')->sort()->values()->all();
+    $userEmails = User::query()->where('notify_import_failures', true)->pluck('email')->sort()->values()->all();
 
     Mail::assertQueued(ImportFailed::class, fn (ImportFailed $mail): bool => $mail->import->is($import)
         && collect($mail->to)->pluck('address')->sort()->values()->all() === $userEmails);
@@ -95,8 +95,22 @@ test('ends the import as error without changing data when ceskyflorbal.cz blocks
     assertAdministratorsEmailedAbout(latestImport());
 });
 
-test('emails nobody about a failed import when there are no users', function () {
+test('emails a failed import to the administrators who want import failure notifications, whatever their subscriptions', function () {
     $teamSeason = importedKutnaHoraTeamSeason();
+    User::factory()->unsubscribedFrom($teamSeason->team)->create(['email' => 'petr@example.com']);
+    User::factory()->subscribedTo($teamSeason->team)->create(['email' => 'jana@example.com', 'notify_import_failures' => false]);
+    Ceskyflorbal::fake(Http::response('Forbidden', 403));
+
+    artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
+
+    Mail::assertQueued(ImportFailed::class, fn (ImportFailed $mail): bool => $mail->import->is(latestImport())
+        && collect($mail->to)->pluck('address')->all() === ['petr@example.com']);
+    Mail::assertOutgoingCount(1);
+});
+
+test('emails nobody about a failed import when no administrator wants import failure notifications', function () {
+    $teamSeason = importedKutnaHoraTeamSeason();
+    User::factory()->subscribedTo($teamSeason->team)->create(['notify_import_failures' => false]);
     Ceskyflorbal::fake(Http::response('Forbidden', 403));
 
     artisan('fixtures:import', ['teamSeason' => $teamSeason->id])->assertFailed();
