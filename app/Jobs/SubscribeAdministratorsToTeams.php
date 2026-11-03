@@ -17,6 +17,9 @@ final class SubscribeAdministratorsToTeams implements ShouldQueueAfterCommit
 {
     use Queueable;
 
+    /**
+     * Subscribe every administrator to every team without a notification subscription yet; unsubscribed administrators stay unsubscribed.
+     */
     public function handle(CreateNotificationSubscriptions $createNotificationSubscriptions): void
     {
         $createNotificationSubscriptions->handle();
