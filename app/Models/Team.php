@@ -56,6 +56,16 @@ final class Team extends Model
     }
 
     /**
+     * Get the team's participation in its latest season by season order, whether or not that season is the current one.
+     */
+    public function latestTeamSeason(): ?TeamSeason
+    {
+        return $this->teamSeasons
+            ->sortByDesc(fn (TeamSeason $teamSeason): string => $teamSeason->season->name)
+            ->first();
+    }
+
+    /**
      * @return HasMany<NotificationSubscription, $this>
      */
     public function notificationSubscriptions(): HasMany

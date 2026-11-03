@@ -7,7 +7,6 @@ namespace App\Services;
 use App\Enums\Category;
 use App\Models\Season;
 use App\Models\Team;
-use App\Models\TeamSeason;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
@@ -29,20 +28,9 @@ final readonly class CarryOverTeamMatcher
             ->whereDoesntHave('teamSeasons', fn (Builder $teamSeasons): Builder => $teamSeasons->whereBelongsTo($season))
             ->with('teamSeasons.season')
             ->get()
-            ->filter(fn (Team $team): bool => $this->normalised($this->latestFederationName($team)) === $this->normalised($federationName));
+            ->filter(fn (Team $team): bool => $this->normalised($team->latestTeamSeason()?->name) === $this->normalised($federationName));
 
         return $matches->count() === 1 ? $matches->first() : null;
-    }
-
-    /**
-     * Read the name the federation gave the team in its latest team season, by season order.
-     */
-    private function latestFederationName(Team $team): ?string
-    {
-        return $team->teamSeasons
-            ->sortByDesc(fn (TeamSeason $teamSeason): string => $teamSeason->season->name)
-            ->first()
-            ?->name;
     }
 
     /**
