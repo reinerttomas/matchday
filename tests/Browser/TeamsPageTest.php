@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Jobs\ImportFixtureList;
 use App\Models\Season;
 use App\Models\Team;
@@ -301,19 +302,21 @@ test('does not look the team up when the dialog is cancelled from the address fi
         ->assertNoJavaScriptErrors();
 });
 
-test('renames a team from its actions in a dialog with the name pre-filled', function () {
+test('renames a team from its actions in the "Upravit tým" dialog with the name pre-filled', function () {
     $teamSeason = teamSeasonOnTeamsPageInBrowser();
 
     visit('/teams')
         ->click('@team-season-actions')
-        ->click('@rename-team')
+        ->click('@edit-team')
+        ->assertSee('Upravit tým FBC Kutná Hora B')
         ->assertValue('name', 'FBC Kutná Hora B')
+        ->assertSeeIn('@team-category-select', 'muži')
         ->assertSee('Adresa kalendáře zůstává stejná')
         ->clear('name')
         ->type('name', 'FBC Sokol Kutná Hora B')
-        ->click('@update-team-name')
-        ->assertSee('Tým je přejmenovaný na FBC Sokol Kutná Hora B.')
-        ->assertMissing('@update-team-name')
+        ->click('@update-team')
+        ->assertSee('Tým FBC Sokol Kutná Hora B je upravený.')
+        ->assertMissing('@update-team')
         ->assertSeeIn('tbody tr:first-child td:first-child', 'FBC Sokol Kutná Hora B')
         ->assertNoJavaScriptErrors();
 
@@ -322,15 +325,36 @@ test('renames a team from its actions in a dialog with the name pre-filled', fun
         ->slug->toBe('kutna-hora-b');
 });
 
-test('keeps the rename dialog open with the error when the name is too long', function () {
+test('changes a team\'s category from its actions and keeps its calendar address', function () {
+    $teamSeason = teamSeasonOnTeamsPageInBrowser();
+
+    visit('/teams')
+        ->click('@team-season-actions')
+        ->click('@edit-team')
+        ->click('@team-category-select')
+        ->click('[role="option"]:has-text("ženy")')
+        ->click('@update-team')
+        ->assertSee('Tým FBC Kutná Hora B je upravený.')
+        ->assertMissing('@update-team')
+        ->click('@team-season-actions')
+        ->click('@edit-team')
+        ->assertSeeIn('@team-category-select', 'ženy')
+        ->assertNoJavaScriptErrors();
+
+    expect($teamSeason->team->fresh())
+        ->category->toBe(Category::Women)
+        ->slug->toBe('kutna-hora-b');
+});
+
+test('keeps the "Upravit tým" dialog open with the error when the name is too long', function () {
     teamSeasonOnTeamsPageInBrowser();
 
     visit('/teams')
         ->click('@team-season-actions')
-        ->click('@rename-team')
+        ->click('@edit-team')
         ->fill('name', str_repeat('a', 101))
-        ->click('@update-team-name')
+        ->click('@update-team')
         ->assertSee('Název týmu může mít nejvýše 100 znaků.')
-        ->assertVisible('@update-team-name')
+        ->assertVisible('@update-team')
         ->assertNoJavaScriptErrors();
 });

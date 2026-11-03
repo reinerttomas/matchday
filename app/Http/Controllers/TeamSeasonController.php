@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\TeamSeasons\CreateTeamSeason;
 use App\Actions\TeamSeasons\UpdateTeamSeason;
+use App\Enums\Category;
 use App\Http\Requests\StoreTeamSeasonRequest;
 use App\Http\Requests\UpdateTeamSeasonRequest;
 use App\Models\Team;
@@ -32,6 +33,8 @@ final readonly class TeamSeasonController
             'carryOverTeams' => $season === null ? [] : $carryOverTeamListPresenter->present(Team::query()
                 ->whereDoesntHave('teamSeasons', fn (Builder $teamSeasons): Builder => $teamSeasons->whereBelongsTo($season))
                 ->get()),
+            // The team's category is picked from this list when the team is edited.
+            'categories' => array_map(fn (Category $category): array => ['value' => $category->value, 'label' => $category->label()], Category::cases()),
             // The form previews a new team's calendar address, derived from its name, while the name is typed.
             'calendarUrlTemplate' => route('calendar', ['team' => ':slug']),
         ]);

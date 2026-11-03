@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Concerns\TeamNameValidationRules;
+use App\Enums\Category;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
- * Renames a team; its slug is never edited, so the name may match another team's slug or name.
+ * Renames a team or changes its category; its slug is never edited, so the name may match another team's slug or name.
  */
 final class UpdateTeamRequest extends FormRequest
 {
@@ -24,6 +26,7 @@ final class UpdateTeamRequest extends FormRequest
     {
         return [
             'name' => ['bail', ...$this->teamNameRules()],
+            'category' => ['required', Rule::enum(Category::class)],
         ];
     }
 
@@ -34,6 +37,10 @@ final class UpdateTeamRequest extends FormRequest
      */
     public function messages(): array
     {
-        return $this->teamNameMessages();
+        return [
+            ...$this->teamNameMessages(),
+            'category.required' => __('teams.validation.category_required'),
+            'category.enum' => __('teams.validation.category_invalid'),
+        ];
     }
 }

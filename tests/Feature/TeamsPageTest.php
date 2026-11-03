@@ -48,6 +48,7 @@ test('lists the selected season\'s team seasons by name with what the administra
             'id' => $teamSeason->id,
             'teamId' => $teamSeason->team_id,
             'name' => 'FBC Kutná Hora B',
+            'category' => ['value' => 'muzi', 'label' => 'muži'],
             'competition' => '2. liga mužů, skupina 3',
             'slug' => 'kutna-hora-b',
             'autoImportEnabled' => true,
@@ -171,6 +172,17 @@ test('gives the address a new team\'s calendar gets from its slug', function () 
 
     $this->get('https://matchday.cz/teams')->assertInertia(fn (Assert $page) => $page
         ->where('calendarUrlTemplate', 'https://matchday.cz/calendar/:slug.ics')
+        ->etc());
+});
+
+test('offers every category a team can play in, in the order of the list', function () {
+    seasonOnTeamsPage();
+
+    $this->get('/teams')->assertInertia(fn (Assert $page) => $page
+        ->has('categories', 12)
+        ->where('categories.0', ['value' => 'muzi', 'label' => 'muži'])
+        ->where('categories.1', ['value' => 'zeny', 'label' => 'ženy'])
+        ->where('categories.11', ['value' => 'pripravka', 'label' => 'přípravka'])
         ->etc());
 });
 

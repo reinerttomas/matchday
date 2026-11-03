@@ -173,10 +173,16 @@ export type TeamSeasonLastImport = {
     failure: TeamSeasonImportFailure | null;
 };
 
+export type CategoryOption = {
+    value: string;
+    label: string;
+};
+
 export type TeamSeasonListItem = {
     id: number;
     teamId: number;
     name: string;
+    category: CategoryOption;
     competition: string | null;
     slug: string;
     autoImportEnabled: boolean;

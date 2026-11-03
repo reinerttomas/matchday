@@ -19,7 +19,7 @@ return [
         'pripravka' => 'přípravka',
     ],
 
-    'renamed' => 'Tým je přejmenovaný na :team. Adresa kalendáře zůstává stejná.',
+    'updated' => 'Tým :team je upravený. Adresa kalendáře zůstává stejná.',
 
     'validation' => [
         'name_required' => 'Zadejte název týmu.',
@@ -27,6 +27,8 @@ return [
         // :max is filled in by the validator.
         'name_too_long' => 'Název týmu může mít nejvýše :max znaků.',
         'name_without_slug' => 'Název týmu musí obsahovat aspoň jedno písmeno nebo číslici.',
+        'category_required' => 'Vyberte kategorii týmu.',
+        'category_invalid' => 'Vyberte kategorii ze seznamu.',
         'name_taken' => 'Jiný tým už má stejnou adresu kalendáře (:slug). Zvolte jiný název.',
     ],
 
