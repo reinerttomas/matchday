@@ -27,7 +27,7 @@ function teamSeasonOnTeamsPage(): TeamSeason
 test('switches off a team season\'s auto import and returns to the Týmy page showing it off', function () {
     $teamSeason = teamSeasonOnTeamsPage();
 
-    $response = $this->from('/teams')->patch("/teams/{$teamSeason->id}", ['auto_import_enabled' => false]);
+    $response = $this->from('/teams')->patch("/team-seasons/{$teamSeason->id}", ['auto_import_enabled' => false]);
 
     $response->assertRedirect('/teams')
         ->assertInertiaFlash('toast.message', 'Automatický import týmu FBC Kutná Hora B je vypnutý. Kalendář dál ukazuje poslední stažený rozpis.');
@@ -41,7 +41,7 @@ test('switches a team season\'s auto import back on', function () {
     $teamSeason = teamSeasonOnTeamsPage();
     $teamSeason->update(['auto_import_enabled' => false]);
 
-    $this->from('/teams')->patch("/teams/{$teamSeason->id}", ['auto_import_enabled' => true])
+    $this->from('/teams')->patch("/team-seasons/{$teamSeason->id}", ['auto_import_enabled' => true])
         ->assertRedirect('/teams')
         ->assertInertiaFlash('toast.message', 'Automatický import týmu FBC Kutná Hora B je zapnutý.');
 
@@ -52,7 +52,7 @@ test('keeps serving the calendar of a team season whose auto import is switched 
     $teamSeason = teamSeasonOnTeamsPage();
     Fixture::factory()->for($teamSeason)->create();
 
-    $this->patch("/teams/{$teamSeason->id}", ['auto_import_enabled' => false]);
+    $this->patch("/team-seasons/{$teamSeason->id}", ['auto_import_enabled' => false]);
 
     $this->get('/calendar/kutna-hora-b.ics')->assertOk()->assertSee('BEGIN:VEVENT');
 });
@@ -60,7 +60,7 @@ test('keeps serving the calendar of a team season whose auto import is switched 
 test('rejects a missing or non-boolean auto import value', function (array $payload) {
     $teamSeason = teamSeasonOnTeamsPage();
 
-    $this->from('/teams')->patch("/teams/{$teamSeason->id}", $payload)
+    $this->from('/teams')->patch("/team-seasons/{$teamSeason->id}", $payload)
         ->assertRedirect('/teams')
         ->assertSessionHasErrors('auto_import_enabled');
 
@@ -71,14 +71,14 @@ test('rejects a missing or non-boolean auto import value', function (array $payl
 ]);
 
 test('returns 404 for an unknown team season', function () {
-    $this->patch('/teams/999', ['auto_import_enabled' => false])->assertNotFound();
+    $this->patch('/team-seasons/999', ['auto_import_enabled' => false])->assertNotFound();
 });
 
 test('redirects guests to the login page', function () {
     auth()->logout();
     $teamSeason = teamSeasonOnTeamsPage();
 
-    $this->patch("/teams/{$teamSeason->id}", ['auto_import_enabled' => false])->assertRedirect('/login');
+    $this->patch("/team-seasons/{$teamSeason->id}", ['auto_import_enabled' => false])->assertRedirect('/login');
 
     expect($teamSeason->fresh()->auto_import_enabled)->toBeTrue();
 });

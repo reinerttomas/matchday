@@ -46,8 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('teams', [TeamSeasonController::class, 'index'])->name('teams.index');
     Route::get('teams/lookup', TeamLookupController::class)->middleware('throttle:team-lookups')->name('teams.lookup');
     Route::post('teams', [TeamSeasonController::class, 'store'])->name('teams.store');
-    Route::patch('teams/{teamSeason}', [TeamSeasonController::class, 'update'])->name('teams.update');
-    Route::patch('teams/{team}/details', [TeamController::class, 'update'])->name('teams.details.update');
+    Route::patch('teams/{team}', [TeamController::class, 'update'])->name('teams.update');
+    Route::patch('team-seasons/{teamSeason}', [TeamSeasonController::class, 'update'])->name('team-seasons.update');
     Route::get('venues', [VenueController::class, 'index'])->name('venues.index');
     Route::patch('venues/{venue}', [VenueController::class, 'update'])->name('venues.update');
     Route::get('seasons', [SeasonController::class, 'index'])->name('seasons.index');

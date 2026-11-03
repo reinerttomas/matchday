@@ -55,8 +55,8 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useClipboard } from '@/hooks/use-clipboard';
-import { index, update } from '@/routes/teams';
-import { update as updateTeam } from '@/routes/teams/details';
+import { update as updateTeamSeason } from '@/routes/team-seasons';
+import { index, update as updateTeam } from '@/routes/teams';
 import type {
     CarryOverTeam,
     TeamCategory,
@@ -263,7 +263,7 @@ function AutoImportSwitch({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
                     ) ?? null,
             }))
             .patch(
-                update.url(teamSeason.id),
+                updateTeamSeason.url(teamSeason.id),
                 { auto_import_enabled: isEnabled },
                 { preserveScroll: true },
             );
