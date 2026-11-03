@@ -4,11 +4,11 @@
 
 **Blocked by:** 01 — Give every team a category
 
-**Status:** ready-for-agent
+**Status:** resolved
 
-- [ ] The update request and action accept a required `category` alongside the name; the slug stays unchanged.
-- [ ] The team actions menu item and dialog are titled "Upravit tým"; name and a category `Select` side by side, the unchanged calendar address below.
-- [ ] The team season list sends the team's category, which the dialog uses as its default.
-- [ ] Feature tests in the existing rename test: category changed, slug unchanged; invalid category rejected.
-- [ ] Teams page browser test: editing the category from the actions menu.
-- [ ] `composer ci:check` passes (stop the Vite dev server first).
+- [x] The update request and action accept a required `category` alongside the name; the slug stays unchanged.
+- [x] The team actions menu item and dialog are titled "Upravit tým"; name and a category `Select` side by side, the unchanged calendar address below.
+- [x] The team season list sends the team's category, which the dialog uses as its default.
+- [x] Feature tests in the existing rename test: category changed, slug unchanged; invalid category rejected.
+- [x] Teams page browser test: editing the category from the actions menu.
+- [x] `composer ci:check` passes (stop the Vite dev server first).
