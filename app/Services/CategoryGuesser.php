@@ -16,39 +16,43 @@ use Illuminate\Support\Str;
 final readonly class CategoryGuesser
 {
     /**
-     * The words that name each category in a competition name, without diacritics and lowercase, as the forms competition names use.
-     *
-     * @var array<value-of<Category>, list<string>>
-     */
-    private const array WORDS = [
-        'zeny' => ['zen', 'zeny'],
-        'juniori' => ['junioru', 'juniori'],
-        'juniorky' => ['juniorek', 'juniorky'],
-        'dorostenci' => ['dorostencu', 'dorostenci'],
-        'dorostenky' => ['dorostenek', 'dorostenky'],
-        'starsi-zaci' => ['starsich zaku', 'starsi zaci'],
-        'starsi-zakyne' => ['starsich zakyn', 'starsi zakyne'],
-        'mladsi-zaci' => ['mladsich zaku', 'mladsi zaci'],
-        'mladsi-zakyne' => ['mladsich zakyn', 'mladsi zakyne'],
-        'elevove' => ['elevu', 'elevove'],
-        'pripravka' => ['pripravek', 'pripravky', 'pripravka'],
-    ];
-
-    /**
      * Guess the category of a team playing the given competition, men when the name carries no category word.
      */
     public function guess(string $competitionName): Category
     {
         $words = Str::lower(Str::ascii($competitionName));
 
-        foreach (self::WORDS as $category => $categoryWords) {
-            foreach ($categoryWords as $categoryWord) {
-                if (preg_match('/\b'.preg_quote($categoryWord, '/').'\b/', $words) === 1) {
-                    return Category::from($category);
+        foreach (Category::cases() as $category) {
+            foreach ($this->words($category) as $categoryWord) {
+                if (Str::isMatch('/\b'.preg_quote($categoryWord, '/').'\b/', $words)) {
+                    return $category;
                 }
             }
         }
 
         return Category::Men;
+    }
+
+    /**
+     * The words that name the category in a competition name, without diacritics and lowercase, as the forms competition names use.
+     *
+     * @return list<string>
+     */
+    private function words(Category $category): array
+    {
+        return match ($category) {
+            Category::Men => [],
+            Category::Women => ['zen', 'zeny'],
+            Category::Juniors => ['junioru', 'juniori'],
+            Category::JuniorWomen => ['juniorek', 'juniorky'],
+            Category::Youths => ['dorostencu', 'dorostenci'],
+            Category::YouthWomen => ['dorostenek', 'dorostenky'],
+            Category::OlderBoys => ['starsich zaku', 'starsi zaci'],
+            Category::OlderGirls => ['starsich zakyn', 'starsi zakyne'],
+            Category::YoungerBoys => ['mladsich zaku', 'mladsi zaci'],
+            Category::YoungerGirls => ['mladsich zakyn', 'mladsi zakyne'],
+            Category::Elves => ['elevu', 'elevove'],
+            Category::Preparatory => ['pripravek', 'pripravky', 'pripravka'],
+        };
     }
 }
