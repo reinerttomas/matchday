@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/reinerttomas/matchday/compare/v0.5.1...v0.6.0) (2026-11-03)
+
+
+### Features
+
+* let administrators choose which emails they receive ([#16](https://github.com/reinerttomas/matchday/issues/16)) ([df1744b](https://github.com/reinerttomas/matchday/commit/df1744b9767c632a911f7ab7317c5937ee6d3539))
+* prefill a new team from its federation team page ([#12](https://github.com/reinerttomas/matchday/issues/12)) ([61044cc](https://github.com/reinerttomas/matchday/commit/61044cc876fb4ab03e0de908f27d293bbaa1c789))
+
+
+### Bug Fixes
+
+* serve vite over the workspace site's herd certificate ([#15](https://github.com/reinerttomas/matchday/issues/15)) ([c30425e](https://github.com/reinerttomas/matchday/commit/c30425e6096b8dd36676ea4cd63710667c259504))
+
 ## [0.5.1](https://github.com/reinerttomas/matchday/compare/v0.5.0...v0.5.1) (2026-10-22)
 
 
