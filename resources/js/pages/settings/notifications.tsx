@@ -1,5 +1,12 @@
 import { Head, router } from '@inertiajs/react';
+import { Users } from 'lucide-react';
 import Heading from '@/components/heading';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
 import {
     Field,
     FieldContent,
@@ -97,9 +104,16 @@ export default function Notifications({ notifyImportFailures, teams }: Props) {
                             Shrnutí změn, které pak pošlete do WhatsAppu týmu.
                         </FieldDescription>
                         {teams.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">
-                                Aktuální sezona nemá žádné týmy.
-                            </p>
+                            <Empty className="border">
+                                <EmptyHeader>
+                                    <EmptyMedia variant="icon">
+                                        <Users />
+                                    </EmptyMedia>
+                                    <EmptyTitle>
+                                        Aktuální sezona nemá žádné týmy
+                                    </EmptyTitle>
+                                </EmptyHeader>
+                            </Empty>
                         ) : (
                             <FieldGroup className="gap-4">
                                 {teams.map((team) => (
