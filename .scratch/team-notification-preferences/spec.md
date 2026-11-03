@@ -66,7 +66,7 @@ Domain vocabulary follows `CONTEXT.md`: Administrator, Team, Team season, Season
     - Change summary (`FixtureListRevised`): recipients are the administrators subscribed to the imported team season's team.
     - Import failure (`ImportFailed`): recipients are the administrators with `notify_import_failures` on.
     - Still one mail addressed to all recipients at once; nothing is sent when the recipient list is empty.
-- **Logging.** Finishing an import without applying logs every outcome: error as `Log::error`, aborted as `Log::warning`, with team season ID, import ID and reason. The existing connection-failure warning is folded into this so a connection failure is logged once.
+- **Logging.** Finishing an import without applying always reaches Nightwatch with team season ID, import ID and reason, following `.ai/rules/third-party-api.md`: a download failure a later import may pass on its own (lost connection, 429, 5xx) and an aborted import are a `Log::warning`; a download failure someone has to fix (another 4xx, a page the parser can't read) is `report($e)` so it becomes a Nightwatch issue. An unexpected failure is rethrown and reported by its caller. The existing connection-failure warning is folded into this so a connection failure is logged once.
 - **Routes and controllers** (under the existing authenticated, verified settings group):
     - `GET settings/notifications` — renders the Inertia page with the `notify_import_failures` value and the current season's teams (ID, name, subscribed flag), sorted by name.
     - An endpoint to set the import-failure switch for the signed-in administrator.
@@ -86,7 +86,7 @@ Domain vocabulary follows `CONTEXT.md`: Administrator, Team, Team season, Season
     - The change summary goes only to subscribed administrators; an unsubscribed administrator does not receive it.
     - No mail when nobody is subscribed.
     - Import failure goes only to administrators with `notify_import_failures` on, regardless of notification subscriptions; no mail when nobody has it on.
-    - Error and aborted imports are logged with team season, import and reason (`Log::spy` / expectations); a connection failure is logged once.
+    - Recoverable download failures and aborted imports are logged as warnings with team season, import and reason, and a connection failure is logged once (`Log::spy`); download failures that need fixing are reported (`Exceptions::fake()`).
     - Existing tests that create users via the factory must give them notification subscriptions (e.g. a factory state or helper) so they keep expressing "every user receives it".
 - **Settings page (seam: HTTP feature tests).** Prior art: `tests/Feature/Settings/ProfileUpdateTest.php`.
     - Guests are redirected to login.
