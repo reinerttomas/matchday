@@ -105,6 +105,7 @@ export type ImportFailure = {
 
 export type FixtureList = {
     sourceUrl: string;
+    overviewUrl: string;
     period: FixtureListPeriod;
     upcomingCount: number;
     seasonCount: number;
@@ -183,6 +184,7 @@ export type TeamSeasonListItem = {
     calendarUrl: string;
     publicPageUrl: string;
     sourceUrl: string;
+    overviewUrl: string;
 };
 
 export type SeasonListItem = {
@@ -196,6 +198,17 @@ export type CarryOverTeam = {
     id: number;
     name: string;
     slug: string;
+};
+
+/**
+ * The team read from its federation team page by the "Přidat tým" dialog; name and competition are null while the page lists no fixtures.
+ */
+export type FederationTeam = {
+    externalId: number;
+    name: string | null;
+    competition: string | null;
+    season: string;
+    overviewUrl: string;
 };
 
 export type VenueListItem = {

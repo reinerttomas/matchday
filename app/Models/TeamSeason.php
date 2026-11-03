@@ -22,7 +22,6 @@ use Illuminate\Support\Carbon;
  * @property-read int $team_id
  * @property-read int $season_id
  * @property-read int $external_id
- * @property-read string $source_url
  * @property-read string|null $name
  * @property-read string|null $competition_name
  * @property-read bool $auto_import_enabled
@@ -35,7 +34,7 @@ use Illuminate\Support\Carbon;
  * @property-read Import|null $initialImport
  * @property-read Import|null $lastImport
  */
-#[Fillable(['team_id', 'season_id', 'external_id', 'source_url', 'name', 'competition_name', 'auto_import_enabled'])]
+#[Fillable(['team_id', 'season_id', 'external_id', 'name', 'competition_name', 'auto_import_enabled'])]
 final class TeamSeason extends Model
 {
     /** @use HasFactory<TeamSeasonFactory> */

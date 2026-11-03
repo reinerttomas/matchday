@@ -11,6 +11,6 @@ The federation (ceskyflorbal.cz) assigns every team a new ID each season and giv
 
 ## Consequences
 
-- The schema is `seasons` → `team_seasons` (federation team ID, name, competition, source URL, `auto_import_enabled`) → `fixtures` / `imports` → `revisions`, with `teams` holding only the slug.
+- The schema is `seasons` → `team_seasons` (federation team ID as `external_id`, name, competition, `auto_import_enabled`) → `fixtures` / `imports` → `revisions`, with `teams` holding only the slug. The addresses of the team's pages on ceskyflorbal.cz, the fixture list included, are not stored: they are derived from `external_id`.
 - There is no competitions table: the competition is a name on the team season, and the 60-minute calendar event length is a constant.
 - Past seasons stay browsable. The calendar and automatic imports use the season the administrator marks as current.

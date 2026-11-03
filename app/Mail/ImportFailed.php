@@ -6,6 +6,7 @@ namespace App\Mail;
 
 use App\Enums\ImportStatus;
 use App\Models\Import;
+use App\Services\Ceskyflorbal\FederationTeamPage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -44,7 +45,7 @@ final class ImportFailed extends Mailable implements ShouldQueue
                 'outcome' => $this->outcome(),
                 'teamSeason' => $this->teamSeasonName(),
                 'reason' => $this->import->error,
-                'sourceUrl' => $this->import->teamSeason->source_url,
+                'sourceUrl' => app(FederationTeamPage::class)->fixtureListAddress($this->import->teamSeason->external_id),
             ],
         );
     }

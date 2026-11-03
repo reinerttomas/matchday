@@ -20,7 +20,7 @@ test('imports each team season of the current season with auto import enabled as
     $otherTeamSeason = TeamSeason::factory()->for($teamSeason->season)->create();
     TeamSeason::factory()->for($teamSeason->season)->autoImportDisabled()->create();
     TeamSeason::factory()->for(Season::factory()->state(['name' => '2025/2026']))->create();
-    Http::fake([$otherTeamSeason->source_url => Http::response(Ceskyflorbal::fixtureListSnapshot())]);
+    Http::fake(["https://www.ceskyflorbal.cz/team/detail/matches/{$otherTeamSeason->external_id}" => Http::response(Ceskyflorbal::fixtureListSnapshot())]);
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
 
     artisan('fixtures:import')
@@ -38,7 +38,7 @@ test('imports the remaining team seasons after one import throws', function () {
     Exceptions::fake();
     $teamSeason = Ceskyflorbal::kutnaHoraTeamSeason();
     $otherTeamSeason = TeamSeason::factory()->for($teamSeason->season)->create();
-    Http::fake([$otherTeamSeason->source_url => Http::response(Ceskyflorbal::fixtureListSnapshot())]);
+    Http::fake(["https://www.ceskyflorbal.cz/team/detail/matches/{$otherTeamSeason->external_id}" => Http::response(Ceskyflorbal::fixtureListSnapshot())]);
     Ceskyflorbal::fake(fn () => throw new RuntimeException('Reading the response failed.'));
 
     artisan('fixtures:import')

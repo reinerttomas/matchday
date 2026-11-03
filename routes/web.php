@@ -14,6 +14,7 @@ use App\Http\Controllers\PublicTeamPageController;
 use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\SentChangeSummaryController;
+use App\Http\Controllers\TeamLookupController;
 use App\Http\Controllers\TeamNameController;
 use App\Http\Controllers\TeamPageEventController;
 use App\Http\Controllers\TeamSeasonController;
@@ -43,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('imports', [ImportController::class, 'index'])->name('imports.index');
     Route::post('imports', [ImportController::class, 'store'])->name('imports.store');
     Route::get('teams', [TeamSeasonController::class, 'index'])->name('teams.index');
+    Route::get('teams/lookup', TeamLookupController::class)->middleware('throttle:team-lookups')->name('teams.lookup');
     Route::post('teams', [TeamSeasonController::class, 'store'])->name('teams.store');
     Route::patch('teams/{teamSeason}', [TeamSeasonController::class, 'update'])->name('teams.update');
     Route::patch('teams/{team}/name', [TeamNameController::class, 'update'])->name('teams.name.update');

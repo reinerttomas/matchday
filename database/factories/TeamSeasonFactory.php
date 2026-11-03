@@ -21,13 +21,10 @@ final class TeamSeasonFactory extends Factory
      */
     public function definition(): array
     {
-        $externalId = fake()->unique()->randomNumber(5, strict: true);
-
         return [
             'team_id' => Team::factory(),
             'season_id' => Season::factory(),
-            'external_id' => $externalId,
-            'source_url' => "https://www.ceskyflorbal.cz/team/detail/matches/{$externalId}",
+            'external_id' => fake()->unique()->randomNumber(5, strict: true),
             'name' => 'FBC '.fake()->city(),
             'competition_name' => 'Liga '.fake()->word(),
             'auto_import_enabled' => true,

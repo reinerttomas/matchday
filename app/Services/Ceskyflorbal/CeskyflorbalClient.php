@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Ceskyflorbal;
 
-use App\Models\TeamSeason;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Sleep;
@@ -21,6 +20,7 @@ final readonly class CeskyflorbalClient
      */
     public function __construct(
         private FixtureListParser $fixtureListParser,
+        private FederationTeamPage $federationTeamPage,
         private MatchDetailParser $matchDetailParser,
         #[Config('services.ceskyflorbal.request_pause_milliseconds')]
         private int $requestPauseMilliseconds,
@@ -29,11 +29,11 @@ final readonly class CeskyflorbalClient
     ) {}
 
     /**
-     * Download and parse the team season's fixture list page.
+     * Download and parse the fixture list page of the team with the federation's team ID.
      */
-    public function fixtureList(TeamSeason $teamSeason): FixtureListPageData
+    public function fixtureList(int $teamExternalId): FixtureListPageData
     {
-        return $this->fixtureListParser->parse($this->download($teamSeason->source_url), $teamSeason);
+        return $this->fixtureListParser->parse($this->download($this->federationTeamPage->fixtureListAddress($teamExternalId)), $teamExternalId);
     }
 
     /**

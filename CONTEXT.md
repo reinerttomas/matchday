@@ -40,7 +40,11 @@ One of our teams that the app publishes a calendar for. The administrator names 
 _Avoid_: Tracked team
 
 **Team season**:
-A team's participation in one season: the federation's team ID for that season, the name and competition the federation gives the team that season, and the address of its fixture list. The imported name is kept but not shown; the team's own name is.
+A team's participation in one season: the federation's team ID for that season, and the name and competition the federation gives the team that season. Every address of its **federation team page**, the fixture list included, is derived from that ID. The imported name is kept but not shown; the team's own name is.
+
+**Federation team page**:
+A team season's page on ceskyflorbal.cz, with tabs such as Přehled (overview) and Zápasy (the fixture list). Every tab carries the same federation team ID, so the address of any tab identifies the team season.
+_Avoid_: Overview, Team detail
 
 **Venue**:
 A sports hall where fixtures are played. Name and federation ID come from the source; the address comes from a fixture's detail page.

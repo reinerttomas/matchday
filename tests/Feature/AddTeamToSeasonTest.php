@@ -47,7 +47,7 @@ test('adds a new team named by the administrator to the selected season with a s
     Queue::fake([ImportFixtureList::class]);
 
     $response = $this->from('/teams')->post('/teams', [
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
         'name' => 'FBC Kutná Hora B',
     ]);
 
@@ -61,7 +61,6 @@ test('adds a new team named by the administrator to the selected season with a s
     expect($teamSeason)
         ->season_id->toBe($season->id)
         ->external_id->toBe(45019)
-        ->source_url->toBe('https://www.ceskyflorbal.cz/team/detail/matches/45019')
         ->name->toBeNull()
         ->competition_name->toBeNull()
         ->auto_import_enabled->toBeTrue();
@@ -74,7 +73,7 @@ test('derives a new team\'s slug from its name even when a slug is sent', functi
     Queue::fake([ImportFixtureList::class]);
 
     $this->post('/teams', [
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
         'name' => 'FBC Kutná Hora B',
         'slug' => 'kutna-hora-b',
     ])->assertSessionHasNoErrors();
@@ -89,7 +88,7 @@ test('adds the team to the season the administrator picked instead of the curren
     Queue::fake([ImportFixtureList::class]);
 
     $this->post('/teams', [
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
         'name' => 'FBC Kutná Hora B',
     ])->assertSessionHasNoErrors();
 
@@ -102,7 +101,7 @@ test('fills the new team season\'s name and competition by its first import, lea
     Ceskyflorbal::fake(Http::response(Ceskyflorbal::fixtureListSnapshot()));
 
     $this->post('/teams', [
-        'source_url' => Ceskyflorbal::FIXTURE_LIST_URL,
+        'federation_team_page_url' => Ceskyflorbal::FIXTURE_LIST_URL,
         'name' => 'Kutná Hora B',
     ])->assertSessionHasNoErrors();
 
@@ -122,7 +121,7 @@ test('carries a team over from a previous season with a new team season and the 
 
     $response = $this->from('/teams')->post('/teams', [
         'team_id' => $team->id,
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
     ]);
 
     $response->assertRedirect('/teams')
@@ -133,7 +132,6 @@ test('carries a team over from a previous season with a new team season and the 
     $teamSeason = $team->teamSeasons()->whereBelongsTo($season)->sole();
     expect($teamSeason)
         ->external_id->toBe(45019)
-        ->source_url->toBe('https://www.ceskyflorbal.cz/team/detail/matches/45019')
         ->name->toBeNull()
         ->competition_name->toBeNull();
     expect($team->teamSeasons()->where('external_id', 40001)->sole()->name)->toBe('FBC Kutná Hora B');
@@ -147,7 +145,7 @@ test('carries a team over without its name or slug even when they are sent', fun
 
     $this->post('/teams', [
         'team_id' => $team->id,
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
         'slug' => 'renamed',
     ])->assertSessionHasNoErrors();
 
@@ -156,58 +154,68 @@ test('carries a team over without its name or slug even when they are sent', fun
         ->slug->toBe('kutna-hora-b');
 });
 
-test('reads the federation\'s team ID from the fixture list address and stores the address in its usual form', function (string $address) {
+test('reads the federation\'s team ID from the address of any tab of the federation team page and stores only the ID, without a request to ceskyflorbal.cz', function (string $address) {
     seasonToAddTeamsTo();
     Queue::fake([ImportFixtureList::class]);
+    Http::fake();
 
-    $this->post('/teams', ['source_url' => $address, 'name' => 'FBC Kutná Hora B'])->assertSessionHasNoErrors();
+    $this->post('/teams', ['federation_team_page_url' => $address, 'name' => 'FBC Kutná Hora B'])->assertSessionHasNoErrors();
 
-    expect(TeamSeason::query()->sole())
-        ->external_id->toBe(45019)
-        ->source_url->toBe('https://www.ceskyflorbal.cz/team/detail/matches/45019');
+    $teamSeason = TeamSeason::query()->sole();
+    expect($teamSeason->external_id)->toBe(45019)
+        ->and($teamSeason->getAttributes())->not->toHaveKey('source_url');
+    Http::assertNothingSent();
+    Queue::assertPushedTimes(ImportFixtureList::class, 1);
 })->with([
-    'without www' => ['https://ceskyflorbal.cz/team/detail/matches/45019'],
+    'the fixture list' => ['https://www.ceskyflorbal.cz/team/detail/matches/45019'],
+    'the overview' => ['https://www.ceskyflorbal.cz/team/detail/overview/45019'],
+    'the roster' => ['https://www.ceskyflorbal.cz/team/detail/roster/45019'],
+    'without www' => ['https://ceskyflorbal.cz/team/detail/overview/45019'],
     'over http' => ['http://www.ceskyflorbal.cz/team/detail/matches/45019'],
-    'without a scheme' => ['www.ceskyflorbal.cz/team/detail/matches/45019'],
+    'without a scheme' => ['www.ceskyflorbal.cz/team/detail/overview/45019'],
+    'without a scheme or www' => ['ceskyflorbal.cz/team/detail/overview/45019'],
     'with a trailing slash' => ['https://www.ceskyflorbal.cz/team/detail/matches/45019/'],
-    'with a query' => ['https://www.ceskyflorbal.cz/team/detail/matches/45019?season=2026'],
+    'with a query' => ['https://www.ceskyflorbal.cz/team/detail/overview/45019?season=2026'],
 ]);
 
-test('rejects an address that is not a team\'s fixture list on ceskyflorbal.cz', function (?string $address, string $message) {
+test('rejects an address that is not a federation team page', function (?string $address, string $message) {
     seasonToAddTeamsTo();
     Queue::fake([ImportFixtureList::class]);
 
-    $this->from('/teams')->post('/teams', ['source_url' => $address, 'name' => 'FBC Kutná Hora B'])
+    $this->from('/teams')->post('/teams', ['federation_team_page_url' => $address, 'name' => 'FBC Kutná Hora B'])
         ->assertRedirect('/teams')
-        ->assertSessionHasErrors(['source_url' => $message]);
+        ->assertSessionHasErrors(['federation_team_page_url' => $message]);
 
     expect(Team::query()->exists())->toBeFalse();
     Queue::assertNothingPushed();
 })->with([
-    'missing' => [null, 'Zadejte adresu rozpisu zápasů týmu na ceskyflorbal.cz.'],
-    'another site' => ['https://www.example.com/team/detail/matches/45019', 'Adresa musí vést na rozpis zápasů týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/matches/45019.'],
-    'a look-alike domain' => ['https://www.ceskyflorbal.cz.example.com/team/detail/matches/45019', 'Adresa musí vést na rozpis zápasů týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/matches/45019.'],
-    'the team overview' => ['https://www.ceskyflorbal.cz/team/detail/overview/45019', 'Adresa musí vést na rozpis zápasů týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/matches/45019.'],
-    'a match detail' => ['https://www.ceskyflorbal.cz/match/detail/default/1306754', 'Adresa musí vést na rozpis zápasů týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/matches/45019.'],
-    'without a team ID' => ['https://www.ceskyflorbal.cz/team/detail/matches/', 'Adresa musí vést na rozpis zápasů týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/matches/45019.'],
-    'not an address' => ['rozpis B týmu', 'Adresa musí vést na rozpis zápasů týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/matches/45019.'],
+    'missing' => [null, 'Zadejte adresu stránky týmu na ceskyflorbal.cz.'],
+    'another site' => ['https://www.example.com/team/detail/overview/45019', 'Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019.'],
+    'a look-alike domain' => ['https://www.ceskyflorbal.cz.example.com/team/detail/overview/45019', 'Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019.'],
+    'a match detail' => ['https://www.ceskyflorbal.cz/match/detail/default/1306754', 'Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019.'],
+    'without a tab' => ['https://www.ceskyflorbal.cz/team/detail/45019', 'Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019.'],
+    'without a team ID' => ['https://www.ceskyflorbal.cz/team/detail/overview/', 'Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019.'],
+    'not an address' => ['rozpis B týmu', 'Adresa musí vést na stránku týmu na ceskyflorbal.cz, např. https://www.ceskyflorbal.cz/team/detail/overview/45019.'],
 ]);
 
-test('rejects a fixture list that another team season already has', function () {
+test('rejects the address of any tab whose federation team ID another team season already has', function (string $address) {
     seasonToAddTeamsTo();
     $team = teamFromPreviousSeason();
     Queue::fake([ImportFixtureList::class]);
 
     $this->from('/teams')->post('/teams', [
         'team_id' => $team->id,
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/40001',
+        'federation_team_page_url' => $address,
     ])
         ->assertRedirect('/teams')
-        ->assertSessionHasErrors(['source_url' => 'Tento rozpis už patří týmu FBC Kutná Hora B 2025/2026.']);
+        ->assertSessionHasErrors(['federation_team_page_url' => 'Tato stránka už patří týmu FBC Kutná Hora B 2025/2026.']);
 
     expect(TeamSeason::query()->count())->toBe(1);
     Queue::assertNothingPushed();
-});
+})->with([
+    'the fixture list' => ['https://www.ceskyflorbal.cz/team/detail/matches/40001'],
+    'the overview' => ['ceskyflorbal.cz/team/detail/overview/40001'],
+]);
 
 test('rejects a new team\'s name that is missing, too long, without a slug or with a slug another team has', function (?string $name, string $message) {
     seasonToAddTeamsTo();
@@ -215,7 +223,7 @@ test('rejects a new team\'s name that is missing, too long, without a slug or wi
     Queue::fake([ImportFixtureList::class]);
 
     $this->from('/teams')->post('/teams', [
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
         'name' => $name,
     ])
         ->assertRedirect('/teams')
@@ -237,7 +245,7 @@ test('rejects carrying over a team that is unknown', function () {
 
     $this->from('/teams')->post('/teams', [
         'team_id' => 999,
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
     ])
         ->assertRedirect('/teams')
         ->assertSessionHasErrors(['team_id' => 'Vybraný tým neexistuje.']);
@@ -254,7 +262,7 @@ test('rejects carrying over a team that already is in the selected season', func
 
     $this->from('/teams')->post('/teams', [
         'team_id' => $team->id,
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
     ])
         ->assertRedirect('/teams')
         ->assertSessionHasErrors(['team_id' => 'Tento tým už v sezoně 2026/2027 je.']);
@@ -267,7 +275,7 @@ test('returns 404 while there is no season', function () {
     Queue::fake([ImportFixtureList::class]);
 
     $this->post('/teams', [
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
         'name' => 'FBC Kutná Hora B',
     ])->assertNotFound();
 
@@ -281,7 +289,7 @@ test('redirects guests to the login page', function () {
     Queue::fake([ImportFixtureList::class]);
 
     $this->post('/teams', [
-        'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
+        'federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
         'name' => 'FBC Kutná Hora B',
     ])->assertRedirect('/login');
 

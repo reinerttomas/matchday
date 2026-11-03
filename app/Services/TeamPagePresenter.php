@@ -8,6 +8,7 @@ use App\Enums\FixtureStatus;
 use App\Enums\ImportStatus;
 use App\Models\Fixture;
 use App\Models\TeamSeason;
+use App\Services\Ceskyflorbal\FederationTeamPage;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Container\Attributes\Config;
@@ -30,6 +31,7 @@ final readonly class TeamPagePresenter
         #[Config('services.ceskyflorbal.timezone')]
         private string $timezone,
         private FixtureFormatter $fixtureFormatter,
+        private FederationTeamPage $federationTeamPage,
     ) {}
 
     /**
@@ -55,7 +57,7 @@ final readonly class TeamPagePresenter
         return [
             'name' => $teamSeason->displayName(),
             'competition' => $teamSeason->competition_name,
-            'sourceUrl' => $teamSeason->source_url,
+            'sourceUrl' => $this->federationTeamPage->fixtureListAddress($teamSeason->external_id),
             'lastImportedAt' => $this->lastImportedAt($teamSeason),
             'matchDays' => array_values($fixtures
                 ->groupBy(fn (Fixture $fixture): string => $fixture->date->toDateString())

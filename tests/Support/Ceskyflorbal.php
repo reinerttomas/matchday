@@ -48,10 +48,7 @@ final class Ceskyflorbal
             ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
             ->for(Season::factory()->current()->state(['name' => '2026/2027']))
             ->notImported()
-            ->create([
-                'external_id' => 45019,
-                'source_url' => self::FIXTURE_LIST_URL,
-            ]);
+            ->create(['external_id' => 45019]);
     }
 
     /**
@@ -73,6 +70,16 @@ final class Ceskyflorbal
             $rows,
             fn (string $row): bool => ! str_contains($row, "/match/detail/default/{$externalId}\""),
         ));
+    }
+
+    /**
+     * The live fixture list page of FBC Kutná Hora B in 2026/2027 without its fixture section, as before the federation publishes the fixtures.
+     */
+    public static function fixtureListSnapshotWithoutFixtures(): string
+    {
+        return Str::of(self::fixtureListSnapshot())
+            ->replaceMatches('#(<section class="Matches-body--League" id="snippet--matches">).*?(</section>)#s', '${1}${2}')
+            ->toString();
     }
 
     /**

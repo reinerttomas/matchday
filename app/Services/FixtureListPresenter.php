@@ -9,6 +9,7 @@ use App\Enums\ImportStatus;
 use App\Models\Fixture;
 use App\Models\Import;
 use App\Models\TeamSeason;
+use App\Services\Ceskyflorbal\FederationTeamPage;
 use Carbon\CarbonImmutable;
 use Illuminate\Container\Attributes\Config;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
  * @phpstan-type BadgeProps array{kind: string, label: string}
  * @phpstan-type FixtureProps array{id: int, day: string, round: string|null, time: string|null, isHome: bool, homeTeam: string, awayTeam: string, venue: string|null, status: string, badges: list<BadgeProps>, score: string|null, revisions: list<list<RevisionPart>>}
  * @phpstan-type ImportFailureProps array{status: string, reason: string|null}
- * @phpstan-type FixtureListProps array{sourceUrl: string, period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFinished: string|null, lastImportFailure: ImportFailureProps|null, fixtures: list<FixtureProps>}
+ * @phpstan-type FixtureListProps array{sourceUrl: string, overviewUrl: string, period: string, upcomingCount: int, seasonCount: int, isImported: bool, lastImportFinished: string|null, lastImportFailure: ImportFailureProps|null, fixtures: list<FixtureProps>}
  */
 final readonly class FixtureListPresenter
 {
@@ -35,6 +36,7 @@ final readonly class FixtureListPresenter
         #[Config('services.ceskyflorbal.timezone')]
         private string $timezone,
         private FixtureFormatter $fixtureFormatter,
+        private FederationTeamPage $federationTeamPage,
     ) {}
 
     /**
@@ -70,7 +72,8 @@ final readonly class FixtureListPresenter
             ->first();
 
         return [
-            'sourceUrl' => $teamSeason->source_url,
+            'sourceUrl' => $this->federationTeamPage->fixtureListAddress($teamSeason->external_id),
+            'overviewUrl' => $this->federationTeamPage->overviewAddress($teamSeason->external_id),
             'period' => $showsWholeSeason ? 'season' : 'upcoming',
             'upcomingCount' => $upcomingFixtures->count(),
             'seasonCount' => $fixtures->count(),

@@ -22,7 +22,7 @@ final readonly class CreateTeamSeason
      *
      * A brand-new team is passed unsaved and saved together with its first team season, so a team never exists without one. A team carried over from a previous season keeps its name and slug, and with it its calendar address.
      *
-     * @param  array{external_id: int, source_url: string}  $attributes
+     * @param  array{external_id: int}  $attributes
      */
     public function handle(Team $team, Season $season, array $attributes): TeamSeason
     {

@@ -22,7 +22,6 @@ function kutnaHoraTeamSeason(): TeamSeason
         ->for(Season::factory()->current()->state(['name' => '2026/2027']))
         ->create([
             'external_id' => 45019,
-            'source_url' => 'https://www.ceskyflorbal.cz/team/detail/matches/45019',
             'name' => 'FBC Kutná Hora B',
             'competition_name' => '2. liga mužů, skupina 3',
         ]);
@@ -238,6 +237,16 @@ test('names the data source and the time of the last successful import in Prague
     $response->assertInertia(fn (Assert $page) => $page
         ->where('teamSeason.sourceUrl', 'https://www.ceskyflorbal.cz/team/detail/matches/45019')
         ->where('teamSeason.lastImportedAt', '3. 10. 2026 v 16:05')
+        ->etc());
+});
+
+test('doesn\'t link the team\'s overview on ceskyflorbal.cz', function () {
+    kutnaHoraTeamSeason();
+
+    $response = $this->get('/t/kutna-hora-b');
+
+    $response->assertInertia(fn (Assert $page) => $page
+        ->missing('teamSeason.overviewUrl')
         ->etc());
 });
 

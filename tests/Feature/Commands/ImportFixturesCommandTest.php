@@ -167,7 +167,7 @@ test('keeps the stored status and logs it when a row shows an unknown status', f
 
     Log::shouldHaveReceived('warning')
         ->with('Unknown fixture status on the fixture list page.', [
-            'team_season_id' => $teamSeason->id,
+            'team_external_id' => $teamSeason->external_id,
             'external_id' => 1306757,
             'status' => 'kontumace',
         ])
@@ -195,7 +195,7 @@ test('keeps the stored status and logs it when a row shows neither a venue nor a
 
     Log::shouldHaveReceived('warning')
         ->with('Unknown fixture status on the fixture list page.', [
-            'team_season_id' => $teamSeason->id,
+            'team_external_id' => $teamSeason->external_id,
             'external_id' => 1306757,
             'status' => null,
         ])
