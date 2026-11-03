@@ -109,6 +109,7 @@ function AddTeamForm({
     const [choice, setChoice] = useState<Choice>('new');
     const [teamId, setTeamId] = useState('');
     const isChoiceMadeByHand = useRef(false);
+    const isTeamPickedByHand = useRef(false);
     const {
         lookup,
         lookupError,
@@ -144,13 +145,17 @@ function AddTeamForm({
             ? lookup.team.competition
             : null;
 
+    // A choice or a team picked by hand stays; the team follows the lookup otherwise, so it is ready once the administrator switches to it.
     function preselect(carryOverTeam: CarryOverTeam | undefined): void {
-        if (isChoiceMadeByHand.current) {
-            return;
+        if (!isChoiceMadeByHand.current) {
+            setChoice(carryOverTeam === undefined ? 'new' : 'carry-over');
         }
 
-        setChoice(carryOverTeam === undefined ? 'new' : 'carry-over');
-        setTeamId(carryOverTeam === undefined ? '' : String(carryOverTeam.id));
+        if (!isTeamPickedByHand.current) {
+            setTeamId(
+                carryOverTeam === undefined ? '' : String(carryOverTeam.id),
+            );
+        }
     }
 
     function pickCategory(value: string): void {
@@ -236,22 +241,6 @@ function AddTeamForm({
                         )}
                         {isResolved && (
                             <>
-                                <NameAndCategoryFields
-                                    name={name}
-                                    category={category}
-                                    categories={categories}
-                                    guessedFromCompetition={
-                                        guessedFromCompetition
-                                    }
-                                    isNameDisabled={choice === 'carry-over'}
-                                    nameError={errors.name}
-                                    categoryError={errors.category}
-                                    onNameChange={(value) => {
-                                        setName(value);
-                                        isNameEdited.current = true;
-                                    }}
-                                    onCategoryChange={pickCategory}
-                                />
                                 <RadioGroup
                                     value={choice}
                                     onValueChange={(value) => {
@@ -292,15 +281,33 @@ function AddTeamForm({
                                     />
                                 </RadioGroup>
                                 {choice === 'new' ? (
-                                    <CalendarUrlPreview
-                                        name={name}
-                                        category={categories.find(
-                                            (item) => item.value === category,
-                                        )}
-                                        calendarUrlTemplate={
-                                            calendarUrlTemplate
-                                        }
-                                    />
+                                    <>
+                                        <NameAndCategoryFields
+                                            name={name}
+                                            category={category}
+                                            categories={categories}
+                                            guessedFromCompetition={
+                                                guessedFromCompetition
+                                            }
+                                            nameError={errors.name}
+                                            categoryError={errors.category}
+                                            onNameChange={(value) => {
+                                                setName(value);
+                                                isNameEdited.current = true;
+                                            }}
+                                            onCategoryChange={pickCategory}
+                                        />
+                                        <CalendarUrlPreview
+                                            name={name}
+                                            category={categories.find(
+                                                (item) =>
+                                                    item.value === category,
+                                            )}
+                                            calendarUrlTemplate={
+                                                calendarUrlTemplate
+                                            }
+                                        />
+                                    </>
                                 ) : (
                                     <CarryOverTeamFields
                                         carryOverTeams={carryOverTeams}
@@ -308,7 +315,7 @@ function AddTeamForm({
                                         error={errors.team_id}
                                         onChange={(value) => {
                                             setTeamId(value);
-                                            isChoiceMadeByHand.current = true;
+                                            isTeamPickedByHand.current = true;
                                         }}
                                     />
                                 )}
@@ -523,15 +530,14 @@ function FederationTeamSummary({ team }: { team: FederationTeam }) {
 }
 
 /**
- * The new team's name with its category beside it. The category stays enabled for a team carried over too, because the team
- * from the previous season is matched by it; the name is disabled then, as a team carried over keeps its own.
+ * The new team's name with its category beside it. A team carried over keeps its own name and category, so these fields belong
+ * to a new team only; changing the category still looks the team from the previous season up again, as it is matched by it.
  */
 function NameAndCategoryFields({
     name,
     category,
     categories,
     guessedFromCompetition,
-    isNameDisabled,
     nameError,
     categoryError,
     onNameChange,
@@ -541,7 +547,6 @@ function NameAndCategoryFields({
     category: string;
     categories: TeamCategory[];
     guessedFromCompetition: string | null;
-    isNameDisabled: boolean;
     nameError: string | undefined;
     categoryError: string | undefined;
     onNameChange: (name: string) => void;
@@ -550,17 +555,12 @@ function NameAndCategoryFields({
     return (
         <div className="grid gap-2">
             <div className="grid gap-4 sm:grid-cols-[1fr_12rem]">
-                <Field
-                    className="gap-2"
-                    data-invalid={nameError !== undefined}
-                    data-disabled={isNameDisabled}
-                >
+                <Field className="gap-2" data-invalid={nameError !== undefined}>
                     <FieldLabel htmlFor="new-team-name">Název týmu</FieldLabel>
                     <Input
                         id="new-team-name"
                         name="name"
                         required
-                        disabled={isNameDisabled}
                         autoComplete="off"
                         placeholder="FBC Kutná Hora B"
                         value={name}

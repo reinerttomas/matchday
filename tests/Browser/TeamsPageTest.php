@@ -228,7 +228,28 @@ test('preselects the carry-over team with the federation\'s team name and the gu
         ->and(Team::query()->count())->toBe(2);
 });
 
-test('preselects the carry-over team of the category the administrator changes to', function () {
+test('shows the carry-over team\'s own name and category instead of the new team\'s fields', function () {
+    Season::factory()->current()->create(['name' => '2026/2027']);
+    $previousSeason = Season::factory()->create(['name' => '2025/2026']);
+    $team = Team::factory()->create(['name' => 'Béčko Kutná Hora']);
+    TeamSeason::factory()->for($team)->for($previousSeason)->create(['name' => 'FBC Kutná Hora B']);
+    Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshot());
+
+    $page = visit('/teams')->click('@add-team');
+    pasteFederationTeamPageUrl($page, 'https://www.ceskyflorbal.cz/team/detail/overview/45019');
+
+    $page->assertAttribute('@carry-over-team-choice', 'aria-checked', 'true')
+        ->assertSeeIn('@carry-over-team-select', 'Béčko Kutná Hora')
+        ->assertSeeIn('@carry-over-team-select', 'muži')
+        ->assertMissing('[name="name"]')
+        ->assertMissing('@new-team-category-select')
+        ->click('@new-team-choice')
+        ->assertValue('[name="name"]', 'FBC Kutná Hora B')
+        ->assertSeeIn('@new-team-category-select', 'muži')
+        ->assertNoJavaScriptErrors();
+});
+
+test('offers the carry-over team of the category the administrator changes the new team to', function () {
     $season = Season::factory()->current()->create(['name' => '2026/2027']);
     $previousSeason = Season::factory()->create(['name' => '2025/2026']);
     $men = Team::factory()->create(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']);
@@ -242,10 +263,11 @@ test('preselects the carry-over team of the category the administrator changes t
     pasteFederationTeamPageUrl($page, 'https://www.ceskyflorbal.cz/team/detail/overview/45019');
 
     $page->assertSeeIn('@carry-over-team-category', 'muži')
+        ->click('@new-team-choice')
         ->click('@new-team-category-select')
         ->click('[role="option"]:has-text("ženy")')
         ->assertSeeIn('@carry-over-team-category', 'ženy')
-        ->assertAttribute('@carry-over-team-choice', 'aria-checked', 'true')
+        ->click('@carry-over-team-choice')
         ->assertSeeIn('@carry-over-team-select', 'ženy')
         ->click('@store-team')
         ->assertSee('je přidaný do sezony 2026/2027.')
@@ -272,10 +294,12 @@ test('keeps the carry-over team chosen by hand when the administrator changes th
         ->click('@carry-over-team-choice')
         ->click('@carry-over-team-select')
         ->click('[role="option"]:has-text("Kutná Hora B"):has-text("muži")')
+        ->click('@new-team-choice')
         ->click('@new-team-category-select')
         ->click('[role="option"]:has-text("ženy")')
         ->assertSeeIn('@carry-over-team-category', 'ženy')
-        ->assertAttribute('@carry-over-team-choice', 'aria-checked', 'true')
+        ->assertAttribute('@new-team-choice', 'aria-checked', 'true')
+        ->click('@carry-over-team-choice')
         ->assertSeeIn('@carry-over-team-select', 'muži')
         ->assertNoJavaScriptErrors();
 });
