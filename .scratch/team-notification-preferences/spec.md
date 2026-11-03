@@ -59,7 +59,7 @@ Domain vocabulary follows `CONTEXT.md`: Administrator, Team, Team season, Season
     - One idempotent queued job subscribes every administrator to every team for which no row exists yet, using Eloquent (`firstOrCreate` per pair). It never touches existing rows, so unsubscriptions survive. It is safe to run any number of times.
     - The job is dispatched after commit when a user is created (the user creation action used by the `user:create` command) and when a brand-new team is created together with its first team season. Carrying an existing team over to a new season does not dispatch it.
     - The migration backfills rows for all existing users × teams directly, not via the queue.
-    - The database seeder creates its administrator so that the rows exist (through the same action, or by running the job).
+    - The demo seeder creates the rows for the seeded administrator and team with factories, like the rest of its data.
     - The window before the job runs is harmless: a new team's first import is the initial import and announces nothing; a new administrator has nothing pending.
 - **Models.** A `NotificationSubscription` model with relationships from `User` and `Team`; a way to query a team's subscribed administrators (rows with `unsubscribed_at` null).
 - **Sending.** The import action stops emailing every user:

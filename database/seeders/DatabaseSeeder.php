@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Actions\NotificationSubscriptions\CreateNotificationSubscriptions;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,7 +15,7 @@ final class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(CreateNotificationSubscriptions $createNotificationSubscriptions): void
+    public function run(): void
     {
         // User::factory(10)->create();
 
@@ -26,7 +25,5 @@ final class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(DemoSeeder::class);
-
-        $createNotificationSubscriptions->handle();
     }
 }
