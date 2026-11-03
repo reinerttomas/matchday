@@ -28,6 +28,7 @@ return [
         'name_too_long' => 'Název týmu může mít nejvýše :max znaků.',
         'name_without_slug' => 'Název týmu musí obsahovat aspoň jedno písmeno nebo číslici.',
         'name_taken' => 'Jiný tým už má stejnou adresu kalendáře (:slug). Zvolte jiný název.',
+        'category_invalid' => 'Vyberte kategorii ze seznamu.',
     ],
 
 ];

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LookUpTeamRequest;
+use App\Services\CarryOverTeamMatcher;
+use App\Services\CategoryGuesser;
 use App\Services\Ceskyflorbal\CeskyflorbalClient;
 use App\Services\Ceskyflorbal\FederationTeamPage;
 use Illuminate\Http\Client\ConnectionException;
@@ -18,11 +20,11 @@ use UnexpectedValueException;
 final readonly class TeamLookupController
 {
     /**
-     * Download the fixture list of the pasted federation team page and return the team's name, competition, season and overview address, so the "Přidat tým" dialog can prefill them.
+     * Download the fixture list of the pasted federation team page and return the team's name, competition, guessed category, season and overview address, so the "Přidat tým" dialog can prefill them, together with the team from a previous season it continues.
      *
      * @throws ValidationException when the page belongs to another season than the one the team is added to
      */
-    public function __invoke(LookUpTeamRequest $request, CeskyflorbalClient $ceskyflorbal, FederationTeamPage $federationTeamPage): JsonResponse
+    public function __invoke(LookUpTeamRequest $request, CeskyflorbalClient $ceskyflorbal, FederationTeamPage $federationTeamPage, CategoryGuesser $categoryGuesser, CarryOverTeamMatcher $carryOverTeamMatcher): JsonResponse
     {
         $season = $request->season();
         $teamExternalId = $request->teamExternalId();
@@ -48,10 +50,18 @@ final readonly class TeamLookupController
             ]);
         }
 
+        $guessedCategory = $page->competitionName === null ? null : $categoryGuesser->guess($page->competitionName);
+        // A category the administrator chose replaces the guess for the matching, while the dialog keeps showing what was guessed.
+        $category = $request->category() ?? $guessedCategory;
+
         return response()->json([
             'externalId' => $teamExternalId,
             'name' => $page->teamName,
             'competition' => $page->competitionName,
+            'category' => $guessedCategory === null ? null : ['value' => $guessedCategory->value, 'label' => $guessedCategory->label()],
+            'carryOverTeamId' => $page->teamName === null || $category === null
+                ? null
+                : $carryOverTeamMatcher->match($season, $page->teamName, $category)?->id,
             'season' => $page->seasonName,
             'overviewUrl' => $federationTeamPage->overviewAddress($teamExternalId),
         ]);

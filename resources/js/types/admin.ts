@@ -211,12 +211,17 @@ export type CarryOverTeam = {
 };
 
 /**
- * The team read from its federation team page by the "Přidat tým" dialog; name and competition are null while the page lists no fixtures.
+ * The team read from its federation team page by the "Přidat tým" dialog; name, competition and the category guessed from it are null while the page lists no fixtures.
+ *
+ * carryOverTeamId is the one team from a previous season with the same federation name and category (the guessed one, or the one passed
+ * to the lookup as `category`), or null when none or several match.
  */
 export type FederationTeam = {
     externalId: number;
     name: string | null;
     competition: string | null;
+    category: { value: string; label: string } | null;
+    carryOverTeamId: number | null;
     season: string;
     overviewUrl: string;
 };
