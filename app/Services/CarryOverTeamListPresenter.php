@@ -8,7 +8,7 @@ use App\Models\Team;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * @phpstan-type CarryOverTeamProps array{id: int, name: string, slug: string}
+ * @phpstan-type CarryOverTeamProps array{id: int, name: string, category: array{value: string, label: string}, slug: string}
  */
 final readonly class CarryOverTeamListPresenter
 {
@@ -28,7 +28,7 @@ final readonly class CarryOverTeamListPresenter
     }
 
     /**
-     * Describe one team as an option to carry over.
+     * Describe one team as an option to carry over, with its category for the badge that tells same-named teams apart.
      *
      * @return CarryOverTeamProps
      */
@@ -37,6 +37,7 @@ final readonly class CarryOverTeamListPresenter
         return [
             'id' => $team->id,
             'name' => $team->name,
+            'category' => ['value' => $team->category->value, 'label' => $team->category->label()],
             'slug' => $team->slug,
         ];
     }

@@ -207,6 +207,7 @@ export type SeasonListItem = {
 export type CarryOverTeam = {
     id: number;
     name: string;
+    category: TeamCategory;
     slug: string;
 };
 
@@ -220,7 +221,7 @@ export type FederationTeam = {
     externalId: number;
     name: string | null;
     competition: string | null;
-    category: { value: string; label: string } | null;
+    category: TeamCategory | null;
     carryOverTeamId: number | null;
     season: string;
     overviewUrl: string;

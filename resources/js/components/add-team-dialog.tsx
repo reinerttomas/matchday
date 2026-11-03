@@ -1,8 +1,9 @@
 import { Form, useHttp } from '@inertiajs/react';
 import { ExternalLink, Plus } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import type { ChangeEvent, FocusEvent } from 'react';
+import type { ChangeEvent, FocusEvent, ReactNode } from 'react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -36,7 +37,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { slugify } from '@/lib/utils';
 import { lookup as lookUpTeam, store } from '@/routes/teams';
-import type { CarryOverTeam, FederationTeam } from '@/types';
+import type { CarryOverTeam, FederationTeam, TeamCategory } from '@/types';
 
 type Lookup =
     | { status: 'idle' }
@@ -50,10 +51,12 @@ type Choice = 'new' | 'carry-over';
 export function AddTeamDialog({
     seasonName,
     carryOverTeams,
+    categories,
     calendarUrlTemplate,
 }: {
     seasonName: string;
     carryOverTeams: CarryOverTeam[];
+    categories: TeamCategory[];
     calendarUrlTemplate: string;
 }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -77,6 +80,7 @@ export function AddTeamDialog({
                 </DialogHeader>
                 <AddTeamForm
                     carryOverTeams={carryOverTeams}
+                    categories={categories}
                     calendarUrlTemplate={calendarUrlTemplate}
                     onSuccess={() => setIsOpen(false)}
                 />
@@ -87,48 +91,83 @@ export function AddTeamDialog({
 
 function AddTeamForm({
     carryOverTeams,
+    categories,
     calendarUrlTemplate,
     onSuccess,
 }: {
     carryOverTeams: CarryOverTeam[];
+    categories: TeamCategory[];
     calendarUrlTemplate: string;
     onSuccess: () => void;
 }) {
     const [address, setAddress] = useState('');
     const [name, setName] = useState('');
     const isNameEdited = useRef(false);
+    const [category, setCategory] = useState('');
+    const isCategoryPickedByHand = useRef(false);
     const [choice, setChoice] = useState<Choice>('new');
     const [teamId, setTeamId] = useState('');
     const isChoiceMadeByHand = useRef(false);
-    const { lookup, lookupError, lookUp, isLookedUp, reset } =
-        useFederationTeamLookup((team) => {
+    const {
+        lookup,
+        lookupError,
+        lookUp,
+        lookUpAgain,
+        isLookingUpAgain,
+        isLookedUp,
+        reset,
+    } = useFederationTeamLookup((team, isLookedUpAgain) => {
+        if (!isLookedUpAgain) {
             if (!isNameEdited.current && team.name !== null) {
                 setName(team.name);
             }
 
-            preselect(sameNamedCarryOverTeam(carryOverTeams, team.name));
-        });
+            if (!isCategoryPickedByHand.current && team.category !== null) {
+                setCategory(team.category.value);
+            }
+        }
+
+        preselect(carryOverTeamOf(carryOverTeams, team));
+    });
     const isResolved =
         lookup.status === 'found' || lookup.status === 'unavailable';
-    const sameNamedTeam =
+    const carryOverTeam =
         lookup.status === 'found'
-            ? sameNamedCarryOverTeam(carryOverTeams, lookup.team.name)
+            ? carryOverTeamOf(carryOverTeams, lookup.team)
             : undefined;
+    // The hint names the competition only while the category shown is the one guessed from it.
+    const guessedFromCompetition =
+        lookup.status === 'found' &&
+        lookup.team.category !== null &&
+        lookup.team.category.value === category
+            ? lookup.team.competition
+            : null;
 
-    function preselect(sameNamedTeam: CarryOverTeam | undefined): void {
+    function preselect(carryOverTeam: CarryOverTeam | undefined): void {
         if (isChoiceMadeByHand.current) {
             return;
         }
 
-        setChoice(sameNamedTeam === undefined ? 'new' : 'carry-over');
-        setTeamId(sameNamedTeam === undefined ? '' : String(sameNamedTeam.id));
+        setChoice(carryOverTeam === undefined ? 'new' : 'carry-over');
+        setTeamId(carryOverTeam === undefined ? '' : String(carryOverTeam.id));
+    }
+
+    function pickCategory(value: string): void {
+        setCategory(value);
+        isCategoryPickedByHand.current = true;
+        // The server matches the team from the previous season by name and category, so another category may continue another team.
+        void lookUpAgain(value);
+    }
+
+    function lookUpAddress(value: string): void {
+        void lookUp(value, isCategoryPickedByHand.current ? category : '');
     }
 
     function changeAddress(event: ChangeEvent<HTMLInputElement>): void {
         setAddress(event.target.value);
 
         if ((event.nativeEvent as InputEvent).inputType === 'insertFromPaste') {
-            void lookUp(event.target.value);
+            lookUpAddress(event.target.value);
         } else if (!isLookedUp(event.target.value)) {
             reset();
             preselect(undefined);
@@ -144,7 +183,7 @@ function AddTeamForm({
             return;
         }
 
-        void lookUp(event.target.value);
+        lookUpAddress(event.target.value);
     }
 
     return (
@@ -196,6 +235,22 @@ function AddTeamForm({
                         )}
                         {isResolved && (
                             <>
+                                <NameAndCategoryFields
+                                    name={name}
+                                    category={category}
+                                    categories={categories}
+                                    guessedFromCompetition={
+                                        guessedFromCompetition
+                                    }
+                                    isNameDisabled={choice === 'carry-over'}
+                                    nameError={errors.name}
+                                    categoryError={errors.category}
+                                    onNameChange={(value) => {
+                                        setName(value);
+                                        isNameEdited.current = true;
+                                    }}
+                                    onCategoryChange={pickCategory}
+                                />
                                 <RadioGroup
                                     value={choice}
                                     onValueChange={(value) => {
@@ -213,28 +268,40 @@ function AddTeamForm({
                                         value="carry-over"
                                         disabled={carryOverTeams.length === 0}
                                         title={
-                                            sameNamedTeam === undefined
-                                                ? 'Tým z minulé sezony'
-                                                : `Pokračuje ${sameNamedTeam.name}`
+                                            carryOverTeam === undefined ? (
+                                                'Tým z minulé sezony'
+                                            ) : (
+                                                <>
+                                                    Pokračuje{' '}
+                                                    {carryOverTeam.name}
+                                                    <Badge
+                                                        variant="outline"
+                                                        data-test="carry-over-team-category"
+                                                    >
+                                                        {
+                                                            carryOverTeam
+                                                                .category.label
+                                                        }
+                                                    </Badge>
+                                                </>
+                                            )
                                         }
                                         description={
-                                            sameNamedTeam === undefined
+                                            carryOverTeam === undefined
                                                 ? 'Kalendář hráčů zůstane stejný.'
-                                                : 'Stejný název jako tým z minulé sezony'
+                                                : 'Stejný název na svazu i kategorie.'
                                         }
                                     />
                                 </RadioGroup>
                                 {choice === 'new' ? (
-                                    <NewTeamFields
+                                    <CalendarUrlPreview
                                         name={name}
-                                        error={errors.name}
+                                        category={categories.find(
+                                            (item) => item.value === category,
+                                        )}
                                         calendarUrlTemplate={
                                             calendarUrlTemplate
                                         }
-                                        onChange={(value) => {
-                                            setName(value);
-                                            isNameEdited.current = true;
-                                        }}
                                     />
                                 ) : (
                                     <CarryOverTeamFields
@@ -257,7 +324,11 @@ function AddTeamForm({
                             </DialogClose>
                             <Button
                                 type="submit"
-                                disabled={processing || !isResolved}
+                                disabled={
+                                    processing ||
+                                    !isResolved ||
+                                    isLookingUpAgain
+                                }
                                 data-test="store-team"
                             >
                                 {processing && <Spinner />}
@@ -273,15 +344,22 @@ function AddTeamForm({
 
 /**
  * Look the team up on its federation team page without a page visit. A lookup that ceskyflorbal.cz cannot answer comes back
- * "unavailable", so the administrator fills the form in by hand; only the response for the latest address counts.
+ * "unavailable", so the administrator fills the form in by hand; only the response to the latest request counts.
+ *
+ * A category passed along replaces the guessed one when the server matches the carry-over team. lookUpAgain asks again for the
+ * looked-up address with a category picked by hand, keeping the summary shown meanwhile.
  */
-function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
+function useFederationTeamLookup(
+    onFound: (team: FederationTeam, isLookedUpAgain: boolean) => void,
+) {
     const { setData, get, cancel, clearErrors, errors } = useHttp<
-        { federation_team_page_url: string },
+        { federation_team_page_url: string; category: string },
         FederationTeam
-    >({ federation_team_page_url: '' });
+    >({ federation_team_page_url: '', category: '' });
     const [lookup, setLookup] = useState<Lookup>({ status: 'idle' });
+    const [isLookingUpAgain, setIsLookingUpAgain] = useState(false);
     const latestAddress = useRef<string | null>(null);
+    const latestRequest = useRef(0);
     const pendingRequest = useRef<Promise<unknown>>(Promise.resolve());
 
     useEffect(
@@ -300,19 +378,40 @@ function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
         latestAddress.current = null;
         cancel();
         clearErrors();
+        setIsLookingUpAgain(false);
         setLookup({ status: 'idle' });
     }
 
-    async function lookUp(address: string): Promise<void> {
+    async function lookUp(address: string, category: string): Promise<void> {
         if (address.trim() === '' || isLookedUp(address)) {
             return;
         }
 
         latestAddress.current = address;
-        const isLatest = () => isLookedUp(address);
+        setLookup({ status: 'loading' });
+        await send(address, category, false);
+    }
+
+    async function lookUpAgain(category: string): Promise<void> {
+        if (latestAddress.current === null || lookup.status !== 'found') {
+            return;
+        }
+
+        await send(latestAddress.current, category, true);
+    }
+
+    async function send(
+        address: string,
+        category: string,
+        isLookedUpAgain: boolean,
+    ): Promise<void> {
+        const request = ++latestRequest.current;
+        const isLatest = () =>
+            request === latestRequest.current && isLookedUp(address);
 
         function markUnavailable(message: string): void {
             if (isLatest()) {
+                setIsLookingUpAgain(false);
                 toast.warning(message);
                 setLookup({ status: 'unavailable' });
             }
@@ -320,7 +419,7 @@ function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
 
         cancel();
         clearErrors();
-        setLookup({ status: 'loading' });
+        setIsLookingUpAgain(isLookedUpAgain);
         // The cancelled request clears the abort controller when it settles, so starting before that would leave this request impossible to cancel.
         await pendingRequest.current;
 
@@ -328,16 +427,18 @@ function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
             return;
         }
 
-        setData('federation_team_page_url', address);
+        setData({ federation_team_page_url: address, category });
         pendingRequest.current = get(lookUpTeam.url(), {
             onSuccess: (team) => {
                 if (isLatest()) {
+                    setIsLookingUpAgain(false);
                     setLookup({ status: 'found', team });
-                    onFound(team);
+                    onFound(team, isLookedUpAgain);
                 }
             },
             onError: () => {
                 if (isLatest()) {
+                    setIsLookingUpAgain(false);
                     setLookup({ status: 'invalid' });
                 }
             },
@@ -358,6 +459,8 @@ function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
                 ? errors.federation_team_page_url
                 : undefined,
         lookUp,
+        lookUpAgain,
+        isLookingUpAgain,
         isLookedUp,
         reset,
     };
@@ -366,21 +469,13 @@ function useFederationTeamLookup(onFound: (team: FederationTeam) => void) {
 const UNAVAILABLE_MESSAGE =
     'Český florbal teď neodpovídá. Název ani soutěž se nedoplní, vyplňte je ručně.';
 
-function normalizedTeamName(name: string): string {
-    return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase('cs');
-}
-
-// Exact on purpose: a club often has several teams ("FBC Kutná Hora", "FBC Kutná Hora B"), so a prefix match would pick the wrong one.
-function sameNamedCarryOverTeam(
+// The server matches the federation name of the team's latest team season together with the category, so the dialog only finds the team it names.
+function carryOverTeamOf(
     carryOverTeams: CarryOverTeam[],
-    name: string | null,
+    team: FederationTeam,
 ): CarryOverTeam | undefined {
-    if (name === null) {
-        return undefined;
-    }
-
     return carryOverTeams.find(
-        (team) => normalizedTeamName(team.name) === normalizedTeamName(name),
+        (carryOverTeam) => carryOverTeam.id === team.carryOverTeamId,
     );
 }
 
@@ -429,6 +524,95 @@ function FederationTeamSummary({ team }: { team: FederationTeam }) {
     );
 }
 
+/**
+ * The new team's name with its category beside it. The category stays enabled for a team carried over too, because the team
+ * from the previous season is matched by it; the name is disabled then, as a team carried over keeps its own.
+ */
+function NameAndCategoryFields({
+    name,
+    category,
+    categories,
+    guessedFromCompetition,
+    isNameDisabled,
+    nameError,
+    categoryError,
+    onNameChange,
+    onCategoryChange,
+}: {
+    name: string;
+    category: string;
+    categories: TeamCategory[];
+    guessedFromCompetition: string | null;
+    isNameDisabled: boolean;
+    nameError: string | undefined;
+    categoryError: string | undefined;
+    onNameChange: (name: string) => void;
+    onCategoryChange: (category: string) => void;
+}) {
+    return (
+        <div className="grid gap-2">
+            <div className="grid gap-4 sm:grid-cols-[1fr_12rem]">
+                <Field
+                    className="gap-2"
+                    data-invalid={nameError !== undefined}
+                    data-disabled={isNameDisabled}
+                >
+                    <FieldLabel htmlFor="new-team-name">Název týmu</FieldLabel>
+                    <Input
+                        id="new-team-name"
+                        name="name"
+                        required
+                        disabled={isNameDisabled}
+                        autoComplete="off"
+                        placeholder="FBC Kutná Hora B"
+                        value={name}
+                        onChange={(event) => onNameChange(event.target.value)}
+                        aria-invalid={nameError !== undefined}
+                        aria-describedby="new-team-calendar-url"
+                    />
+                    <FieldError>{nameError}</FieldError>
+                </Field>
+                <Field
+                    className="gap-2"
+                    data-invalid={categoryError !== undefined}
+                >
+                    <FieldLabel htmlFor="new-team-category">
+                        Kategorie
+                    </FieldLabel>
+                    <Select
+                        name="category"
+                        required
+                        value={category}
+                        onValueChange={onCategoryChange}
+                    >
+                        <SelectTrigger
+                            id="new-team-category"
+                            className="w-full"
+                            aria-invalid={categoryError !== undefined}
+                            data-test="new-team-category-select"
+                        >
+                            <SelectValue placeholder="Vyberte kategorii" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {categories.map((item) => (
+                                <SelectItem key={item.value} value={item.value}>
+                                    {item.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <FieldError>{categoryError}</FieldError>
+                </Field>
+            </div>
+            {guessedFromCompetition !== null && (
+                <FieldDescription className="text-xs">
+                    Kategorie odhadnutá ze soutěže „{guessedFromCompetition}“.
+                </FieldDescription>
+            )}
+        </div>
+    );
+}
+
 function ChoiceCard({
     value,
     title,
@@ -436,7 +620,7 @@ function ChoiceCard({
     disabled = false,
 }: {
     value: Choice;
-    title: string;
+    title: ReactNode;
     description: string;
     disabled?: boolean;
 }) {
@@ -446,7 +630,7 @@ function ChoiceCard({
         <FieldLabel htmlFor={id}>
             <Field orientation="horizontal" data-disabled={disabled}>
                 <FieldContent>
-                    <FieldTitle>{title}</FieldTitle>
+                    <FieldTitle className="flex-wrap">{title}</FieldTitle>
                     <FieldDescription>{description}</FieldDescription>
                 </FieldContent>
                 <RadioGroupItem
@@ -460,50 +644,34 @@ function ChoiceCard({
     );
 }
 
-function NewTeamFields({
+function CalendarUrlPreview({
     name,
-    error,
+    category,
     calendarUrlTemplate,
-    onChange,
 }: {
     name: string;
-    error: string | undefined;
+    category: TeamCategory | undefined;
     calendarUrlTemplate: string;
-    onChange: (name: string) => void;
 }) {
-    const slug = slugify(name);
+    // Like on the server, a new team's slug is made of its name and its category (ADR 0003).
+    const slug =
+        slugify(name) === ''
+            ? 'nazev-tymu'
+            : slugify(`${name} ${category?.label ?? ''}`);
 
     return (
-        <Field className="gap-2" data-invalid={error !== undefined}>
-            <FieldLabel htmlFor="new-team-name">Název týmu</FieldLabel>
-            <Input
-                id="new-team-name"
-                name="name"
-                required
-                autoComplete="off"
-                placeholder="FBC Kutná Hora B"
-                value={name}
-                onChange={(event) => onChange(event.target.value)}
-                aria-invalid={error !== undefined}
-                aria-describedby="new-team-calendar-url"
-            />
-            <FieldError>{error}</FieldError>
-            <FieldDescription id="new-team-calendar-url" className="grid gap-1">
-                <span>
-                    Adresa kalendáře:{' '}
-                    <span
-                        className="font-mono text-xs break-all text-foreground"
-                        data-test="calendar-url-preview"
-                    >
-                        {calendarUrlTemplate.replace(
-                            ':slug',
-                            slug === '' ? 'nazev-tymu' : slug,
-                        )}
-                    </span>
+        <FieldDescription id="new-team-calendar-url" className="grid gap-1">
+            <span>
+                Adresa kalendáře:{' '}
+                <span
+                    className="font-mono text-xs break-all text-foreground"
+                    data-test="calendar-url-preview"
+                >
+                    {calendarUrlTemplate.replace(':slug', slug)}
                 </span>
-                <span>Adresu kalendáře později nepůjde změnit.</span>
-            </FieldDescription>
-        </Field>
+            </span>
+            <span>Adresu kalendáře později nepůjde změnit.</span>
+        </FieldDescription>
     );
 }
 
@@ -539,6 +707,9 @@ function CarryOverTeamFields({
                     {carryOverTeams.map((team) => (
                         <SelectItem key={team.id} value={String(team.id)}>
                             {team.name}
+                            <Badge variant="outline">
+                                {team.category.label}
+                            </Badge>
                         </SelectItem>
                     ))}
                 </SelectContent>

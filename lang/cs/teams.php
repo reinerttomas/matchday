@@ -29,8 +29,7 @@ return [
         'name_without_slug' => 'Název týmu musí obsahovat aspoň jedno písmeno nebo číslici.',
         'category_required' => 'Vyberte kategorii týmu.',
         'category_invalid' => 'Vyberte kategorii ze seznamu.',
-        'name_taken' => 'Jiný tým už má stejnou adresu kalendáře (:slug). Zvolte jiný název.',
-        'category_invalid' => 'Vyberte kategorii ze seznamu.',
+        'name_taken' => 'Jiný tým už má stejnou adresu kalendáře (:slug). Zvolte jiný název nebo kategorii.',
     ],
 
 ];

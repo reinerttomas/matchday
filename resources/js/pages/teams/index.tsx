@@ -103,6 +103,7 @@ export default function Teams({
                         <AddTeamDialog
                             seasonName={season.name}
                             carryOverTeams={carryOverTeams}
+                            categories={categories}
                             calendarUrlTemplate={calendarUrlTemplate}
                         />
                     )}

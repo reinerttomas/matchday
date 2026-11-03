@@ -149,12 +149,12 @@ test('finds the last imports without a query per team season', function () {
     expect(count(DB::getQueryLog()))->toBe($queriesForOneTeamSeason);
 });
 
-test('offers the teams not in the selected season yet for carrying over, alphabetically by their own name', function () {
+test('offers the teams not in the selected season yet for carrying over with their category, alphabetically by their own name', function () {
     $season = seasonOnTeamsPage();
     $previousSeason = Season::factory()->create(['name' => '2025/2026']);
     $kutnaHoraB = Team::factory()->create(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']);
     TeamSeason::factory()->for($kutnaHoraB)->for($previousSeason)->create(['name' => 'Florbal Kutná Hora B']);
-    $kutnaHoraA = Team::factory()->create(['name' => 'FBC Kutná Hora A', 'slug' => 'kutna-hora-a']);
+    $kutnaHoraA = Team::factory()->create(['name' => 'FBC Kutná Hora A', 'category' => Category::Women, 'slug' => 'kutna-hora-a']);
     TeamSeason::factory()->for($kutnaHoraA)->for($previousSeason)->notImported()->create();
     $alreadyInSeason = Team::factory()->create(['name' => 'FBC Kutná Hora C']);
     TeamSeason::factory()->for($alreadyInSeason)->for($previousSeason)->create();
@@ -162,8 +162,8 @@ test('offers the teams not in the selected season yet for carrying over, alphabe
 
     $this->get('/teams')->assertInertia(fn (Assert $page) => $page
         ->where('carryOverTeams', [
-            ['id' => $kutnaHoraA->id, 'name' => 'FBC Kutná Hora A', 'slug' => 'kutna-hora-a'],
-            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b'],
+            ['id' => $kutnaHoraA->id, 'name' => 'FBC Kutná Hora A', 'category' => ['value' => 'zeny', 'label' => 'ženy'], 'slug' => 'kutna-hora-a'],
+            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'category' => ['value' => 'muzi', 'label' => 'muži'], 'slug' => 'kutna-hora-b'],
         ])
         ->etc());
 });
