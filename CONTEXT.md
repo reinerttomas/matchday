@@ -36,8 +36,12 @@ The other team in a fixture. Known only by name; it has no identity across seaso
 A playing year such as 2026/2027, created by the administrator. Exactly one season is current; the current season decides what calendars show and which teams are imported automatically.
 
 **Team**:
-One of our teams that the app publishes a calendar for. The administrator names it when adding it; the name is what the app shows wherever the team is named. Its name, slug (derived from the name) and calendar address persist across seasons.
+One of our teams that the app publishes a calendar for. The administrator names it when adding it, usually as the federation names it; the name is what the app shows wherever the team is named. Since our teams can share a name, a team is told apart by its name and category together. Its name, category, slug (derived from the name and category when the team is added) and calendar address persist across seasons.
 _Avoid_: Tracked team
+
+**Category**:
+The age and gender group a team plays in, such as men, women or juniors. It belongs to the team and holds across seasons, while the competition can change from season to season. Two of our teams can share a federation name and differ only in category.
+_Avoid_: Gender, Division
 
 **Team season**:
 A team's participation in one season: the federation's team ID for that season, and the name and competition the federation gives the team that season. Every address of its **federation team page**, the fixture list included, is derived from that ID. The imported name is kept but not shown; the team's own name is.
