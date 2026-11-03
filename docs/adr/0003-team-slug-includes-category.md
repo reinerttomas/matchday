@@ -11,4 +11,5 @@ The federation gives several of our teams the same name and tells them apart onl
 ## Consequences
 
 - Since names alone are not unique, the calendar name (`Team::calendarName()`) is `<name> (<category>)`, so two subscribed calendars can be told apart. Event titles and change summaries name the team without its category.
+- `teams.category` has the database default `muzi`, kept because SQLite can't make an existing column required without rebuilding `teams`; so the requests that add or edit a team, not the database, are what make the category required.
 - To pick the team from the previous season, the app matches the federation name of the team's latest team season together with the category, not the name alone.

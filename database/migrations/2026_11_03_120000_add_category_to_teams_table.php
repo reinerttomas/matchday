@@ -26,6 +26,8 @@ return new class extends Migration
 
         $categoryGuesser = new CategoryGuesser;
 
+        // The query builder rather than the models, so the migration keeps working once the models change.
+
         DB::table('teams')->orderBy('id')->each(function (object $team) use ($categoryGuesser): void {
             $competitionName = DB::table('team_seasons')
                 ->join('seasons', 'seasons.id', '=', 'team_seasons.season_id')
