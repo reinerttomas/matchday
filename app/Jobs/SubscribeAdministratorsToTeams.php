@@ -17,9 +17,6 @@ final class SubscribeAdministratorsToTeams implements ShouldQueueAfterCommit
 {
     use Queueable;
 
-    /**
-     * Execute the job.
-     */
     public function handle(CreateNotificationSubscriptions $createNotificationSubscriptions): void
     {
         $createNotificationSubscriptions->handle();

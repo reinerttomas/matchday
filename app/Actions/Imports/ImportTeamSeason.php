@@ -211,7 +211,7 @@ final readonly class ImportTeamSeason
     }
 
     /**
-     * Finish an import that changed no data, log it so Nightwatch sees every such import, and email every user the reason.
+     * Finish an import that changed no data, log it so Nightwatch sees every such import, and email the reason to the administrators who receive import failure notifications.
      *
      * @param  array<string, mixed>  $logContext  details for the log beyond the reason, such as the message of the exception behind it
      */
