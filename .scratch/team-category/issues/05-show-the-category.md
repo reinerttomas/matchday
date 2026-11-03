@@ -1,6 +1,6 @@
 # 05 — Show the category in the admin and in the calendar name
 
-**What to build:** Same-named teams can be told apart: the admin shows the **category** as a badge next to the team's name, and the calendar is named "<name> (<category>)". Look per prototype variant A on branch `prototype/team-category-ui` (reference only). See `.scratch/team-category/spec.md` ("Team model", "Presenters", "Look" decisions; user stories 21, 23, 31–34).
+**What to build:** Same-named teams can be told apart: the admin shows the **category** as a badge next to the team's name, and the calendar is named "<name> (<category>)". Look per prototype variant A. See `.scratch/team-category/spec.md` ("Team model", "Presenters", "Look" decisions; user stories 21, 23, 31–34).
 
 **Blocked by:** 01 — Give every team a category
 

@@ -1,6 +1,6 @@
 # 03 — Add a team with its category
 
-**What to build:** The "Přidat tým" dialog lets the administrator pick the team's **category**, prefilled from the lookup, and a new team's slug is made of its name and category. The look was chosen from a UI prototype, variant A, on branch `prototype/team-category-ui` (reference only, not to merge). See `.scratch/team-category/spec.md` ("Store team season request", "Look", "Dialog" decisions; user stories 6–15, 22, 24–30).
+**What to build:** The "Přidat tým" dialog lets the administrator pick the team's **category**, prefilled from the lookup, and a new team's slug is made of its name and category. The look was chosen from a UI prototype, variant A. See `.scratch/team-category/spec.md` ("Store team season request", "Look", "Dialog" decisions; user stories 6–15, 22, 24–30).
 
 **Blocked by:** 02 — Guess the category and the carry-over team in the team lookup
 

@@ -1,6 +1,6 @@
 # 04 — Edit a team's category
 
-**What to build:** The "Přejmenovat tým" dialog becomes "Upravit tým" and edits the name and the **category** together; the slug and calendar address never change. Layout per prototype variant A on branch `prototype/team-category-ui` (reference only). See `.scratch/team-category/spec.md` (user stories 18–20, "Update team" decision).
+**What to build:** The "Přejmenovat tým" dialog becomes "Upravit tým" and edits the name and the **category** together; the slug and calendar address never change. Layout per prototype variant A. See `.scratch/team-category/spec.md` (user stories 18–20, "Update team" decision).
 
 **Blocked by:** 01 — Give every team a category
 
