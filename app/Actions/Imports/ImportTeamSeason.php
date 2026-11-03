@@ -257,7 +257,7 @@ final readonly class ImportTeamSeason
 
         $whatsAppUrl = $this->changeSummaryWriter->whatsAppUrl($summary);
 
-        $this->email($import->teamSeason->team->subscribedUsers()->get(), new FixtureListRevised($import, $summary, $whatsAppUrl));
+        $this->email($import->teamSeason->team->subscribedUsers, new FixtureListRevised($import, $summary, $whatsAppUrl));
     }
 
     /**
