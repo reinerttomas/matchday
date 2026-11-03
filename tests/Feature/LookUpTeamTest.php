@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Tests\Support\Ceskyflorbal;
 
+use function Pest\Laravel\freezeTime;
+
 /**
  * The lookup address of the federation team page the snapshot was saved from, with any other query parameters.
  *
@@ -271,6 +273,8 @@ test('rejects guests', function () {
 });
 
 test('allows an administrator six lookups a minute', function () {
+    // The limit counts from the first lookup, so a slow run must not let the clock move the window or the Retry-After.
+    freezeTime();
     Season::factory()->current()->create(['name' => '2026/2027']);
     Ceskyflorbal::fake(Ceskyflorbal::fixtureListSnapshot());
     $url = '/teams/lookup?'.http_build_query(['federation_team_page_url' => 'https://www.ceskyflorbal.cz/team/detail/overview/45019']);
