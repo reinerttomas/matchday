@@ -46,6 +46,10 @@ A team's participation in one season: the federation's team ID for that season, 
 A team season's page on ceskyflorbal.cz, with tabs such as Přehled (overview) and Zápasy (the fixture list). Every tab carries the same federation team ID, so the address of any tab identifies the team season.
 _Avoid_: Overview, Team detail
 
+**Calendar feed**:
+A team's public, subscribable calendar address. Anyone with the address can subscribe; the app does not know who subscribes.
+_Avoid_: Calendar subscription
+
 **Venue**:
 A sports hall where fixtures are played. Name and federation ID come from the source; the address comes from a fixture's detail page.
 _Avoid_: Hall, Arena, Place
@@ -65,3 +69,16 @@ _Avoid_: Change, Audit, Activity
 
 **Change summary**:
 The text sent to the team's WhatsApp group describing the revisions of one import.
+
+### People
+
+**Administrator**:
+A user who can sign in to the app. Every user is an administrator; there is no self-registration.
+_Avoid_: Member, Subscriber
+
+**Notification subscription**:
+An administrator's choice to receive the change summaries of one team. Holds across seasons. Every administrator is subscribed to every team, including teams added later, until they unsubscribe; unsubscribing keeps the date it happened.
+_Avoid_: Subscription (unqualified), Calendar subscription
+
+**Import failure notification**:
+The email telling an administrator that an import ended as error or aborted. Not tied to any notification subscription: an administrator either receives it for every team or for none. On unless the administrator turns it off.
