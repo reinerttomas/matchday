@@ -11,7 +11,7 @@ use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
-final readonly class TeamNameController
+final readonly class TeamController
 {
     /**
      * Rename the team or change its category in every season it plays, and return to the page it was renamed on.

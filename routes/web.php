@@ -15,7 +15,7 @@ use App\Http\Controllers\RevisionController;
 use App\Http\Controllers\SeasonController;
 use App\Http\Controllers\SentChangeSummaryController;
 use App\Http\Controllers\TeamLookupController;
-use App\Http\Controllers\TeamNameController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamPageEventController;
 use App\Http\Controllers\TeamSeasonController;
 use App\Http\Controllers\VenueController;
@@ -47,7 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('teams/lookup', TeamLookupController::class)->middleware('throttle:team-lookups')->name('teams.lookup');
     Route::post('teams', [TeamSeasonController::class, 'store'])->name('teams.store');
     Route::patch('teams/{teamSeason}', [TeamSeasonController::class, 'update'])->name('teams.update');
-    Route::patch('teams/{team}/name', [TeamNameController::class, 'update'])->name('teams.name.update');
+    Route::patch('teams/{team}/details', [TeamController::class, 'update'])->name('teams.details.update');
     Route::get('venues', [VenueController::class, 'index'])->name('venues.index');
     Route::patch('venues/{venue}', [VenueController::class, 'update'])->name('venues.update');
     Route::get('seasons', [SeasonController::class, 'index'])->name('seasons.index');

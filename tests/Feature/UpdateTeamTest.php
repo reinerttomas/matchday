@@ -28,7 +28,7 @@ function teamToRename(): Team
 test('renames a team, keeps its slug and returns to the Týmy page naming it by its new name', function () {
     $team = teamToRename();
 
-    $response = $this->from('/teams')->patch("/teams/{$team->id}/name", ['name' => 'FBC Sokol Kutná Hora B', 'category' => 'muzi']);
+    $response = $this->from('/teams')->patch("/teams/{$team->id}/details", ['name' => 'FBC Sokol Kutná Hora B', 'category' => 'muzi']);
 
     $response->assertRedirect('/teams')
         ->assertInertiaFlash('toast.message', 'Tým FBC Sokol Kutná Hora B je upravený. Adresa kalendáře zůstává stejná.');
@@ -41,7 +41,7 @@ test('renames a team, keeps its slug and returns to the Týmy page naming it by 
 test('changes a team\'s category and keeps its slug', function () {
     $team = teamToRename();
 
-    $response = $this->from('/teams')->patch("/teams/{$team->id}/name", ['name' => 'FBC Kutná Hora B', 'category' => 'zeny']);
+    $response = $this->from('/teams')->patch("/teams/{$team->id}/details", ['name' => 'FBC Kutná Hora B', 'category' => 'zeny']);
 
     $response->assertRedirect('/teams')->assertSessionHasNoErrors();
     expect($team->fresh())
@@ -58,7 +58,7 @@ test('shows the new name in the team list of every season the team plays', funct
     $previousSeason = Season::factory()->create(['name' => '2025/2026']);
     TeamSeason::factory()->for($team)->for($previousSeason)->create();
 
-    $this->patch("/teams/{$team->id}/name", ['name' => 'FBC Sokol Kutná Hora B', 'category' => 'muzi']);
+    $this->patch("/teams/{$team->id}/details", ['name' => 'FBC Sokol Kutná Hora B', 'category' => 'muzi']);
 
     $this->get('/teams')->assertInertia(fn (Assert $page) => $page
         ->where('teamSeasons.0.name', 'FBC Sokol Kutná Hora B')
@@ -73,7 +73,7 @@ test('serves the calendar under the new name at the same address', function () {
     $team = teamToRename();
     Fixture::factory()->for($team->teamSeasons()->sole())->home()->create(['opponent_name' => 'Tatran Střešovice C']);
 
-    $this->patch("/teams/{$team->id}/name", ['name' => 'FBC Sokol Kutná Hora B', 'category' => 'muzi']);
+    $this->patch("/teams/{$team->id}/details", ['name' => 'FBC Sokol Kutná Hora B', 'category' => 'muzi']);
 
     // Lines longer than 75 octets are folded onto continuation lines that start with a space.
     $calendar = str_replace("\r\n ", '', (string) $this->get('/calendar/kutna-hora-b.ics')->assertOk()->getContent());
@@ -86,7 +86,7 @@ test('accepts a name whose slug another team already has, because the slug stays
     $team = teamToRename();
     Team::factory()->create(['name' => 'FBC Kutná Hora A', 'slug' => 'fbc-kutna-hora-a']);
 
-    $this->patch("/teams/{$team->id}/name", ['name' => 'FBC Kutná Hora A', 'category' => 'muzi'])->assertSessionHasNoErrors();
+    $this->patch("/teams/{$team->id}/details", ['name' => 'FBC Kutná Hora A', 'category' => 'muzi'])->assertSessionHasNoErrors();
 
     expect($team->fresh())
         ->name->toBe('FBC Kutná Hora A')
@@ -96,7 +96,7 @@ test('accepts a name whose slug another team already has, because the slug stays
 test('rejects a missing, non-text or too long name', function (array $payload, string $message) {
     $team = teamToRename();
 
-    $this->from('/teams')->patch("/teams/{$team->id}/name", $payload)
+    $this->from('/teams')->patch("/teams/{$team->id}/details", $payload)
         ->assertRedirect('/teams')
         ->assertSessionHasErrors(['name' => $message]);
 
@@ -110,7 +110,7 @@ test('rejects a missing, non-text or too long name', function (array $payload, s
 test('rejects a missing or unknown category', function (array $payload, string $message) {
     $team = teamToRename();
 
-    $this->from('/teams')->patch("/teams/{$team->id}/name", ['name' => 'FBC Kutná Hora B', ...$payload])
+    $this->from('/teams')->patch("/teams/{$team->id}/details", ['name' => 'FBC Kutná Hora B', ...$payload])
         ->assertRedirect('/teams')
         ->assertSessionHasErrors(['category' => $message]);
 
@@ -128,7 +128,7 @@ test('redirects guests to the login page', function () {
     auth()->logout();
     $team = teamToRename();
 
-    $this->patch("/teams/{$team->id}/name", ['name' => 'FBC Sokol Kutná Hora B', 'category' => 'muzi'])->assertRedirect('/login');
+    $this->patch("/teams/{$team->id}/details", ['name' => 'FBC Sokol Kutná Hora B', 'category' => 'muzi'])->assertRedirect('/login');
 
     expect($team->fresh()->name)->toBe('FBC Kutná Hora B');
 });

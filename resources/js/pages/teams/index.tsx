@@ -62,7 +62,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { index, update } from '@/routes/teams';
-import { update as updateName } from '@/routes/teams/name';
+import { update as updateTeam } from '@/routes/teams/details';
 import type {
     CarryOverTeam,
     TeamCategory,
@@ -412,7 +412,7 @@ function EditTeamForm({
 
     return (
         <Form
-            {...updateName.form(teamSeason.teamId)}
+            {...updateTeam.form(teamSeason.teamId)}
             options={{ preserveScroll: true }}
             onSuccess={onSuccess}
             className="grid gap-4 text-left"
