@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Concerns\CategoryValidationRules;
 use App\Concerns\TeamNameValidationRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Renames a team; its slug is never edited, so the name may match another team's slug or name.
+ * Renames a team or changes its category; its slug is never edited, so the name may match another team's slug or name.
  */
 final class UpdateTeamRequest extends FormRequest
 {
+    use CategoryValidationRules;
     use TeamNameValidationRules;
 
     /**
@@ -24,6 +26,7 @@ final class UpdateTeamRequest extends FormRequest
     {
         return [
             'name' => ['bail', ...$this->teamNameRules()],
+            'category' => ['required', ...$this->categoryRules()],
         ];
     }
 
@@ -34,6 +37,9 @@ final class UpdateTeamRequest extends FormRequest
      */
     public function messages(): array
     {
-        return $this->teamNameMessages();
+        return [
+            ...$this->teamNameMessages(),
+            ...$this->categoryMessages(),
+        ];
     }
 }

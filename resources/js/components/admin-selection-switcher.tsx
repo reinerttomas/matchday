@@ -1,4 +1,5 @@
 import { router, usePage } from '@inertiajs/react';
+import { CategoryBadge } from '@/components/category-badge';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -92,6 +93,7 @@ export function AdminSelectionSwitcher() {
                                 value={String(option.id)}
                             >
                                 {option.name}
+                                <CategoryBadge category={option.category} />
                             </SelectItem>
                         ))}
                     </SelectContent>

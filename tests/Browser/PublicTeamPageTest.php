@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Enums\TeamPageAction;
 use App\Models\Fixture;
 use App\Models\Season;
@@ -44,6 +45,19 @@ function answeredBeacons(int $count): string
         }
         JS;
 }
+
+test('shows the team\'s category beside its name in the heading', function () {
+    TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC VHST Kutná Hora', 'slug' => 'fbc-vhst-kutna-hora-zeny', 'category' => Category::Women]))
+        ->for(Season::factory()->current())
+        ->create();
+
+    $page = visit('/t/fbc-vhst-kutna-hora-zeny');
+
+    $page->assertSee('FBC VHST Kutná Hora')
+        ->assertSeeIn('@team-category', 'ženy')
+        ->assertNoJavaScriptErrors();
+});
 
 test('reveals the rest of the season beyond the first four match days', function () {
     $teamSeason = TeamSeason::factory()

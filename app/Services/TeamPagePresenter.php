@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\Category;
 use App\Enums\FixtureStatus;
 use App\Enums\ImportStatus;
 use App\Models\Fixture;
@@ -17,6 +18,7 @@ use Illuminate\Support\Str;
 
 /**
  * @phpstan-import-type MatchupPart from FixtureFormatter
+ * @phpstan-import-type CategoryProps from Category
  *
  * @phpstan-type FixtureProps array{id: int, time: string|null, matchup: list<MatchupPart>, round: string|null, status: string, statusLabel: string|null, score: string|null, venue: string|null}
  * @phpstan-type DateTileProps array{weekday: string, day: string, month: string}
@@ -37,7 +39,7 @@ final readonly class TeamPagePresenter
     /**
      * Describe the team season for its public team page: its heading, its upcoming fixtures grouped by match day, and where and when its data came from.
      *
-     * @return array{name: string, competition: string|null, sourceUrl: string, lastImportedAt: string|null, matchDays: list<MatchDayProps>}
+     * @return array{name: string, category: CategoryProps, competition: string|null, sourceUrl: string, lastImportedAt: string|null, matchDays: list<MatchDayProps>}
      */
     public function present(TeamSeason $teamSeason): array
     {
@@ -56,6 +58,7 @@ final readonly class TeamPagePresenter
 
         return [
             'name' => $teamSeason->displayName(),
+            'category' => $teamSeason->team->category->props(),
             'competition' => $teamSeason->competition_name,
             'sourceUrl' => $this->federationTeamPage->fixtureListAddress($teamSeason->external_id),
             'lastImportedAt' => $this->lastImportedAt($teamSeason),

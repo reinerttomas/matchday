@@ -1,6 +1,7 @@
 import { Head, router } from '@inertiajs/react';
 import { Users } from 'lucide-react';
 import Heading from '@/components/heading';
+import { CategoryBadge } from '@/components/category-badge';
 import {
     Empty,
     EmptyHeader,
@@ -21,10 +22,12 @@ import { Switch } from '@/components/ui/switch';
 import { update as updateImportFailureNotifications } from '@/routes/import-failure-notifications';
 import { update as updateNotificationSubscription } from '@/routes/notification-subscriptions';
 import { edit as editNotifications } from '@/routes/notifications';
+import type { TeamCategory } from '@/types';
 
 type Team = {
     id: number;
     name: string;
+    category: TeamCategory;
     competition: string | null;
     subscribed: boolean;
 };
@@ -126,6 +129,9 @@ export default function Notifications({ notifyImportFailures, teams }: Props) {
                                                 htmlFor={`team-${team.id}`}
                                             >
                                                 {team.name}
+                                                <CategoryBadge
+                                                    category={team.category}
+                                                />
                                             </FieldLabel>
                                             {team.competition && (
                                                 <FieldDescription>

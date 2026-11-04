@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Concerns\CategoryValidationRules;
 use App\Concerns\FederationTeamPageUrlValidationRules;
+use App\Enums\Category;
 use App\Models\Season;
 use App\Services\AdminSelection;
 use App\Services\Ceskyflorbal\FederationTeamPage;
@@ -13,9 +15,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Looks up the team a federation team page belongs to, before the team is added to the selected season.
+ *
+ * The dialog passes the category once the administrator has chosen one, so the team to carry over follows that choice instead of the guess.
  */
 final class LookUpTeamRequest extends FormRequest
 {
+    use CategoryValidationRules;
     use FederationTeamPageUrlValidationRules;
 
     /**
@@ -25,6 +30,7 @@ final class LookUpTeamRequest extends FormRequest
     {
         return [
             'federation_team_page_url' => $this->federationTeamPageUrlRules($federationTeamPage),
+            'category' => ['nullable', ...$this->categoryRules()],
         ];
     }
 
@@ -33,7 +39,10 @@ final class LookUpTeamRequest extends FormRequest
      */
     public function messages(): array
     {
-        return $this->federationTeamPageUrlMessages();
+        return [
+            ...$this->federationTeamPageUrlMessages(),
+            ...$this->categoryMessages(),
+        ];
     }
 
     /**
@@ -42,6 +51,14 @@ final class LookUpTeamRequest extends FormRequest
     public function season(): Season
     {
         return $this->container->make(AdminSelection::class)->season() ?? abort(404);
+    }
+
+    /**
+     * Get the category the administrator chose in the dialog, or null to go by the guess from the competition.
+     */
+    public function category(): ?Category
+    {
+        return $this->enum('category', Category::class);
     }
 
     /**

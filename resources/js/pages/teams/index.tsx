@@ -10,9 +10,10 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { AddTeamDialog } from '@/components/add-team-dialog';
+import { CategoryBadge } from '@/components/category-badge';
+import { CategorySelect } from '@/components/category-select';
 import Heading from '@/components/heading';
 import { ImportStatusBadge } from '@/components/import-status-badge';
-import InputError from '@/components/input-error';
 import { NoTeamSeasons } from '@/components/no-team-seasons';
 import { Button } from '@/components/ui/button';
 import {
@@ -36,8 +37,8 @@ import {
     EmptyMedia,
     EmptyTitle,
 } from '@/components/ui/empty';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import {
@@ -54,10 +55,11 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useClipboard } from '@/hooks/use-clipboard';
-import { index, update } from '@/routes/teams';
-import { update as updateName } from '@/routes/teams/name';
+import { update as updateTeamSeason } from '@/routes/team-seasons';
+import { index, update as updateTeam } from '@/routes/teams';
 import type {
     CarryOverTeam,
+    TeamCategory,
     TeamSeasonLastImport,
     TeamSeasonListItem,
 } from '@/types';
@@ -65,12 +67,14 @@ import type {
 type Props = {
     teamSeasons: TeamSeasonListItem[] | null;
     carryOverTeams: CarryOverTeam[];
+    categories: TeamCategory[];
     calendarUrlTemplate: string;
 };
 
 export default function Teams({
     teamSeasons,
     carryOverTeams,
+    categories,
     calendarUrlTemplate,
 }: Props) {
     const { adminSelection } = usePage().props;
@@ -93,6 +97,7 @@ export default function Teams({
                         <AddTeamDialog
                             seasonName={season.name}
                             carryOverTeams={carryOverTeams}
+                            categories={categories}
                             calendarUrlTemplate={calendarUrlTemplate}
                         />
                     )}
@@ -102,7 +107,10 @@ export default function Teams({
                 ) : teamSeasons.length === 0 ? (
                     <NoTeamsInSeason seasonName={season.name} />
                 ) : (
-                    <TeamSeasonTable teamSeasons={teamSeasons} />
+                    <TeamSeasonTable
+                        teamSeasons={teamSeasons}
+                        categories={categories}
+                    />
                 )}
             </div>
         </>
@@ -135,8 +143,10 @@ function NoTeamsInSeason({ seasonName }: { seasonName: string }) {
 
 function TeamSeasonTable({
     teamSeasons,
+    categories,
 }: {
     teamSeasons: TeamSeasonListItem[];
+    categories: TeamCategory[];
 }) {
     return (
         <div className="rounded-lg border">
@@ -163,8 +173,11 @@ function TeamSeasonTable({
                     {teamSeasons.map((teamSeason) => (
                         <TableRow key={teamSeason.id}>
                             <TableCell className="whitespace-normal">
-                                <div className="font-medium">
+                                <div className="flex flex-wrap items-center gap-2 font-medium">
                                     {teamSeason.name}
+                                    <CategoryBadge
+                                        category={teamSeason.category}
+                                    />
                                 </div>
                                 <div className="mt-1 text-xs text-muted-foreground sm:hidden">
                                     <LastImport
@@ -191,7 +204,10 @@ function TeamSeasonTable({
                                 <AutoImportSwitch teamSeason={teamSeason} />
                             </TableCell>
                             <TableCell className="text-right">
-                                <TeamSeasonActions teamSeason={teamSeason} />
+                                <TeamSeasonActions
+                                    teamSeason={teamSeason}
+                                    categories={categories}
+                                />
                             </TableCell>
                         </TableRow>
                     ))}
@@ -247,7 +263,7 @@ function AutoImportSwitch({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
                     ) ?? null,
             }))
             .patch(
-                update.url(teamSeason.id),
+                updateTeamSeason.url(teamSeason.id),
                 { auto_import_enabled: isEnabled },
                 { preserveScroll: true },
             );
@@ -263,10 +279,16 @@ function AutoImportSwitch({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
     );
 }
 
-function TeamSeasonActions({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
+function TeamSeasonActions({
+    teamSeason,
+    categories,
+}: {
+    teamSeason: TeamSeasonListItem;
+    categories: TeamCategory[];
+}) {
     const [, copy] = useClipboard();
     const [isAddressShown, setIsAddressShown] = useState(false);
-    const [isRenaming, setIsRenaming] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     // Some browsers block the clipboard, so the address is shown selected for the administrator to copy by hand.
     async function copyCalendarUrl(): Promise<void> {
@@ -294,11 +316,11 @@ function TeamSeasonActions({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem
-                        onSelect={() => setIsRenaming(true)}
-                        data-test="rename-team"
+                        onSelect={() => setIsEditing(true)}
+                        data-test="edit-team"
                     >
                         <Pencil />
-                        Přejmenovat tým
+                        Upravit tým
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => void copyCalendarUrl()}>
                         <Copy />
@@ -358,11 +380,12 @@ function TeamSeasonActions({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
                     />
                 </DialogContent>
             </Dialog>
-            <Dialog open={isRenaming} onOpenChange={setIsRenaming}>
+            <Dialog open={isEditing} onOpenChange={setIsEditing}>
                 <DialogContent>
-                    <RenameTeamForm
+                    <EditTeamForm
                         teamSeason={teamSeason}
-                        onSuccess={() => setIsRenaming(false)}
+                        categories={categories}
+                        onSuccess={() => setIsEditing(false)}
                     />
                 </DialogContent>
             </Dialog>
@@ -370,16 +393,20 @@ function TeamSeasonActions({ teamSeason }: { teamSeason: TeamSeasonListItem }) {
     );
 }
 
-function RenameTeamForm({
+function EditTeamForm({
     teamSeason,
+    categories,
     onSuccess,
 }: {
     teamSeason: TeamSeasonListItem;
+    categories: TeamCategory[];
     onSuccess: () => void;
 }) {
+    const id = `team-${teamSeason.teamId}`;
+
     return (
         <Form
-            {...updateName.form(teamSeason.teamId)}
+            {...updateTeam.form(teamSeason.teamId)}
             options={{ preserveScroll: true }}
             onSuccess={onSuccess}
             className="grid gap-4 text-left"
@@ -387,40 +414,59 @@ function RenameTeamForm({
             {({ processing, errors }) => (
                 <>
                     <DialogHeader>
-                        <DialogTitle>
-                            Přejmenovat tým {teamSeason.name}
-                        </DialogTitle>
+                        <DialogTitle>Upravit tým {teamSeason.name}</DialogTitle>
                         <DialogDescription>
-                            Nový název se ukáže ve všech sezonách týmu, v
-                            kalendáři i na veřejné stránce.
+                            Název i kategorie se ukážou ve všech sezonách týmu,
+                            v kalendáři i na veřejné stránce.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-2">
-                        <Label htmlFor={`team-${teamSeason.teamId}-name`}>
-                            Název týmu
-                        </Label>
-                        <Input
-                            id={`team-${teamSeason.teamId}-name`}
-                            name="name"
-                            required
-                            autoFocus
-                            autoComplete="off"
-                            defaultValue={teamSeason.name}
-                            aria-invalid={errors.name !== undefined}
-                            aria-describedby={`team-${teamSeason.teamId}-calendar-url`}
-                        />
-                        <InputError message={errors.name} />
-                        <p
-                            id={`team-${teamSeason.teamId}-calendar-url`}
-                            className="text-sm text-muted-foreground"
+                    <div className="grid gap-4 sm:grid-cols-[1fr_12rem]">
+                        <Field
+                            className="gap-2"
+                            data-invalid={errors.name !== undefined}
                         >
-                            Adresa kalendáře zůstává stejná, takže hráči nemusí
-                            kalendář přidávat znovu:{' '}
-                            <span className="font-mono text-xs break-all text-foreground">
-                                {teamSeason.calendarUrl}
-                            </span>
-                        </p>
+                            <FieldLabel htmlFor={`${id}-name`}>
+                                Název týmu
+                            </FieldLabel>
+                            <Input
+                                id={`${id}-name`}
+                                name="name"
+                                required
+                                autoFocus
+                                autoComplete="off"
+                                defaultValue={teamSeason.name}
+                                aria-invalid={errors.name !== undefined}
+                                aria-describedby={`${id}-calendar-url`}
+                            />
+                            <FieldError>{errors.name}</FieldError>
+                        </Field>
+                        <Field
+                            className="gap-2"
+                            data-invalid={errors.category !== undefined}
+                        >
+                            <FieldLabel htmlFor={`${id}-category`}>
+                                Kategorie
+                            </FieldLabel>
+                            <CategorySelect
+                                id={`${id}-category`}
+                                categories={categories}
+                                defaultValue={teamSeason.category.value}
+                                isInvalid={errors.category !== undefined}
+                                data-test="team-category-select"
+                            />
+                            <FieldError>{errors.category}</FieldError>
+                        </Field>
                     </div>
+                    <p
+                        id={`${id}-calendar-url`}
+                        className="text-sm text-muted-foreground"
+                    >
+                        Adresa kalendáře zůstává stejná, takže hráči nemusí
+                        kalendář přidávat znovu:{' '}
+                        <span className="font-mono text-xs break-all text-foreground">
+                            {teamSeason.calendarUrl}
+                        </span>
+                    </p>
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="outline">
@@ -430,10 +476,10 @@ function RenameTeamForm({
                         <Button
                             type="submit"
                             disabled={processing}
-                            data-test="update-team-name"
+                            data-test="update-team"
                         >
                             {processing && <Spinner />}
-                            Přejmenovat tým
+                            Uložit
                         </Button>
                     </DialogFooter>
                 </>

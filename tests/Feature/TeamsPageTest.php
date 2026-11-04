@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Models\Import;
 use App\Models\Season;
 use App\Models\Team;
@@ -29,10 +30,10 @@ test('lists the selected season\'s team seasons by name with what the administra
     $season = seasonOnTeamsPage();
     $teamSeason = TeamSeason::factory()
         ->for($season)
-        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']))
+        ->for(Team::factory()->state(['name' => 'FBC Kutná Hora B', 'category' => Category::Juniors, 'slug' => 'kutna-hora-b']))
         ->create([
             'name' => 'FBC Kutná Hora B',
-            'competition_name' => '2. liga mužů, skupina 3',
+            'competition_name' => '2. liga juniorů, skupina 3',
             'external_id' => 42001,
         ]);
     TeamSeason::factory()->for(Team::factory()->state(['name' => 'FBC Kutná Hora A']))->for($season)->create();
@@ -48,7 +49,8 @@ test('lists the selected season\'s team seasons by name with what the administra
             'id' => $teamSeason->id,
             'teamId' => $teamSeason->team_id,
             'name' => 'FBC Kutná Hora B',
-            'competition' => '2. liga mužů, skupina 3',
+            'category' => ['value' => 'juniori', 'label' => 'junioři'],
+            'competition' => '2. liga juniorů, skupina 3',
             'slug' => 'kutna-hora-b',
             'autoImportEnabled' => true,
             'lastImport' => null,
@@ -147,12 +149,12 @@ test('finds the last imports without a query per team season', function () {
     expect(count(DB::getQueryLog()))->toBe($queriesForOneTeamSeason);
 });
 
-test('offers the teams not in the selected season yet for carrying over, alphabetically by their own name', function () {
+test('offers the teams not in the selected season yet for carrying over with their category, alphabetically by their own name', function () {
     $season = seasonOnTeamsPage();
     $previousSeason = Season::factory()->create(['name' => '2025/2026']);
     $kutnaHoraB = Team::factory()->create(['name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b']);
     TeamSeason::factory()->for($kutnaHoraB)->for($previousSeason)->create(['name' => 'Florbal Kutná Hora B']);
-    $kutnaHoraA = Team::factory()->create(['name' => 'FBC Kutná Hora A', 'slug' => 'kutna-hora-a']);
+    $kutnaHoraA = Team::factory()->create(['name' => 'FBC Kutná Hora A', 'category' => Category::Women, 'slug' => 'kutna-hora-a']);
     TeamSeason::factory()->for($kutnaHoraA)->for($previousSeason)->notImported()->create();
     $alreadyInSeason = Team::factory()->create(['name' => 'FBC Kutná Hora C']);
     TeamSeason::factory()->for($alreadyInSeason)->for($previousSeason)->create();
@@ -160,8 +162,8 @@ test('offers the teams not in the selected season yet for carrying over, alphabe
 
     $this->get('/teams')->assertInertia(fn (Assert $page) => $page
         ->where('carryOverTeams', [
-            ['id' => $kutnaHoraA->id, 'name' => 'FBC Kutná Hora A', 'slug' => 'kutna-hora-a'],
-            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'slug' => 'kutna-hora-b'],
+            ['id' => $kutnaHoraA->id, 'name' => 'FBC Kutná Hora A', 'category' => ['value' => 'zeny', 'label' => 'ženy'], 'slug' => 'kutna-hora-a'],
+            ['id' => $kutnaHoraB->id, 'name' => 'FBC Kutná Hora B', 'category' => ['value' => 'muzi', 'label' => 'muži'], 'slug' => 'kutna-hora-b'],
         ])
         ->etc());
 });
@@ -171,6 +173,17 @@ test('gives the address a new team\'s calendar gets from its slug', function () 
 
     $this->get('https://matchday.cz/teams')->assertInertia(fn (Assert $page) => $page
         ->where('calendarUrlTemplate', 'https://matchday.cz/calendar/:slug.ics')
+        ->etc());
+});
+
+test('offers every category a team can play in, in the order of the list', function () {
+    seasonOnTeamsPage();
+
+    $this->get('/teams')->assertInertia(fn (Assert $page) => $page
+        ->has('categories', 12)
+        ->where('categories.0', ['value' => 'muzi', 'label' => 'muži'])
+        ->where('categories.1', ['value' => 'zeny', 'label' => 'ženy'])
+        ->where('categories.11', ['value' => 'pripravka', 'label' => 'přípravka'])
         ->etc());
 });
 

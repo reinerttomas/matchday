@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\Category;
 use App\Models\Fixture;
 use App\Models\Season;
 use App\Models\Team;
@@ -239,4 +240,18 @@ test('serves a valid calendar without events to a team outside the current seaso
     $response->assertOk()->assertHeader('Content-Type', 'text/calendar; charset=utf-8');
     expect($response->getContent())->toStartWith("BEGIN:VCALENDAR\r\n")->toEndWith('END:VCALENDAR')
         ->and(calendarEvents($response))->toBeEmpty();
+});
+
+test('names the calendar after the team and its category, while event titles keep the plain name', function () {
+    $teamSeason = TeamSeason::factory()
+        ->for(Team::factory()->state(['name' => 'FBC VHST Kutná Hora', 'category' => Category::Women, 'slug' => 'fbc-vhst-kutna-hora-zeny']))
+        ->for(Season::factory()->current())
+        ->create(['name' => 'FBC VHST Kutná Hora', 'competition_name' => '1. liga žen']);
+    Fixture::factory()->for($teamSeason)->home()->create(['opponent_name' => 'FA Č. Budějovice']);
+
+    $response = $this->get('/calendar/fbc-vhst-kutna-hora-zeny.ics');
+
+    // Lines longer than 75 octets are folded onto continuation lines that start with a space.
+    expect(str_replace("\r\n ", '', (string) $response->getContent()))->toContain("\r\nX-WR-CALNAME:FBC VHST Kutná Hora (ženy)\r\n")
+        ->and(calendarEvents($response)->sole()['SUMMARY'])->toBe('FBC VHST Kutná Hora – FA Č. Budějovice');
 });

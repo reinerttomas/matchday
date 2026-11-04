@@ -83,6 +83,17 @@ final class Ceskyflorbal
     }
 
     /**
+     * The fixture list snapshot as if it belonged to a team of the given name playing the given competition.
+     */
+    public static function fixtureListSnapshotOf(string $teamName, string $competitionName): string
+    {
+        return Str::of(self::fixtureListSnapshot())
+            ->replace('<p class="Match-teamName">FBC Kutná Hora B</p>', '<p class="Match-teamName">'.e($teamName).'</p>')
+            ->replace('<h3>PH a SČ liga mužů</h3>', '<h3>'.e($competitionName).'</h3>')
+            ->toString();
+    }
+
+    /**
      * The fixture list snapshot, or the given fixture list page, with the start time of one fixture changed; 00:00 shows a TBD time.
      */
     public static function fixtureListSnapshotWithTime(int $externalId, string $time, ?string $fixtureListPage = null): string

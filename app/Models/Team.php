@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\Category;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,6 +18,7 @@ use Illuminate\Support\Carbon;
 /**
  * @property-read int $id
  * @property-read string $name
+ * @property-read Category $category
  * @property-read string $slug
  * @property-read Carbon|null $created_at
  * @property-read Carbon|null $updated_at
@@ -25,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @property-read Collection<int, NotificationSubscription> $notificationSubscriptions
  * @property-read Collection<int, User> $subscribedUsers
  */
-#[Fillable(['name', 'slug'])]
+#[Fillable(['name', 'category', 'slug'])]
 final class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
@@ -54,6 +56,16 @@ final class Team extends Model
     }
 
     /**
+     * Get the team's participation in its latest season by season order, whether or not that season is the current one.
+     */
+    public function latestTeamSeason(): ?TeamSeason
+    {
+        return $this->teamSeasons
+            ->sortByDesc(fn (TeamSeason $teamSeason): string => $teamSeason->season->name)
+            ->first();
+    }
+
+    /**
      * @return HasMany<NotificationSubscription, $this>
      */
     public function notificationSubscriptions(): HasMany
@@ -73,10 +85,20 @@ final class Team extends Model
     }
 
     /**
-     * Name the team's calendar after the team.
+     * Name the team's calendar after the team and its category, such as "FBC VHST Kutná Hora (ženy)", so two subscribed calendars of same-named teams can be told apart.
      */
     public function calendarName(): string
     {
-        return $this->name;
+        return "{$this->name} ({$this->category->label()})";
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'category' => Category::class,
+        ];
     }
 }

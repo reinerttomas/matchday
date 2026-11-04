@@ -1,3 +1,5 @@
+import type { TeamCategory } from './admin';
+
 export type FixtureStatus =
     | 'scheduled'
     | 'postponed'
@@ -37,6 +39,7 @@ export type MatchDay = {
 
 export type TeamPageTeamSeason = {
     name: string;
+    category: TeamCategory;
     competition: string | null;
     sourceUrl: string;
     lastImportedAt: string | null;
