@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/reinerttomas/matchday/compare/v0.6.1...v0.7.0) (2026-11-04)
+
+
+### Features
+
+* tell same-named teams apart by their category ([#19](https://github.com/reinerttomas/matchday/issues/19)) ([dc3d51e](https://github.com/reinerttomas/matchday/commit/dc3d51ed26e493d8b5c4cbe2f4465af99c14787e))
+
+
+### Bug Fixes
+
+* keep random season names clear of the ones tests name by hand ([#21](https://github.com/reinerttomas/matchday/issues/21)) ([9dd2db9](https://github.com/reinerttomas/matchday/commit/9dd2db9c22849ed2f798bc1ec125dfb50ca8f2d8))
+
 ## [0.6.1](https://github.com/reinerttomas/matchday/compare/v0.6.0...v0.6.1) (2026-11-03)
 
 
