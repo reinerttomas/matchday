@@ -19,7 +19,8 @@ final class SeasonFactory extends Factory
      */
     public function definition(): array
     {
-        $startYear = fake()->unique()->numberBetween(2000, 2098);
+        // Starts past the years tests name their seasons by hand (2024–2028), so a random name never collides with one.
+        $startYear = fake()->unique()->numberBetween(2030, 2098);
 
         return [
             'name' => sprintf('%d/%d', $startYear, $startYear + 1),
